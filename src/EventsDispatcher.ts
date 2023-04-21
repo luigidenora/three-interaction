@@ -5,7 +5,7 @@ export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
 
     constructor(private _parent: Object3D) { }
-    
+
     //TODO multibind mousedown mouseup
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
         this._listeners[type] ?? (this._listeners[type] = []);
@@ -23,12 +23,10 @@ export class EventsDispatcher {
     }
 
     public dispatchEvent<K extends keyof Events>(type: K, args: Events[K]): void {
-        const listener = this._listeners[type];
-
-        if (listener) {
-            for (const callback of [...listener]) { // Make a copy, in case listeners are removed while iterating.
-                callback.call(this._parent, args);
-            }
+        if (!this._listeners[type]) return;
+        for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
+            if (args._stopImmediatePropagation) break;
+            callback.call(this._parent, args);
         }
     }
 }

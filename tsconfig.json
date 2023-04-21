@@ -20,7 +20,6 @@
 		"types/**/*.d.ts"
 	],
 	"exclude": [
-		".git",
 		"node_modules",
 		"dist"
 	]
