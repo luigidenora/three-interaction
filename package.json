@@ -1,6 +1,6 @@
 {
   "name": "@ag-three/interaction",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "three.js events and dragging",
   "author": "agargaro",
   "license": "MIT",
@@ -8,10 +8,10 @@
   "types": "index.d.ts",
   "repository": "https://github.com/agargaro/three-interaction",
   "scripts": {
-    "patch": "npm version patch",
-    "minor": "npm version minor",
-    "major": "npm version major",
-    "prepublish": "npx webpack"
+    "prepublish": "npx webpack && cd dist",
+    "publish-patch": "npm version patch && cd dist && npm publish",
+    "publish-minor": "npm version minor && cd dist && npm publish",
+    "publish-major": "npm version major && cd dist && npm publish"
   },
   "devDependencies": {
     "@types/three": "^0.150.2",
