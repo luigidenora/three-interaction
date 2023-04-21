@@ -1,7 +1,7 @@
 import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
+import { Events, IntersectionExt } from "./Events";
 import { applyPatch } from "./Patch";
-import { EventExt, Events, IntersectionExt, MouseEventExt } from "./Events";
-import { EventsCreator } from "./EventsCreator";
+import { mouseEventExt } from "./EventsCreator";
 
 applyPatch();
 
@@ -11,8 +11,9 @@ export class EventsManager {
     public enabled = true;
     public intersections: IntersectionExt[];
     public intersection: IntersectionExt;
-    public hoveredObject: Object3D;
-    public activeObject: Object3D;
+    public hoveredObj: Object3D;
+    public hoveredObjMouseDown: Object3D;
+    public activeObj: Object3D;
     private _continousRaycasting = false;
     private _canvasPointerPosition = new Vector2();
     private _raycaster = new Raycaster();
@@ -27,23 +28,13 @@ export class EventsManager {
     private bindEvents(): void {
         const canvas = this._domElement;
 
-        canvas.addEventListener("mousedown", (e) => { });
-        canvas.addEventListener("mouseup", (e) => { });
-        canvas.addEventListener("click", this.click.bind(this));
-        canvas.addEventListener("dblclick", (e) => { });
-        canvas.addEventListener("mouseenter", (e) => { });
-        canvas.addEventListener("mouseover", (e) => { });
+        canvas.addEventListener("mousedown", this.mouseDown.bind(this));
         canvas.addEventListener("mousemove", this.mouseMove.bind(this));
-        canvas.addEventListener("mouseleave", (e) => { });
-        canvas.addEventListener("mouseout", (e) => { });
+        canvas.addEventListener("mouseup", this.mouseUp.bind(this));
 
         canvas.addEventListener("pointercancel", (e) => { });
         canvas.addEventListener("pointerdown", (e) => { });
-        canvas.addEventListener("pointerenter", (e) => { });
-        canvas.addEventListener("pointerleave", (e) => { });
         canvas.addEventListener("pointermove", (e) => { });
-        canvas.addEventListener("pointerout", (e) => { });
-        canvas.addEventListener("pointerover", (e) => { });
         canvas.addEventListener("pointerup", (e) => { });
 
         canvas.addEventListener("touchstart", (e) => { e.preventDefault() });
@@ -70,7 +61,6 @@ export class EventsManager {
             this.intersections = this.raycastObjects(scene, []);
             this.intersections.sort(this.intersectionSortComparer);
             this.intersection = this.intersections[0];
-            this.hoveredObject = this.intersection?.object;
             // this._cursorHandler.update(this.objectDragging, this.mainObjIntercepted);
         }
     }
@@ -83,7 +73,7 @@ export class EventsManager {
             }
 
             let previousCount = target.length;
-            
+
             if (object.objectsToRaycast) {
                 this._raycaster.intersectObjects(object.objectsToRaycast, false, target);
             } else {
@@ -101,7 +91,7 @@ export class EventsManager {
         return target;
     }
 
-    private triggerEvents<K extends keyof Events>(object: Object3D, type: K, event: Events[K]): void {
+    private triggerAncestor<K extends keyof Events>(object: Object3D, type: K, event: Events[K]): void {
         while (object) {
             object.triggerEvent(type, event);
             if (event._stopPropagation) break;
@@ -109,12 +99,33 @@ export class EventsManager {
         }
     }
 
-    private click(event: MouseEvent): void {
-        this.triggerEvents(this.hoveredObject, "click", EventsCreator.mouseEvent(event, this.intersection));
+    private mouseDown(event: MouseEvent): void {
+        this.triggerAncestor(this.hoveredObj, "mouseDown", mouseEventExt(event, "mouseDown", this.intersection, this.hoveredObj));
+        this.hoveredObjMouseDown = this.hoveredObj;
     }
 
     private mouseMove(event: MouseEvent): void {
+        const oldHoveredObj = this.hoveredObj;
         this.updateCanvasPointerPositionMouse(event);
-        this.triggerEvents(this.hoveredObject, "mouseMove", EventsCreator.mouseEvent(event, this.intersection));
+        this.hoveredObj = this.intersection?.object;
+        const areDifferentObjs = oldHoveredObj !== this.hoveredObj;
+
+        oldHoveredObj && areDifferentObjs && this.triggerAncestor(oldHoveredObj, "mouseOut", mouseEventExt(event, "mouseOut", this.intersection, oldHoveredObj));
+        this.hoveredObj && areDifferentObjs && this.triggerAncestor(this.hoveredObj, "mouseOver", mouseEventExt(event, "mouseOver", this.intersection, this.hoveredObj));
+        this.hoveredObj && this.triggerAncestor(this.hoveredObj, "mouseMove", mouseEventExt(event, "mouseMove", this.intersection, this.hoveredObj));
+    }
+
+    private mouseUp(event: MouseEvent): void {
+        if (this.hoveredObj) {
+            this.triggerAncestor(this.hoveredObj, "mouseUp", mouseEventExt(event, "mouseUp", this.intersection, this.hoveredObj));
+
+            if (this.hoveredObj !== this.hoveredObjMouseDown) return;
+            this.triggerAncestor(this.hoveredObj, "click", mouseEventExt(event, "click", this.intersection, this.hoveredObj));
+            //todo mettere evento active se non uguale a oggetto già clickato
+
+            //TODO aggiungere dblclick
+        }
+
+        this.hoveredObjMouseDown = undefined;
     }
 }

@@ -145,18 +145,14 @@ export interface Events extends DOMEvents {
 
 interface DOMEvents {
   pointerOver: PointerEventExt;
-  pointerEnter: PointerEventExt;  //no propagation
   pointerOut: PointerEventExt;
-  pointerLeave: PointerEventExt;  //no propagation
   pointerMove: PointerEventExt;
   pointerDown: PointerEventExt;
   pointerUp: PointerEventExt;
   pointerCancel: PointerEventExt;
 
   mouseOver: MouseEventExt;
-  mouseEnter: MouseEventExt; //no propagation
   mouseOut: MouseEventExt;
-  mouseLeave: MouseEventExt; //no propagation
   mouseMove: MouseEventExt;
   mouseDown: MouseEventExt;
   mouseUp: MouseEventExt;
