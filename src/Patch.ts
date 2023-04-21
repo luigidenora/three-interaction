@@ -12,26 +12,24 @@ export interface InteractionPrototype {
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
 }
 
-export function applyPatch(): void {
-    Object3D.prototype.interceptByRaycaster = true;
+Object3D.prototype.interceptByRaycaster = true;
 
-    Object3D.prototype.bindEvent = function (type, listener) {
-        (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
-        return (this as any)._eventsDispatcher.addEventListener(type.toLowerCase(), listener);
-    };
+Object3D.prototype.bindEvent = function (type, listener) {
+    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
+    return (this as any)._eventsDispatcher.addEventListener(type.toLowerCase(), listener);
+};
 
-    Object3D.prototype.hasBoundEvent = function (type, listener) {
-        (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
-        return (this as any)._eventsDispatcher.hasEventListener(type.toLowerCase(), listener);
-    }
+Object3D.prototype.hasBoundEvent = function (type, listener) {
+    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
+    return (this as any)._eventsDispatcher.hasEventListener(type.toLowerCase(), listener);
+}
 
-    Object3D.prototype.unbindEvent = function (type, listener) {
-        (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
-        (this as any)._eventsDispatcher.removeEventListener(type.toLowerCase(), listener);
-    }
+Object3D.prototype.unbindEvent = function (type, listener) {
+    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
+    (this as any)._eventsDispatcher.removeEventListener(type.toLowerCase(), listener);
+}
 
-    Object3D.prototype.triggerEvent = function (type, args) {
-        (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
-        (this as any)._eventsDispatcher.dispatchEvent(type.toLowerCase(), args);
-    }
+Object3D.prototype.triggerEvent = function (type, args) {
+    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
+    (this as any)._eventsDispatcher.dispatchEvent(type.toLowerCase(), args);
 }

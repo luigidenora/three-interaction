@@ -9,4 +9,3 @@ export interface InteractionPrototype {
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
 }
-export declare function applyPatch(): void;

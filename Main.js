@@ -1,8 +1,8 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, Mesh } from "https://unpkg.com/three@0.151.0/build/three.module.js";
-import { EventsManager } from "./EventsManager";
+import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, Mesh } from "three";
+import { EventsManager } from "./dist/bundle";
 
 class Main {
-    
+
     constructor() {
         this.renderer = new WebGLRenderer({ antialias: true });
         this.scene = new Scene();
@@ -19,7 +19,7 @@ class Main {
         document.body.appendChild(this.renderer.domElement);
         this.eventsManager = new EventsManager(this.renderer);
     }
-    
+
     animate(time) {
         this.eventsManager.update(this.scene, this.camera);
         // computeAutoBinding(this.scene);

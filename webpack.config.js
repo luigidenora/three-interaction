@@ -1,12 +1,19 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/Main.js',
+  mode: 'production',
+  entry: './src/index.ts',
+  experiments: {
+    outputModule: true
+  },
+  externals: [
+    'three'
+  ],
   module: {
     rules: [
       {
         use: 'ts-loader',
-        exclude: /node_modules/,
+        exclude: /node_modules/
       },
     ],
   },
@@ -16,5 +23,8 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-  },
+    library: {
+      type: 'module'
+    }
+  }
 };

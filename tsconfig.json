@@ -3,7 +3,6 @@
 		"module": "ES2015",
 		"target": "ES2015",
 		"strict": true,
-		"esModuleInterop": true,
 		"noImplicitOverride": true,
 		"skipLibCheck": false,
 		"declaration": true,
@@ -21,6 +20,6 @@
 	],
 	"exclude": [
 		"node_modules",
-		"dist"
+		"dist",
 	]
 }

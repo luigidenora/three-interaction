@@ -1,9 +1,6 @@
 import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
 import { Events, IntersectionExt } from "./Events";
-import { applyPatch } from "./Patch";
 import { mouseEventExt } from "./EventsCreator";
-
-applyPatch();
 
 export class EventsManager {
     // public raycastingORGPUType;
@@ -65,7 +62,7 @@ export class EventsManager {
         }
     }
 
-    private raycastObjects(object: Object3D, target: IntersectionExt[]): IntersectionExt[] { //todo cercare di ottimizzare
+    private raycastObjects(object: Object3D, target: IntersectionExt[]): IntersectionExt[] {
         if (object.interceptByRaycaster && object.visible) {
 
             for (const obj of object.children) {
