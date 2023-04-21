@@ -1,4 +1,6 @@
 const path = require('path');
+const CopyPkgJsonPlugin = require("copy-pkg-json-webpack-plugin")
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   mode: 'production',
@@ -26,5 +28,15 @@ module.exports = {
     library: {
       type: 'module'
     }
-  }
+  },
+  plugins: [
+    new CopyPkgJsonPlugin({
+      remove: ['devDependencies', 'scripts']
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "README.md", to: "README.md" },
+      ]
+    })
+  ]
 };

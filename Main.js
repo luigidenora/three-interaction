@@ -1,5 +1,5 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, Mesh } from "three";
-import { EventsManager } from "./dist/bundle";
+import { EventsManager } from "./src";
 
 class Main {
 
