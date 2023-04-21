@@ -4,7 +4,6 @@
 		"target": "ES2015",
 		"strict": true,
 		"noImplicitOverride": true,
-		"skipLibCheck": false,
 		"declaration": true,
 		"strictNullChecks": false,
 		"outDir": "dist",
@@ -15,8 +14,7 @@
 		}
 	},
 	"include": [
-		"src/**/*.ts",
-		"types/**/*.d.ts"
+		"src/**/*.ts"
 	],
 	"exclude": [
 		"node_modules",

@@ -1,6 +1,6 @@
 import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
-import { Events, IntersectionExt } from "./Events";
-import { mouseEventExt } from "./EventsCreator";
+import { Events, IntersectionExt, PointerEventExt } from "./Events";
+import { mouseEventExt, pointerEventExt } from "./EventsCreator";
 
 export class EventsManager {
     // public raycastingORGPUType;
@@ -9,7 +9,9 @@ export class EventsManager {
     public intersections: IntersectionExt[];
     public intersection: IntersectionExt;
     public hoveredObj: Object3D;
-    public hoveredObjMouseDown: Object3D;
+    public lastHoveredObj: Object3D;
+    public lastPointerDown: PointerEventExt;
+    public lastClick: PointerEventExt;
     public activeObj: Object3D;
     private _continousRaycasting = false;
     private _canvasPointerPosition = new Vector2();
@@ -29,10 +31,10 @@ export class EventsManager {
         canvas.addEventListener("mousemove", this.mouseMove.bind(this));
         canvas.addEventListener("mouseup", this.mouseUp.bind(this));
 
-        canvas.addEventListener("pointercancel", (e) => { });
-        canvas.addEventListener("pointerdown", (e) => { });
-        canvas.addEventListener("pointermove", (e) => { });
-        canvas.addEventListener("pointerup", (e) => { });
+        canvas.addEventListener("pointercancel", (e) => { }); //TODO
+        canvas.addEventListener("pointerdown", this.pointerDown.bind(this));
+        canvas.addEventListener("pointermove", this.pointerMove.bind(this));
+        canvas.addEventListener("pointerup", this.pointerUp.bind(this));
 
         canvas.addEventListener("touchstart", (e) => { e.preventDefault() });
         canvas.addEventListener("touchcancel", (e) => { });
@@ -48,7 +50,7 @@ export class EventsManager {
     private updateCanvasPointerPositionMouse(event: MouseEvent): void {
         this._canvasPointerPosition.x = event.offsetX / this._domElement.clientWidth * 2 - 1;
         this._canvasPointerPosition.y = event.offsetY / this._domElement.clientHeight * -2 + 1;
-        this._continousRaycasting = true;
+        this._continousRaycasting = true; //capire meglio sul mouse move
     }
 
     public update(scene: Scene, camera: Camera, force = false): void {
@@ -96,33 +98,61 @@ export class EventsManager {
         }
     }
 
+    private pointerDown(event: PointerEvent): void {
+        this.triggerAncestor(this.hoveredObj, "pointerDown", this.lastPointerDown = pointerEventExt(event, "pointerDown", this.intersection));
+    }
+
+    private pointerMove(event: PointerEvent): void {
+        this.lastHoveredObj = this.hoveredObj;
+        this.updateCanvasPointerPositionMouse(event);
+        this.hoveredObj = this.intersection?.object;
+
+        if (this.lastHoveredObj !== this.hoveredObj) {
+            this.triggerAncestor(this.lastHoveredObj, "pointerOut", pointerEventExt(event, "pointerOut", this.intersection, this.lastHoveredObj));
+            this.triggerAncestor(this.hoveredObj, "pointerOver", pointerEventExt(event, "pointerOver", this.intersection));
+        }
+        this.triggerAncestor(this.hoveredObj, "pointerMove", pointerEventExt(event, "pointerMove", this.intersection));
+    }
+
+    private pointerUp(event: PointerEvent): void {
+        //handling focus
+
+        this.triggerAncestor(this.hoveredObj, "pointerUp", pointerEventExt(event, "pointerUp", this.intersection));
+
+        if (this.hoveredObj !== this.lastPointerDown.target) return;
+        const prevClick = this.lastClick;
+
+        this.triggerAncestor(this.hoveredObj, "click", this.lastClick = pointerEventExt(event, "click", this.intersection));
+
+        if (this.hoveredObj !== prevClick.target && event.timeStamp - prevClick.timeStamp <= 300) {
+            this.triggerAncestor(this.hoveredObj, "dblClick", pointerEventExt(event, "dblClick", this.intersection));
+            this.lastClick = undefined;
+        }    
+    }
+
     private mouseDown(event: MouseEvent): void {
-        this.triggerAncestor(this.hoveredObj, "mouseDown", mouseEventExt(event, "mouseDown", this.intersection, this.hoveredObj));
-        this.hoveredObjMouseDown = this.hoveredObj;
+        this.triggerAncestor(this.hoveredObj, "mouseDown", mouseEventExt(event, "mouseDown", this.intersection));
     }
 
     private mouseMove(event: MouseEvent): void {
-        const oldHoveredObj = this.hoveredObj;
-        this.updateCanvasPointerPositionMouse(event);
-        this.hoveredObj = this.intersection?.object;
-        const areDifferentObjs = oldHoveredObj !== this.hoveredObj;
-
-        oldHoveredObj && areDifferentObjs && this.triggerAncestor(oldHoveredObj, "mouseOut", mouseEventExt(event, "mouseOut", this.intersection, oldHoveredObj));
-        this.hoveredObj && areDifferentObjs && this.triggerAncestor(this.hoveredObj, "mouseOver", mouseEventExt(event, "mouseOver", this.intersection, this.hoveredObj));
-        this.hoveredObj && this.triggerAncestor(this.hoveredObj, "mouseMove", mouseEventExt(event, "mouseMove", this.intersection, this.hoveredObj));
+        if (this.lastHoveredObj !== this.hoveredObj) {
+            this.triggerAncestor(this.lastHoveredObj, "mouseOut", mouseEventExt(event, "mouseOut", this.intersection, this.lastHoveredObj));
+            this.triggerAncestor(this.hoveredObj, "mouseOver", mouseEventExt(event, "mouseOver", this.intersection));
+        }
+        this.triggerAncestor(this.hoveredObj, "mouseMove", mouseEventExt(event, "mouseMove", this.intersection));
     }
 
     private mouseUp(event: MouseEvent): void {
-        if (this.hoveredObj) {
-            this.triggerAncestor(this.hoveredObj, "mouseUp", mouseEventExt(event, "mouseUp", this.intersection, this.hoveredObj));
+        this.triggerAncestor(this.hoveredObj, "mouseUp", mouseEventExt(event, "mouseUp", this.intersection));
 
-            if (this.hoveredObj !== this.hoveredObjMouseDown) return;
-            this.triggerAncestor(this.hoveredObj, "click", mouseEventExt(event, "click", this.intersection, this.hoveredObj));
-            //todo mettere evento active se non uguale a oggetto già clickato
+        if (this.hoveredObj !== this.lastPointerDown.target) return;
+        const prevClick = this.lastClick;
 
-            //TODO aggiungere dblclick
-        }
+        this.triggerAncestor(this.hoveredObj, "click", this.lastClick = mouseEventExt(event, "click", this.intersection));
 
-        this.hoveredObjMouseDown = undefined;
+        if (this.hoveredObj !== prevClick.target && event.timeStamp - prevClick.timeStamp <= 300) { //todo triggerDblClick
+            this.triggerAncestor(this.hoveredObj, "dblClick", mouseEventExt(event, "dblClick", this.intersection));
+            this.lastClick = undefined;
+        }    
     }
 }

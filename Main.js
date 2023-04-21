@@ -10,9 +10,9 @@ class Main {
         this.scene.children[0].bindEvent("click", (e) => console.log(e.type));
         this.scene.children[0].bindEvent("mouseDown", (e) => console.log(e.type));
         this.scene.children[0].bindEvent("mouseUp", (e) => console.log(e.type));
-        this.scene.children[0].bindEvent("MouseOver", (e) => console.log(e.type));
-        this.scene.children[0].bindEvent("MouseOut", (e) => console.log(e.type));
-        this.scene.children[0].bindEvent("mousemove", (e) => console.log(e.type));
+        this.scene.children[0].bindEvent("mouseOver", (e) => console.log(e.type));
+        this.scene.children[0].bindEvent("mouseOut", (e) => console.log(e.type));
+        this.scene.children[0].bindEvent("mouseMove", (e) => console.log(e.type));
         this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000).translateZ(10);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setAnimationLoop(this.animate.bind(this));
