@@ -8,10 +8,9 @@
   "types": "index.d.ts",
   "repository": "https://github.com/agargaro/three-interaction",
   "scripts": {
-    "prepublish": "npx webpack && cd dist",
-    "publish-patch": "npm version patch && npm publish",
-    "publish-minor": "npm version minor && npm publish",
-    "publish-major": "npm version major && npm publish"
+    "publish-patch": "npm version patch && npx webpack && cd dist && npm publish",
+    "publish-minor": "npm version minor && npx webpack && cd dist && npm publish",
+    "publish-major": "npm version major && npx webpack && cd dist && npm publish"
   },
   "devDependencies": {
     "@types/three": "^0.150.2",
