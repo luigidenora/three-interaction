@@ -1,7 +1,29 @@
 import { Object3D } from "three";
 import { EventExt, Events, IntersectionExt, MouseEventExt, PointerEventExt } from "./Events";
 
-export function eventExt(event: Event, type: keyof Events, target: Object3D): EventExt {
+export function createEventExt<K extends keyof Events>(type: K, event: Event, target: Object3D, intersection: IntersectionExt): Events[K] {
+    switch (type) {
+        case "click":
+        case "dblclick":
+        case "pointercancel":
+        case "pointerdown":
+        case "pointermove":
+        case "pointerout":
+        case "pointerover":
+        case "pointerup":
+            return pointerEventExt(type, event as PointerEvent, intersection, target) as Events[K];
+        case "mousedown":
+        case "mousemove":
+        case "mouseout":
+        case "mouseover":
+        case "mouseup":
+            return mouseEventExt(type, event as MouseEvent, intersection, target) as Events[K];
+        default:
+            console.error(`Cannot create eventExt object with '${type}' type. Please implements it in createEventExt function.`);
+    }
+}
+
+function eventExt(type: keyof Events, event: Event, target: Object3D): EventExt {
     return {
         timeStamp: event.timeStamp,
         type: type,
@@ -15,8 +37,8 @@ export function eventExt(event: Event, type: keyof Events, target: Object3D): Ev
     };
 }
 
-export function mouseEventExt(event: MouseEvent, type: keyof Events, intersection: IntersectionExt, target?: Object3D): MouseEventExt {
-    const mouseEventExt = eventExt(event, type, target ?? intersection.object) as MouseEventExt;
+function mouseEventExt(type: keyof Events, event: MouseEvent, intersection: IntersectionExt, target?: Object3D): MouseEventExt {
+    const mouseEventExt = eventExt(type, event, target) as MouseEventExt;
     mouseEventExt.altKey = event.altKey;
     mouseEventExt.button = event.button;
     mouseEventExt.buttons = event.buttons;
@@ -29,8 +51,8 @@ export function mouseEventExt(event: MouseEvent, type: keyof Events, intersectio
     return mouseEventExt;
 }
 
-export function pointerEventExt(event: PointerEvent, type: keyof Events, intersection: IntersectionExt, target?: Object3D): PointerEventExt {
-    const pointerEventExt = mouseEventExt(event, type, intersection, target) as PointerEventExt;
+function pointerEventExt(type: keyof Events, event: PointerEvent, intersection: IntersectionExt, target?: Object3D): PointerEventExt {
+    const pointerEventExt = mouseEventExt(type, event, intersection, target) as PointerEventExt;
     pointerEventExt.isPrimary = event.isPrimary;
     pointerEventExt.pointerId = event.pointerId;
     pointerEventExt.pointerType = event.pointerType;

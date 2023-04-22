@@ -6,7 +6,7 @@ export interface EventExt {
   /** The time at which the event was created (in milliseconds). By specification, this value is time since epoch—but in reality, browsers' definitions vary. In addition, work is underway to change this to be a DOMHighResTimeStamp instead. */
   timeStamp: DOMHighResTimeStamp;
   /** The case-insensitive name identifying the type of the event. */
-  type: string;
+  type: keyof DOMEvents;
   /** For this particular event, prevent all other listeners from being called. This includes listeners attached to the same element as well as those attached to elements that will be traversed later (during the capture phase, for instance). */
   stopImmediatePropagation(): void;
   /** Stops the propagation of events further along in the Object3D hierarchy. */
@@ -143,44 +143,41 @@ export interface Events extends DOMEvents {
   // onAppIteration: (delta: number) => void;
 }
 
-interface DOMEvents {
-  pointerOver: PointerEventExt;
-  pointerOut: PointerEventExt;
-  pointerMove: PointerEventExt;
-  pointerDown: PointerEventExt;
-  pointerUp: PointerEventExt;
-  pointerCancel: PointerEventExt;
+export interface DOMEvents {
+  pointerover: PointerEventExt;
+  pointerout: PointerEventExt;
+  pointermove: PointerEventExt;
+  pointerdown: PointerEventExt;
+  pointerup: PointerEventExt;
+  pointercancel: PointerEventExt;
 
-  mouseOver: MouseEventExt;
-  mouseOut: MouseEventExt;
-  mouseMove: MouseEventExt;
-  mouseDown: MouseEventExt;
-  mouseUp: MouseEventExt;
+  mouseover: MouseEventExt;
+  mouseout: MouseEventExt;
+  mousemove: MouseEventExt;
+  mousedown: MouseEventExt;
+  mouseup: MouseEventExt;
 
-  touchStart: TouchEventExt;
-  touchMove: TouchEventExt;
-  touchEnd: TouchEventExt;
-  touchCancel: TouchEventExt;
+  touchstart: TouchEventExt;
+  touchmove: TouchEventExt;
+  touchend: TouchEventExt;
+  touchcancel: TouchEventExt;
 
   click: PointerEventExt;
-  dblClick: PointerEventExt;
+  dblclick: PointerEventExt;
   wheel: WheelEventExt;
 
-  keyDown: KeyboardEventExt;
-  keyUp: KeyboardEventExt;
+  keydown: KeyboardEventExt;
+  keyup: KeyboardEventExt;
 
-  dragValidation: DragEventExt;
+  dragvalidation: DragEventExt;
   drag: DragEventExt;
-  afterDrag: DragEventExt;
-  dragStart: DragEventExt;
-  dragEnter: DragEventExt;
-  dragOver: DragEventExt;
-  dragLeave: DragEventExt;
-  dragEnd: DragEventExt;
+  afterdrag: DragEventExt;
+  dragstart: DragEventExt;
+  dragenter: DragEventExt;
+  dragover: DragEventExt;
+  dragleave: DragEventExt;
+  dragend: DragEventExt;
   drop: DragEventExt;
-
-  // onBeforeDragMove: (args: BeforeDragMoveEventArgs) => void;
-  // onAfterDragMove: (args: AfterDragMoveEventArgs) => void;
 }
 
 export interface IntersectionExt extends Intersection {
