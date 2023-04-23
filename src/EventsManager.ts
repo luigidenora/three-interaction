@@ -1,13 +1,15 @@
 import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
-import { DOMEvents, Events, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
+import { CanvasResizeEvent, DOMEvents, Events, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
 import { EventsQueue } from "./EventsQueue";
 import { Utils } from "./Utils";
+import { EventsCache } from "./EventsCache";
 
 export class EventsManager {
     public enabled = true;
     // public raycastingORGPUType;
     public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => { return a.distance - b.distance };
     public continousPointerRaycasting = false; //for intersection event
+    public activeScene: Scene;
     public intersections: IntersectionExt[];
     public intersection: IntersectionExt;
     public activeObj: Object3D;
@@ -33,10 +35,12 @@ export class EventsManager {
     private _clickEvents: (keyof DOMEvents)[] = ["click"];
     private _dblClickEvents: (keyof DOMEvents)[] = ["dblclick"];
 
-    constructor(renderer: Renderer) {
+    constructor(renderer: Renderer, activeScene: Scene) {
+        this.activeScene = activeScene;
         this._domElement = renderer.domElement;
         this._domElement.addEventListener("contextmenu", (e) => e.preventDefault());
-        this._domElement.addEventListener("mousemove", () => this._mouseDetected = true);
+        this._domElement.addEventListener("mousemove", () => this._mouseDetected = true); //TODO togliere l'evento dopo il primo trigger e aggiungere touch to fix surface
+        window.addEventListener("resize", () => EventsCache.trigger(this.activeScene, "canvasResize", new CanvasResizeEvent(this._domElement.offsetWidth, this._domElement.offsetHeight)));
         this.bindEvents();
     }
 
@@ -102,7 +106,7 @@ export class EventsManager {
         return target;
     }
 
-    private updateCanvasPointerPositionMouse(event: MouseEvent): void {
+    private updateCanvasPointerPosition(event: MouseEvent): void {
         this._canvasPointerPosition.x = event.offsetX / this._domElement.clientWidth * 2 - 1;
         this._canvasPointerPosition.y = event.offsetY / this._domElement.clientHeight * -2 + 1;
     }
@@ -159,36 +163,33 @@ export class EventsManager {
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
         this._lastPointerMove = event;
+        this.pointerOutOver(scene, camera, event, true);
+        this.triggerAncestorPointer(this._pointerMoveEvents, event);
+    }
+
+    private pointerIntersection(scene: Scene, camera: Camera): void {
+        if (!this.continousPointerRaycasting) return;
+        if (this._mouseDetected && !this._raycasted) {
+            this.pointerOutOver(scene, camera, this._lastPointerMove, false);
+        }
+        if (this.hoveredObj && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point)) {
+            this.triggerAncestor(this.hoveredObj, "pointerIntersection", this.createPointerIntersectionEvent());
+        }
+    }
+
+    private pointerOutOver(scene: Scene, camera: Camera, event: PointerEvent, updateCanvasPointerPosition: boolean): void {
         this._lastHoveredObj = this.hoveredObj;
-        this.updateCanvasPointerPositionMouse(event);
+        updateCanvasPointerPosition && this.updateCanvasPointerPosition(event);
         this.raycast(scene, camera);
+        this.hoveredObj && (this.hoveredObj.hovered = false);
         this.hoveredObj = this.intersection?.object;
+        this.hoveredObj && (this.hoveredObj.hovered = true);
 
         if (this._lastHoveredObj !== this.hoveredObj) {
             this.triggerAncestorPointer(this._pointerOutEvents, event, this._lastHoveredObj, this.hoveredObj);
             this.triggerAncestorPointer(this._pointerLeaveEvents, event, this._lastHoveredObj, this.hoveredObj);
             this.triggerAncestorPointer(this._pointerOverEvents, event, this.hoveredObj, this._lastHoveredObj);
             this.triggerAncestorPointer(this._pointerEnterEvents, event, this.hoveredObj, this._lastHoveredObj);
-        }
-        this.triggerAncestorPointer(this._pointerMoveEvents, event);
-    }
-
-    private pointerIntersection(scene: Scene, camera: Camera): void {
-        if (!this.continousPointerRaycasting) return;
-
-        if (this._mouseDetected && !this._raycasted) {
-            this._lastHoveredObj = this.hoveredObj;
-            this.raycast(scene, camera);
-            this.hoveredObj = this.intersection?.object;
-
-            if (this._lastHoveredObj !== this.hoveredObj) {
-                this.triggerAncestorPointer(this._pointerOutEvents, this._lastPointerMove, this._lastHoveredObj, this.hoveredObj);
-                this.triggerAncestorPointer(this._pointerOverEvents, this._lastPointerMove, this.hoveredObj, this._lastHoveredObj);
-            }
-        }
-
-        if (this.hoveredObj && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point)) {
-            this.triggerAncestor(this.hoveredObj, "pointerIntersection", this.createPointerIntersectionEvent());
         }
     }
 
@@ -209,13 +210,15 @@ export class EventsManager {
 
     private focus(): void {
         if (this.activeObj !== this.hoveredObj) {
-            const isActivable = this.hoveredObj?.isActivable ?? false;
+            const isActivable = this.hoveredObj?.activable ?? false;
             isActivable && this.triggerAncestor(this.hoveredObj, "focusIn", this.createFocusEvent("focusIn", this.hoveredObj, this.activeObj));
             this.activeObj && this.triggerAncestor(this.activeObj, "focusOut", this.createFocusEvent("focusOut", this.activeObj, this.hoveredObj));
             isActivable && this.triggerAncestor(this.hoveredObj, "focus", this.createFocusEvent("focus", this.hoveredObj, this.activeObj));
             this.activeObj && this.triggerAncestor(this.activeObj, "blur", this.createFocusEvent("blur", this.activeObj, this.hoveredObj));
             if (isActivable || !this.hoveredObj) {
+                this.activeObj && (this.activeObj.active = false);
                 this.activeObj = this.hoveredObj;
+                this.activeObj && (this.activeObj.active = true);
             }
         }
     }

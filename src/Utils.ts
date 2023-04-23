@@ -1,12 +1,22 @@
-import { Vector3 } from "three";
+import { Scene } from "three";
+import { Object3D, Vector3 } from "three";
 
 export class Utils {
-    public static eps = 10 ** -6;
+    public static eps = 10 ** -7;
 
-    public static areVector3Equals(v1: Vector3, v2: Vector3): boolean {
-        if (v1 && v2 && Math.abs(v1.x - v2.x) <= this.eps && Math.abs(v1.y - v2.y) <= this.eps && Math.abs(v1.z - v2.z) <= this.eps) {
+    public static areVector3Equals(v1: Vector3, v2: Vector3, eps = this.eps): boolean {
+        if (v1 && v2 && Math.abs(v1.x - v2.x) <= eps && Math.abs(v1.y - v2.y) <= eps && Math.abs(v1.z - v2.z) <= eps) {
             return true;
         }
         return false;
+    }
+
+    public static getSceneFromObj(obj: Object3D): Scene {
+        while (obj) {
+            if ((obj as Scene).isScene) {
+                return obj as Scene;
+            }
+            obj = obj.parent;
+        }
     }
 }

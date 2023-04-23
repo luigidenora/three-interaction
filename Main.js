@@ -13,8 +13,8 @@ class Main {
         this.scene.add(new Mesh(new BoxGeometry(2, 2, 2)).translateX(4));
         this.scene.add(new Mesh(new BoxGeometry(2, 2, 2)).translateX(-4));
 
-        this.scene.children[0].isActivable = true;
-        this.scene.children[1].isActivable = true;
+        this.scene.children[0].activable = true;
+        this.scene.children[1].activable = true;
 
         // this.scene.children[0].bindEvent("focus", function (e) { this.material = hoverMaterial });
         // this.scene.children[0].bindEvent("blur", function (e) { this.material = material });

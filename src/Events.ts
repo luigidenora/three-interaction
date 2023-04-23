@@ -227,6 +227,20 @@ export interface KeyboardEventExt extends EventExt {
   getModifierState(keyArg: string): boolean;
 }
 
+export class CanvasResizeEvent extends EventExt {
+  /** Returns the new window width. TODO */
+  public readonly width: number;
+  /** Returns the new window height. TODO */
+  public readonly height: number;
+
+  constructor(width: number, height: number) {
+    super("canvasResize", undefined);
+    this._bubbles = false;
+    this.width = width;
+    this.height = height;
+  }
+}
+
 export class FocusEventExt extends EventExt {
   /** The secondary target for the event. */
   public readonly relatedTarget: Object3D
@@ -240,12 +254,12 @@ export class FocusEventExt extends EventExt {
 
 export interface Events extends DOMEvents {
   pointerIntersection: PointerIntersectionEvent;
-  // onWindowResize: () => void;
+  canvasResize: CanvasResizeEvent;
   // onPositionComponentChange: (args: ComponentChangeArgs) => void;
   // onScaleComponentChange: (args: ComponentChangeArgs) => void;
   // onRotationComponentChange: (args: ComponentChangeArgs) => void;
   // onFrameGeneration: (delta: number) => void;
-  // onChildAdded: (objects: Object3D[]) => void;
+  // onChildAdded: (objects: Object3D) => void;
   // onEnabledChange: (value: boolean) => void; / This event propagation Up to down.
   // onVisibleChange: (value: boolean) => void; / This event propagation Up to down.
   // onAppIteration: (delta: number) => void;

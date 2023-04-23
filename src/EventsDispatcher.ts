@@ -1,5 +1,6 @@
 import { Object3D } from "three";
 import { Events } from "./Events";
+import { EventsCache } from "./EventsCache";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
@@ -8,7 +9,10 @@ export class EventsDispatcher {
 
     //TODO multibind mousedown mouseup
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
-        this._listeners[type] ?? (this._listeners[type] = []);
+        if (!this._listeners[type]) {
+            this._listeners[type] = [];
+            EventsCache.push(type, this._parent);
+        }
         this._listeners[type].indexOf(listener) === -1 && this._listeners[type].push(listener);
         return listener;
     }
