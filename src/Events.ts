@@ -9,8 +9,6 @@ export class EventExt {
   public currentTarget: Object3D;
   /** Indicates whether or not the call to event.preventDefault() canceled the event. */
   public get defaultPrevented() { return this._defaultPrevented }
-  /** Indicates which phase of the event flow is being processed. It is one of the following numbers: NONE, CAPTURING_PHASE, AT_TARGET, BUBBLING_PHASE. */
-  public eventPhase: number;
   /** A reference to the object to which the event was originally dispatched. */
   public target: Object3D;
   /** The time at which the event was created (in milliseconds). By specification, this value is time since epoch—but in reality, browsers' definitions vary. In addition, work is underway to change this to be a DOMHighResTimeStamp instead. */
@@ -23,9 +21,7 @@ export class EventExt {
   protected _bubbles = true;
 
   constructor(type: keyof Events, target: Object3D) {
-    if (!target) console.error("target"); //TODO remove
     this.target = target;
-    this.eventPhase = 0;
     this.type = type;
   }
 

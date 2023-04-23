@@ -114,7 +114,6 @@ export class EventsManager {
     private triggerAncestor<K extends keyof Events>(target: Object3D, type: K, event: Events[K]): void {
         while (target) {
             event.currentTarget = target;
-            // event.eventPhase = ; //TODO
             target.triggerEvent(type, event);
             if (!event.bubbles) break;
             target = target.parent;
