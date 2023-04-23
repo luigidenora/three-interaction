@@ -2,10 +2,17 @@ import { Scene as SceneBase } from "three/index";
 import { Object3D } from "three";
 import { InteractionPrototype } from "../src/Patch";
 import { Events } from "../src/Events";
+import { BindingPrototype, DetectChangesMode } from "../node_modules/three-binding/dist/Binding";
 
-export class Scene extends SceneBase implements InteractionPrototype {
+export class Scene extends SceneBase implements InteractionPrototype, BindingPrototype {
+    detectChangesMode: DetectChangesMode;
+    detectChanges(): void;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
+    unbindByKey(key: string): this;
     override parent: Object3D;
     override children: Object3D[];
+    isActivable: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     bindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void;

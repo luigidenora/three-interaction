@@ -3,6 +3,8 @@ import { Events } from "./Events";
 import { EventsDispatcher } from "./EventsDispatcher";
 
 export interface InteractionPrototype {
+    /** TODO. Default: false. */
+    isActivable: boolean;
     /** TODO. Default: true. */
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
@@ -12,6 +14,7 @@ export interface InteractionPrototype {
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
 }
 
+Object3D.prototype.isActivable = false;
 Object3D.prototype.interceptByRaycaster = true;
 
 Object3D.prototype.bindEvent = function (type, listener) {

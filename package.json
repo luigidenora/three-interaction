@@ -23,6 +23,7 @@
     "webpack-cli": "^5.0.1"
   },
   "peerDependencies": {
-    "three": "*"
+    "three": "*",
+    "three-binding": "^1.0.2"
   }
 }

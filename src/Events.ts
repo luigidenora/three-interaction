@@ -229,6 +229,17 @@ export interface KeyboardEventExt extends EventExt {
   getModifierState(keyArg: string): boolean;
 }
 
+export class FocusEventExt extends EventExt {
+  /** The secondary target for the event. */
+  public readonly relatedTarget: Object3D
+
+  constructor(event: PointerEvent, type: keyof Events, target: Object3D, relatedTarget: Object3D) {
+    const bubbles = type === "focus" || type === "blur";
+    super(event, type, target, false, bubbles);
+    this.relatedTarget = relatedTarget;
+  }
+}
+
 export interface Events extends DOMEvents {
   pointerIntersection: PointerIntersectionEvent;
   // onWindowResize: () => void;
@@ -264,6 +275,11 @@ export interface DOMEvents {
   click: PointerEventExt;
   dblclick: PointerEventExt;
   wheel: WheelEventExt;
+
+  focusIn: FocusEventExt
+  focusOut: FocusEventExt
+  focus: FocusEventExt
+  blur: FocusEventExt
 
   keydown: KeyboardEventExt;
   keyup: KeyboardEventExt;
