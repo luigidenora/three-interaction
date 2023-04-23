@@ -25,9 +25,11 @@ export class EventsManager {
     private _mouseDetected = false;
     private _pointerDownEvents: (keyof DOMEvents)[] = ["pointerdown", "mousedown", "touchstart"];
     private _pointerUpEvents: (keyof DOMEvents)[] = ["pointerup", "mouseup", "touchend"];
-    private _pointerOverEvents: (keyof DOMEvents)[] = ["pointerover", "mouseover"]
-    private _pointerMoveEvents: (keyof DOMEvents)[] = ["pointermove", "mousemove", "touchmove"]
-    private _pointerOutEvents: (keyof DOMEvents)[] = ["pointerout", "mouseout"]
+    private _pointerOverEvents: (keyof DOMEvents)[] = ["pointerover", "mouseover"];
+    private _pointerEnterEvents: (keyof DOMEvents)[] = ["pointerenter", "mouseenter"];
+    private _pointerMoveEvents: (keyof DOMEvents)[] = ["pointermove", "mousemove", "touchmove"];
+    private _pointerOutEvents: (keyof DOMEvents)[] = ["pointerout", "mouseout"];
+    private _pointerLeaveEvents: (keyof DOMEvents)[] = ["pointerleave", "mouseleave"];
     private _clickEvents: (keyof DOMEvents)[] = ["click"];
     private _dblClickEvents: (keyof DOMEvents)[] = ["dblclick"];
 
@@ -126,9 +128,7 @@ export class EventsManager {
     }
 
     private createPointerEvent(event: PointerEvent, type: keyof DOMEvents, target: Object3D, relatedTarget: Object3D): PointerEventExt {
-        const cancelable = type === "click";
-        // const bubbles = type === "pointerenter" || type === "pointerleave";
-        return new PointerEventExt(event, type, target, this.intersection, this._lastIntersection, relatedTarget, cancelable);
+        return new PointerEventExt(event, type, target, this.intersection, this._lastIntersection, relatedTarget);
     }
 
     private createMouseEvent(event: PointerEvent, type: keyof DOMEvents, target: Object3D, relatedTarget: Object3D): MouseEventExt {
@@ -139,8 +139,8 @@ export class EventsManager {
         return new PointerIntersectionEvent(this.hoveredObj, this.intersection, this._lastIntersection);
     }
 
-    private createFocusEvent(event: PointerEvent, type: keyof DOMEvents, target: Object3D, relatedTarget: Object3D): FocusEventExt {
-        return new FocusEventExt(event, type, target, relatedTarget);
+    private createFocusEvent(type: keyof DOMEvents, target: Object3D, relatedTarget: Object3D): FocusEventExt {
+        return new FocusEventExt(type, target, relatedTarget);
     }
 
     private computeEvent(event: Event, scene: Scene, camera: Camera): void {
@@ -154,7 +154,7 @@ export class EventsManager {
 
     private pointerDown(event: PointerEvent): void {
         this._lastPointerDown = this.triggerAncestorPointer(this._pointerDownEvents, event);
-        this.focus(event);
+        this.focus();
     }
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
@@ -166,37 +166,11 @@ export class EventsManager {
 
         if (this._lastHoveredObj !== this.hoveredObj) {
             this.triggerAncestorPointer(this._pointerOutEvents, event, this._lastHoveredObj, this.hoveredObj);
+            this.triggerAncestorPointer(this._pointerLeaveEvents, event, this._lastHoveredObj, this.hoveredObj);
             this.triggerAncestorPointer(this._pointerOverEvents, event, this.hoveredObj, this._lastHoveredObj);
+            this.triggerAncestorPointer(this._pointerEnterEvents, event, this.hoveredObj, this._lastHoveredObj);
         }
         this.triggerAncestorPointer(this._pointerMoveEvents, event);
-    }
-
-    private pointerUp(event: PointerEvent): void {
-        this.triggerAncestorPointer(this._pointerUpEvents, event);
-        if (this.hoveredObj === (this._lastPointerDown?.target ?? null)) {
-            const prevClick = this._lastClick;
-            this._lastClick = this.triggerAncestorPointer(this._clickEvents, event);
-
-            if (this.hoveredObj === prevClick?.target && event.timeStamp - prevClick.timeStamp <= 300) {
-                this.triggerAncestorPointer(this._dblClickEvents, event);
-                this._lastClick = undefined;
-            }
-        } else {
-            this._lastClick = undefined;
-        }
-    }
-
-    private focus(event: PointerEvent): void {
-        if (this.activeObj !== this.hoveredObj) {
-            const isActivable = this.hoveredObj?.isActivable ?? false;
-            isActivable && this.triggerAncestor(this.hoveredObj, "focusIn", this.createFocusEvent(event, "focusIn", this.hoveredObj, this.activeObj));
-            this.activeObj && this.triggerAncestor(this.activeObj, "focusOut", this.createFocusEvent(event, "focusOut", this.activeObj, this.hoveredObj));
-            isActivable && this.triggerAncestor(this.hoveredObj, "focus", this.createFocusEvent(event, "focus", this.hoveredObj, this.activeObj));
-            this.activeObj && this.triggerAncestor(this.activeObj, "blur", this.createFocusEvent(event, "blur", this.activeObj, this.hoveredObj));
-            if (isActivable || !this.hoveredObj) {
-                this.activeObj = this.hoveredObj;
-            }
-        }
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
@@ -215,6 +189,34 @@ export class EventsManager {
 
         if (this.hoveredObj && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point)) {
             this.triggerAncestor(this.hoveredObj, "pointerIntersection", this.createPointerIntersectionEvent());
+        }
+    }
+
+    private pointerUp(event: PointerEvent): void {
+        this.triggerAncestorPointer(this._pointerUpEvents, event);
+        if (this.hoveredObj === (this._lastPointerDown?.target ?? null)) {
+            const prevClick = this._lastClick;
+            this._lastClick = this.triggerAncestorPointer(this._clickEvents, event);
+
+            if (this.hoveredObj === prevClick?.target && event.timeStamp - prevClick.timeStamp <= 300) {
+                this.triggerAncestorPointer(this._dblClickEvents, event);
+                this._lastClick = undefined;
+            }
+        } else {
+            this._lastClick = undefined;
+        }
+    }
+
+    private focus(): void {
+        if (this.activeObj !== this.hoveredObj) {
+            const isActivable = this.hoveredObj?.isActivable ?? false;
+            isActivable && this.triggerAncestor(this.hoveredObj, "focusIn", this.createFocusEvent("focusIn", this.hoveredObj, this.activeObj));
+            this.activeObj && this.triggerAncestor(this.activeObj, "focusOut", this.createFocusEvent("focusOut", this.activeObj, this.hoveredObj));
+            isActivable && this.triggerAncestor(this.hoveredObj, "focus", this.createFocusEvent("focus", this.hoveredObj, this.activeObj));
+            this.activeObj && this.triggerAncestor(this.activeObj, "blur", this.createFocusEvent("blur", this.activeObj, this.hoveredObj));
+            if (isActivable || !this.hoveredObj) {
+                this.activeObj = this.hoveredObj;
+            }
         }
     }
 }
