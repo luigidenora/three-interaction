@@ -7,6 +7,7 @@ export class EventsQueue {
             const type = this._items[i].type;
             if (type === "pointermove") {
                this._items[i] = event;
+               // console.log("skipped");
                return;
             }
             if (type === "pointercancel" || type === "pointerdown" || type === "pointerout" || type === "pointerover" || type === "pointerup") break;

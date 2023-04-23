@@ -25,7 +25,7 @@ export class EventsDispatcher {
     public dispatchEvent<K extends keyof Events>(type: K, args: Events[K]): void {
         if (!this._listeners[type]) return;
         for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
-            if (args._stopImmediatePropagation) break;
+            if ((args as any)._stoppedImmediatePropagation) break;
             callback.call(this._parent, args);
         }
     }
