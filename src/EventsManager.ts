@@ -63,7 +63,7 @@ export class EventsManager {
         if (!this.enabled) return;
         this._raycasted = false;
         for (const event of this._queue.dequeue()) {
-            this.computeEvent(event, scene, camera);
+            this.computeQueuedEvent(event, scene, camera); //TODO aggiungere resize in queue
         }
         this.pointerIntersection(scene, camera);
         // this._cursorHandler.update(this.objectDragging, this.mainObjIntercepted);
@@ -113,6 +113,8 @@ export class EventsManager {
 
     private triggerAncestor<K extends keyof Events>(target: Object3D, type: K, event: Events[K]): void {
         while (target) {
+            event.currentTarget = target;
+            // event.eventPhase = ; //TODO
             target.triggerEvent(type, event);
             if (!event.bubbles) break;
             target = target.parent;
@@ -147,7 +149,7 @@ export class EventsManager {
         return new FocusEventExt(type, target, relatedTarget);
     }
 
-    private computeEvent(event: Event, scene: Scene, camera: Camera): void {
+    private computeQueuedEvent(event: Event, scene: Scene, camera: Camera): void {
         switch (event.type) {
             case "pointermove": return this.pointerMove(event as PointerEvent, scene, camera);
             case "pointerdown": return this.pointerDown(event as PointerEvent);
@@ -194,7 +196,7 @@ export class EventsManager {
     }
 
     private pointerUp(event: PointerEvent): void {
-        this.triggerAncestorPointer(this._pointerUpEvents, event);
+        this.triggerAncestorPointer(this._pointerUpEvents, event, this.hoveredObj, this._lastPointerDown?.target);
         if (this.hoveredObj === (this._lastPointerDown?.target ?? null)) {
             const prevClick = this._lastClick;
             this._lastClick = this.triggerAncestorPointer(this._clickEvents, event);
@@ -208,7 +210,7 @@ export class EventsManager {
         }
     }
 
-    private focus(): void {
+    private focus(): void { //TODO creare possibilità di settare focus manulamente
         if (this.activeObj !== this.hoveredObj) {
             const isActivable = this.hoveredObj?.activable ?? false;
             isActivable && this.triggerAncestor(this.hoveredObj, "focusIn", this.createFocusEvent("focusIn", this.hoveredObj, this.activeObj));

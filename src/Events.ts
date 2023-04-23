@@ -6,7 +6,7 @@ export class EventExt {
   /** A boolean value indicating whether the event is cancelable. */
   public readonly cancelable = false;
   /** A reference to the currently registered target for the event. This is the object to which the event is currently slated to be sent. It's possible this has been changed along the way through retargeting. */
-  public readonly currentTarget: Object3D;
+  public currentTarget: Object3D;
   /** Indicates whether or not the call to event.preventDefault() canceled the event. */
   public get defaultPrevented() { return this._defaultPrevented }
   /** Indicates which phase of the event flow is being processed. It is one of the following numbers: NONE, CAPTURING_PHASE, AT_TARGET, BUBBLING_PHASE. */
@@ -24,7 +24,7 @@ export class EventExt {
 
   constructor(type: keyof Events, target: Object3D) {
     if (!target) console.error("target"); //TODO remove
-    this.target = this.currentTarget = target;
+    this.target = target;
     this.eventPhase = 0;
     this.type = type;
   }
