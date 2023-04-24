@@ -237,6 +237,16 @@ export class CanvasResizeEvent extends EventExt {
   }
 }
 
+export class VectorChangedEvent extends EventExt {
+    /** Returns the new window width. TODO */
+  public readonly oldValue: Vector3;
+
+  constructor(type: keyof Events, target: Object3D, oldValue: Vector3) {
+    super(type, target);
+    this.oldValue = oldValue;
+  }
+}
+
 export class FocusEventExt extends EventExt {
   /** The secondary target for the event. */
   public readonly relatedTarget: Object3D
@@ -251,8 +261,8 @@ export class FocusEventExt extends EventExt {
 export interface Events extends DOMEvents {
   pointerIntersection: PointerIntersectionEvent;
   canvasResize: CanvasResizeEvent;
-  // onPositionComponentChange: (args: ComponentChangeArgs) => void;
-  // onScaleComponentChange: (args: ComponentChangeArgs) => void;
+  positionChange: VectorChangedEvent;
+  scaleChange: VectorChangedEvent;
   // onRotationComponentChange: (args: ComponentChangeArgs) => void;
   // onFrameGeneration: (delta: number) => void;
   // onChildAdded: (objects: Object3D) => void;

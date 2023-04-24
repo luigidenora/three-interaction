@@ -18,6 +18,7 @@ export interface InteractionPrototype {
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
+    triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
 }
 
 Object3D.prototype.activable = false;
@@ -54,6 +55,11 @@ Object3D.prototype.unbindEvent = function (type, listener) {
 Object3D.prototype.triggerEvent = function (type, args) {
     (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     (this as any)._eventsDispatcher.dispatchEvent(type.toLowerCase(), args);
+}
+
+Object3D.prototype.triggerEventAncestor = function (type, args) {
+    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
+    (this as any)._eventsDispatcher.dispatchEventAncestor(type.toLowerCase(), args);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { //hack to inject code in constructor

@@ -5,16 +5,17 @@ import { Events } from "../src/Events";
 import { BindingPrototype, DetectChangesMode } from "../node_modules/three-binding/dist/Binding";
 
 export class Scene extends SceneBase implements InteractionPrototype, BindingPrototype {
+    override parent: Object3D;
+    override children: Object3D[];
     detectChangesMode: DetectChangesMode;
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
     unbindByKey(key: string): this;
-    override parent: Object3D;
-    override children: Object3D[];
     activable: boolean;
-    activableObj: Object3D;
+    get activableObj(): Object3D;
     active: boolean;
+    activeUntilParent: boolean;
     hovered: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
@@ -25,4 +26,6 @@ export class Scene extends SceneBase implements InteractionPrototype, BindingPro
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
+    triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
+    
 }

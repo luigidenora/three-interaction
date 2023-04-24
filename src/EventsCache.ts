@@ -28,8 +28,8 @@ export class EventsCache {
          if (sceneCache) {
             const eventCache = sceneCache[type];
             for (const key in eventCache) {
-               args.target = eventCache[key];
-               eventCache[key].triggerEvent(type, args);
+               args.target = args.currentTarget = eventCache[key];
+               eventCache[key].triggerEvent(type, args); //TODO fix immediate propagation
             }
          }
       }

@@ -16,8 +16,8 @@ class Main {
         this.scene.children[0].add(new Mesh(new BoxGeometry(1, 1, 1)).translateX(3));
         this.scene.children[1].add(new Mesh(new BoxGeometry(1, 1, 1)).translateX(-3));
 
-        this.scene.children[0].addEventListener("_vec3Changed", () => console.log("changed"));
-        this.scene.children[1].addEventListener("_vec3Changed", () => console.log("changed"));
+        this.scene.children[0].bindEvent("positionChange", (e) => console.log(e));
+        this.scene.children[1].bindEvent("positionChange", (e) => console.log(e));
 
         this.scene.children[0].position.copy(this.scene.children[1].position);
 

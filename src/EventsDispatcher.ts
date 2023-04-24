@@ -1,11 +1,20 @@
 import { Object3D } from "three";
-import { Events } from "./Events";
+import { Events, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
+import { eventChangedName } from "./Patch/Vector3";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
 
-    constructor(private _parent: Object3D) { }
+    constructor(private _parent: Object3D) {
+        this._parent.addEventListener(eventChangedName, (args) => {  //todo capire se ha senso metterlo qui
+            if (args.name === "position") {
+                this.dispatchEventAncestor("positionChange", new VectorChangedEvent("positionChange", this._parent, args.oldValue));
+            } else if (args.name === "scale") {
+                this.dispatchEventAncestor("scaleChange", new VectorChangedEvent("scaleChange", this._parent, args.oldValue));
+            }
+        });
+    }
 
     //TODO multibind mousedown mouseup
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
@@ -31,6 +40,16 @@ export class EventsDispatcher {
         for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
             if ((args as any)._stoppedImmediatePropagation) break;
             callback.call(this._parent, args);
+        }
+    }
+
+    public dispatchEventAncestor<K extends keyof Events>(type: K, event: Events[K]): void {
+        let target = this._parent;
+        while (target) {
+            event.currentTarget = target;
+            target.triggerEvent(type, event);
+            if (!event.bubbles) break;
+            target = target.parent;
         }
     }
 }
