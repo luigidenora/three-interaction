@@ -13,6 +13,8 @@ const ignoredMethodsSet = new Set([
     "applyEuler", "applyAxisAngle", "divideScalar", "normalize", "cross", "projectOnPlane", "setFromSpherical", "setFromCylindrical", "setFromMatrixColumn", "setFromMatrix3Column"
 ]);
 
+let methodToOverride: string[];
+
 /**
  * @internal //TODO capire
  */
@@ -26,11 +28,21 @@ export function patchVector3(vec3: any, parent: Object3D, name: string): void {
     overrideProperty(vec3, "y", parent, name);
     overrideProperty(vec3, "z", parent, name);
 
-    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(vec3))) { //todo check performance for in
-        if (typeof vec3[key] === "function" && !ignoredMethodsSet.has(key)) {
-            overrideMethod(vec3, key, parent, name);
+    for (const key of getKeysToOvveride()) {
+        overrideMethod(vec3, key, parent, name);
+    }
+}
+
+function getKeysToOvveride(): string[] {
+    if (!methodToOverride) {
+        methodToOverride = [];
+        for (const key of Object.getOwnPropertyNames(Vector3.prototype)) {
+            if (typeof (Vector3.prototype as any)[key] === "function" && !ignoredMethodsSet.has(key)) {
+                methodToOverride.push(key)
+            }
         }
     }
+    return methodToOverride;
 }
 
 function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, name: string) {

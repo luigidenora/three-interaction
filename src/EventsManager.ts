@@ -32,8 +32,6 @@ export class EventsManager {
     private _pointerMoveEvents: (keyof DOMEvents)[] = ["pointermove", "mousemove", "touchmove"];
     private _pointerOutEvents: (keyof DOMEvents)[] = ["pointerout", "mouseout"];
     private _pointerLeaveEvents: (keyof DOMEvents)[] = ["pointerleave", "mouseleave"];
-    private _clickEvents: (keyof DOMEvents)[] = ["click"];
-    private _dblClickEvents: (keyof DOMEvents)[] = ["dblclick"];
 
     constructor(renderer: Renderer, activeScene: Scene) {
         this.activeScene = activeScene;
@@ -111,7 +109,15 @@ export class EventsManager {
         this._canvasPointerPosition.y = event.offsetY / this._domElement.clientHeight * -2 + 1;
     }
 
-    private triggerAncestorPointer(types: (keyof DOMEvents)[], event: PointerEvent, target = this.hoveredObj, relatedTarget?: Object3D): PointerEventExt {
+    private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target = this.hoveredObj, relatedTarget?: Object3D): PointerEventExt {
+        if (target) {
+            const pointerEvent = this.createPointerEvent(event, type, target, relatedTarget);
+            target.triggerEventAncestor(type, pointerEvent);
+            return pointerEvent;
+        }
+    }
+
+    private triggerAncestorPointerMulti(types: (keyof DOMEvents)[], event: PointerEvent, target = this.hoveredObj, relatedTarget?: Object3D): PointerEventExt {
         if (target) {
             const isMouse = event.pointerType === "mouse";
             const isTouch = event.pointerType === "touch" || event.pointerType === "pen";
@@ -119,7 +125,7 @@ export class EventsManager {
             target.triggerEventAncestor(types[0], pointerEvent);
             types[1] && isMouse && target.triggerEventAncestor(types[1], this.createMouseEvent(event, types[1], target, relatedTarget));
             // types[2] && isTouch && target.triggerEventAncestor(types[2], toucheventext(types[2], event, target, this.intersection));
-            return pointerEvent as PointerEventExt;
+            return pointerEvent;
         }
     }
 
@@ -149,14 +155,14 @@ export class EventsManager {
     }
 
     private pointerDown(event: PointerEvent): void {
-        this._lastPointerDown = this.triggerAncestorPointer(this._pointerDownEvents, event);
+        this._lastPointerDown = this.triggerAncestorPointerMulti(this._pointerDownEvents, event);
         this.focus();
     }
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
         this._lastPointerMove = event;
         this.pointerOutOver(scene, camera, event, true);
-        this.triggerAncestorPointer(this._pointerMoveEvents, event);
+        this.triggerAncestorPointerMulti(this._pointerMoveEvents, event);
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
@@ -178,21 +184,21 @@ export class EventsManager {
         this.hoveredObj && (this.hoveredObj.hovered = true);
 
         if (this._lastHoveredObj !== this.hoveredObj) {
-            this.triggerAncestorPointer(this._pointerOutEvents, event, this._lastHoveredObj, this.hoveredObj);
-            this.triggerAncestorPointer(this._pointerLeaveEvents, event, this._lastHoveredObj, this.hoveredObj);
-            this.triggerAncestorPointer(this._pointerOverEvents, event, this.hoveredObj, this._lastHoveredObj);
-            this.triggerAncestorPointer(this._pointerEnterEvents, event, this.hoveredObj, this._lastHoveredObj);
+            this.triggerAncestorPointerMulti(this._pointerOutEvents, event, this._lastHoveredObj, this.hoveredObj);
+            this.triggerAncestorPointerMulti(this._pointerLeaveEvents, event, this._lastHoveredObj, this.hoveredObj);
+            this.triggerAncestorPointerMulti(this._pointerOverEvents, event, this.hoveredObj, this._lastHoveredObj);
+            this.triggerAncestorPointerMulti(this._pointerEnterEvents, event, this.hoveredObj, this._lastHoveredObj);
         }
     }
 
     private pointerUp(event: PointerEvent): void {
-        this.triggerAncestorPointer(this._pointerUpEvents, event, this.hoveredObj, this._lastPointerDown?.target);
+        this.triggerAncestorPointerMulti(this._pointerUpEvents, event, this.hoveredObj, this._lastPointerDown?.target);
         if (this.hoveredObj === (this._lastPointerDown?.target ?? null)) {
             const prevClick = this._lastClick;
-            this._lastClick = this.triggerAncestorPointer(this._clickEvents, event);
+            this._lastClick = this.triggerAncestorPointer("click", event);
 
             if (this.hoveredObj === prevClick?.target && event.timeStamp - prevClick.timeStamp <= 300) {
-                this.triggerAncestorPointer(this._dblClickEvents, event);
+                this.triggerAncestorPointer("dblclick", event);
                 this._lastClick = undefined;
             }
         } else {
