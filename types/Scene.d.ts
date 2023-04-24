@@ -1,6 +1,6 @@
 import { Scene as SceneBase } from "three/index";
 import { Object3D } from "three";
-import { InteractionPrototype } from "../src/Patch";
+import { InteractionPrototype } from "../src/Patch/Object3D";
 import { Events } from "../src/Events";
 import { BindingPrototype, DetectChangesMode } from "../node_modules/three-binding/dist/Binding";
 

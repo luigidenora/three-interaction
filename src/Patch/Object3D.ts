@@ -1,6 +1,7 @@
-import { Object3D } from "three";
-import { Events } from "./Events";
-import { EventsDispatcher } from "./EventsDispatcher";
+import { Object3D, Vector3 } from "three";
+import { Events } from "../Events";
+import { EventsDispatcher } from "../EventsDispatcher";
+import { patchVector3 } from "./Vector3";
 
 export interface InteractionPrototype {
     activable: boolean; // default false
@@ -26,7 +27,7 @@ Object3D.prototype.enabled = true;
 Object3D.prototype.interceptByRaycaster = true;
 
 Object.defineProperty(Object3D.prototype, "activableObj", {
-    get: function myProperty(this: Object3D) {
+    get: function (this: Object3D) {
         let obj = this;
         while (obj && !obj.activable) {
             obj = obj.parent;
@@ -54,3 +55,17 @@ Object3D.prototype.triggerEvent = function (type, args) {
     (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     (this as any)._eventsDispatcher.dispatchEvent(type.toLowerCase(), args);
 }
+
+Object.defineProperty(Object3D.prototype, "userData", { //hack to inject code in constructor
+    get: function () { return this._userData },
+    set: function (value) {
+        if (!this._patched) {
+            this.addEventListener();
+            patchVector3(this.position, this, "position");
+            patchVector3(this.scale, this, "scale");
+            // patchEuler(this.position, this, "position");
+            this._patched = true;
+        }
+        this._userData = value;
+    }
+});

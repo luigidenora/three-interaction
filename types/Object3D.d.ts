@@ -1,6 +1,6 @@
 import { Object3D as Object3DBase } from "three/index";
 import { Events } from "../src/Events";
-import { InteractionPrototype } from "../src/Patch";
+import { InteractionPrototype } from "../src/Patch/Object3D";
 import { BindingPrototype, DetectChangesMode } from "../node_modules/three-binding/dist/Binding";
 
 export class Object3D extends Object3DBase implements InteractionPrototype, BindingPrototype {
