@@ -3,12 +3,15 @@ import { Events } from "./Events";
 import { EventsDispatcher } from "./EventsDispatcher";
 
 export interface InteractionPrototype {
-    /** TODO. Default: false. */
-    activable: boolean;
+    activable: boolean; // default false
+    get activableObj(): Object3D; //TODO cache
     active: boolean;
+    activeUntilParent: boolean; //TODO Handle
     hovered: boolean;
-    /** TODO. Default: true. */
-    interceptByRaycaster: boolean;
+    enabled: boolean; //TODO Handle
+    enabledUntilParent: boolean; //TODO Handle
+    visibleUntilParent: boolean; //TODO Handle
+    interceptByRaycaster: boolean; // default true
     objectsToRaycast: Object3D[];
     bindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
@@ -19,7 +22,18 @@ export interface InteractionPrototype {
 Object3D.prototype.activable = false;
 Object3D.prototype.active = false;
 Object3D.prototype.hovered = false;
+Object3D.prototype.enabled = true;
 Object3D.prototype.interceptByRaycaster = true;
+
+Object.defineProperty(Object3D.prototype, "activableObj", {
+    get: function myProperty(this: Object3D) {
+        let obj = this;
+        while (obj && !obj.activable) {
+            obj = obj.parent;
+        }
+        return obj;
+    }
+});
 
 Object3D.prototype.bindEvent = function (type, listener) {
     (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));

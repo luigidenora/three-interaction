@@ -210,17 +210,15 @@ export class EventsManager {
     }
 
     private focus(): void { //TODO creare possibilità di settare focus manulamente
-        if (this.activeObj !== this.hoveredObj) {
-            const isActivable = this.hoveredObj?.activable ?? false;
-            isActivable && this.triggerAncestor(this.hoveredObj, "focusIn", this.createFocusEvent("focusIn", this.hoveredObj, this.activeObj));
-            this.activeObj && this.triggerAncestor(this.activeObj, "focusOut", this.createFocusEvent("focusOut", this.activeObj, this.hoveredObj));
-            isActivable && this.triggerAncestor(this.hoveredObj, "focus", this.createFocusEvent("focus", this.hoveredObj, this.activeObj));
-            this.activeObj && this.triggerAncestor(this.activeObj, "blur", this.createFocusEvent("blur", this.activeObj, this.hoveredObj));
-            if (isActivable || !this.hoveredObj) {
-                this.activeObj && (this.activeObj.active = false);
-                this.activeObj = this.hoveredObj;
-                this.activeObj && (this.activeObj.active = true);
-            }
+        const activableObj = this.hoveredObj?.activableObj;
+        if (this.activeObj !== activableObj) {
+            activableObj && this.triggerAncestor(activableObj, "focusIn", this.createFocusEvent("focusIn", activableObj, this.activeObj));
+            this.activeObj && this.triggerAncestor(this.activeObj, "focusOut", this.createFocusEvent("focusOut", this.activeObj, activableObj));
+            activableObj && this.triggerAncestor(activableObj, "focus", this.createFocusEvent("focus", activableObj, this.activeObj));
+            this.activeObj && this.triggerAncestor(this.activeObj, "blur", this.createFocusEvent("blur", this.activeObj, activableObj));
+            this.activeObj && (this.activeObj.active = false);
+            this.activeObj = activableObj;
+            this.activeObj && (this.activeObj.active = true);
         }
     }
 }

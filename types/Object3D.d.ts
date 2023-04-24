@@ -12,8 +12,12 @@ export class Object3D extends Object3DBase implements InteractionPrototype, Bind
     override parent: Object3D;
     override children: Object3D[];
     activable: boolean;
+    activableObj: Object3D;
     active: boolean;
     hovered: boolean;
+    enabled: boolean;
+    enabledUntilParent: boolean;
+    visibleUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     bindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void;
