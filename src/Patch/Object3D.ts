@@ -38,27 +38,22 @@ Object.defineProperty(Object3D.prototype, "activableObj", {
 });
 
 Object3D.prototype.bindEvent = function (type, listener) {
-    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     return (this as any)._eventsDispatcher.addEventListener(type.toLowerCase(), listener);
 };
 
 Object3D.prototype.hasBoundEvent = function (type, listener) {
-    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     return (this as any)._eventsDispatcher.hasEventListener(type.toLowerCase(), listener);
 }
 
 Object3D.prototype.unbindEvent = function (type, listener) {
-    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     (this as any)._eventsDispatcher.removeEventListener(type.toLowerCase(), listener);
 }
 
 Object3D.prototype.triggerEvent = function (type, args) {
-    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     (this as any)._eventsDispatcher.dispatchEvent(type.toLowerCase(), args);
 }
 
 Object3D.prototype.triggerEventAncestor = function (type, args) {
-    (this as any)._eventsDispatcher ?? ((this as any)._eventsDispatcher = new EventsDispatcher(this));
     (this as any)._eventsDispatcher.dispatchEventAncestor(type.toLowerCase(), args);
 }
 
@@ -66,7 +61,7 @@ Object.defineProperty(Object3D.prototype, "userData", { //hack to inject code in
     get: function () { return this._userData },
     set: function (value) {
         if (!this._patched) {
-            this.addEventListener();
+            this._eventsDispatcher = new EventsDispatcher(this);
             patchVector3(this.position, this, "position");
             patchVector3(this.scale, this, "scale");
             // patchEuler(this.position, this, "position");

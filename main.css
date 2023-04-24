@@ -1,6 +1,5 @@
 body {
 	margin: 0;
-	background-image: linear-gradient(gray, black);
 	color: #fff;
 	font-family: monospace;
 	font-size: 13px;
@@ -17,7 +16,7 @@ body {
 	text-align: center;
 }
 
-canvas {
+#canvas {
 	position:absolute;
 	height:100%; width:100%;
  }

@@ -1,46 +1,46 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, Mesh, MeshBasicMaterial, SphereGeometry } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, Mesh, MeshLambertMaterial, Vector3, DirectionalLight } from "three";
 import { EventsManager } from "./src";
 import { computeAutoBinding } from "three-binding";
+
+class Box extends Mesh {
+    activable = true;
+
+    constructor(position) {
+        super(new BoxGeometry(2, 2, 2), new MeshLambertMaterial({ color: 0xff0000 }));
+        this.bindCallback("material", () => this.material.emissive.set(this.active ? 0xff0000 : (this.hovered ? 0x00ff00 : 0x0000ff)));
+        this.bindEvent("click", (args) => console.log(args));
+        this.position.copy(position);
+    }
+}
+
+class CustomScene extends Scene {
+    camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000).translateZ(10);
+
+    constructor() {
+        super();
+        this.add(
+            new DirectionalLight(0xffffff, 0.9).translateZ(10),
+            new Box(new Vector3(4)),
+            new Box(new Vector3(-4))
+        );
+    }
+}
 
 class Main {
 
     constructor() {
-        this.renderer = new WebGLRenderer({ antialias: true });
-        this.scene = new Scene();
-        const material = new MeshBasicMaterial({ color: 0xffffff });
-        const hoverMaterial = new MeshBasicMaterial({ color: 0xffff00 });
-        const sphere = new Mesh(new SphereGeometry(0.2));
-        this.scene.add(new Mesh(new BoxGeometry(2, 2, 2)).translateX(4));
-        this.scene.add(new Mesh(new BoxGeometry(2, 2, 2)).translateX(-4));
-        
-        this.scene.children[0].add(new Mesh(new BoxGeometry(1, 1, 1)).translateX(3));
-        this.scene.children[1].add(new Mesh(new BoxGeometry(1, 1, 1)).translateX(-3));
-
-        this.scene.children[0].bindEvent("positionChange", (e) => console.log(e));
-        this.scene.children[1].bindEvent("positionChange", (e) => console.log(e));
-
-        this.scene.children[0].position.copy(this.scene.children[1].position);
-
-        this.scene.children[0].activable = true;
-        this.scene.children[1].activable = true;
-
-        // this.scene.children[0].bindProperty("material", function() { console.log(this); return this.active ? hoverMaterial : material }); //TODO FIX binding
-        this.scene.children[0].bindProperty("material", () => this.scene.children[0].active ? hoverMaterial : material);
-        this.scene.children[1].bindProperty("material", () => this.scene.children[1].active ? hoverMaterial : material);
-
-        this.scene.add(sphere);
-        sphere.interceptByRaycaster = false;
-        this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000).translateZ(10);
+        this.renderer = new WebGLRenderer({ antialias: true, canvas: document.getElementById("canvas") });
+        this.scene = new CustomScene();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setAnimationLoop(this.animate.bind(this));
-        document.body.appendChild(this.renderer.domElement);
         this.eventsManager = new EventsManager(this.renderer);
     }
 
-    animate(time) {
-        this.eventsManager.update(this.scene, this.camera);
+    animate() {
         computeAutoBinding(this.scene);
-        this.renderer.render(this.scene, this.camera);
+        this.eventsManager.update(this.scene, this.scene.camera);
+        this.renderer.render(this.scene, this.scene.camera);
     }
 }
 
