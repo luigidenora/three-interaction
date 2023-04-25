@@ -1,17 +1,32 @@
 import { Object3D } from "three";
-import { Events, VectorChangedEvent } from "./Events";
+import { EulerChangedEvent, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
-import { eventChangedName } from "../Patch/Vector3";
+
+/** @internal */
+export const eventChangedName = "__changed";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
 
     constructor(private _parent: Object3D) {
-        this._parent.addEventListener(eventChangedName, (args) => {  //todo capire se ha senso metterlo qui
-            if (args.name === "position") {
-                this.dispatchEventAncestor("positionchange", new VectorChangedEvent("positionchange", this._parent, args.oldValue));
-            } else if (args.name === "scale") {
-                this.dispatchEventAncestor("scalechange", new VectorChangedEvent("scalechange", this._parent, args.oldValue));
+        this.bindPositionScaleRotationChanged();
+    }
+
+    private bindPositionScaleRotationChanged(): void {
+        this._parent.addEventListener(eventChangedName, (args) => {
+            switch (args.name) {
+                case "position":
+                    this.dispatchEvent("ownpositionchange", new VectorChangedEvent("ownpositionchange", this._parent, args.oldValue));
+                    return this.dispatchEventAncestor("positionchange", new VectorChangedEvent("positionchange", this._parent, args.oldValue));
+                case "scale":
+                    this.dispatchEvent("ownscalechange", new VectorChangedEvent("ownscalechange", this._parent, args.oldValue));
+                    return this.dispatchEventAncestor("scalechange", new VectorChangedEvent("scalechange", this._parent, args.oldValue));
+                case "rotation":
+                    this.dispatchEvent("ownrotationchange", new EulerChangedEvent("ownrotationchange", this._parent, args.oldValue));
+                    return this.dispatchEventAncestor("rotationchange", new EulerChangedEvent("rotationchange", this._parent, args.oldValue));
+                case "quaternion":
+                    this.dispatchEvent("ownquaternionchange", new QuaternionChangedEvent("ownquaternionchange", this._parent, args.oldValue));
+                    return this.dispatchEventAncestor("quaternionchange", new QuaternionChangedEvent("quaternionchange", this._parent, args.oldValue));
             }
         });
     }
@@ -37,6 +52,7 @@ export class EventsDispatcher {
 
     public dispatchEvent<K extends keyof Events>(type: K, args: Events[K]): void {
         if (!this._listeners[type]) return;
+        args.stopPropagation(); //todo rendere tutti così
         for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
             if ((args as any)._stoppedImmediatePropagation) break;
             callback.call(this._parent, args);

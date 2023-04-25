@@ -1,4 +1,4 @@
-import { Intersection, Object3D, Vector3, WebGLRenderer } from "three";
+import { Euler, Intersection, Object3D, Quaternion, Vector3, WebGLRenderer } from "three";
 
 export class EventExt {
   /** A boolean value indicating whether or not the event bubbles up through the DOM. */
@@ -250,6 +250,26 @@ export class VectorChangedEvent extends EventExt {
   }
 }
 
+export class EulerChangedEvent extends EventExt {
+  /** TODO */
+  public readonly oldValue: Euler;
+
+  constructor(type: keyof Events, target: Object3D, oldValue: Euler) {
+    super(type, target);
+    this.oldValue = oldValue;
+  }
+}
+
+export class QuaternionChangedEvent extends EventExt {
+  /** TODO */
+  public readonly oldValue: Quaternion;
+
+  constructor(type: keyof Events, target: Object3D, oldValue: Quaternion) {
+    super(type, target);
+    this.oldValue = oldValue;
+  }
+}
+
 export class FocusEventExt extends EventExt {
   /** The secondary target for the event. */
   public readonly relatedTarget: Object3D
@@ -265,11 +285,13 @@ export interface Events extends DOMEvents {
   pointerintersection: PointerIntersectionEvent;
   rendererresize: RendererResizeEvent;
   positionchange: VectorChangedEvent;
+  ownpositionchange: VectorChangedEvent;
   scalechange: VectorChangedEvent;
-  // rotationchange
-  // ownpositionchange: VectorChangedEvent;
-  // ownlscalechange: VectorChangedEvent;
-  // ownrotationchange
+  ownscalechange: VectorChangedEvent;
+  rotationchange: EulerChangedEvent;
+  ownrotationchange: EulerChangedEvent;
+  quaternionchange: QuaternionChangedEvent;
+  ownquaternionchange: QuaternionChangedEvent;
   // onframerendering
   // onanimate
   // childadd

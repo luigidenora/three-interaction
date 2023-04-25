@@ -1,9 +1,5 @@
 import { Object3D, Vector3 } from "three";
-
-/**
- * @internal //TODO capire
- */
-export const eventChangedName = "_vec3Changed";
+import { eventChangedName } from "../Events/EventsDispatcher";
 
 const ignoredMethodsSet = new Set([
     // don't override because don't change values
@@ -45,7 +41,7 @@ function getKeysToOvveride(): string[] {
     return methodToOverride;
 }
 
-function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, name: string) {
+function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, name: string): void {
     const privateProperty = `_${property}`;
     vec3[privateProperty] = vec3[property];
 
@@ -66,7 +62,7 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, 
     });
 }
 
-function overrideMethod(vec3: any, method: string, parent: Object3D, name: string) {
+function overrideMethod(vec3: any, method: string, parent: Object3D, name: string): void {
     const base = vec3[method].bind(vec3);
 
     vec3[method] = function () {
