@@ -1,4 +1,4 @@
-import { Object3D, Vector3 } from "three";
+import { Object3D } from "three";
 import { Events } from "../Events";
 import { EventsDispatcher } from "../EventsDispatcher";
 import { patchVector3 } from "./Vector3";
@@ -66,7 +66,29 @@ Object.defineProperty(Object3D.prototype, "userData", { //hack to inject code in
             patchVector3(this.scale, this, "scale");
             // patchEuler(this.position, this, "position");
             this._patched = true;
+            experiment && autoUpdateMatrix(this);
         }
         this._userData = value;
     }
 });
+
+// EXPERIMENT AUTO UPDATE MATRIX
+
+const experiment = true;
+
+Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !experiment;
+Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !experiment;
+
+function autoUpdateMatrix(target: Object3D) {
+    target.matrixAutoUpdate = false;
+    target.matrixWorldAutoUpdate = false;
+    target.bindEvent("positionChange", updateMatrix);
+    target.bindEvent("scaleChange", updateMatrix); 
+    //Todo unire eventi e aggiungere rotazione
+}
+
+function updateMatrix(this: Object3D) {
+    this.updateMatrix();
+    this.updateMatrixWorld();
+    //bbox?
+}

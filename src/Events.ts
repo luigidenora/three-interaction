@@ -20,8 +20,8 @@ export class EventExt {
   protected _stoppedImmediatePropagation = false;
   protected _bubbles = true;
 
-  constructor(type: keyof Events, target: Object3D) {
-    this.target = target;
+  constructor(type: keyof Events, target?: Object3D) {
+    this.target = this.currentTarget = target;
     this.type = type;
   }
 
@@ -86,7 +86,7 @@ export class MouseEventExt extends EventExt {
   constructor(protected _event: PointerEvent, type: keyof Events, target: Object3D, intersection: IntersectionExt, lastIntersection: IntersectionExt,
     relatedTarget?: Object3D) {
     super(type, target);
-    this._bubbles = type === "pointerenter" || type === "pointerleave";
+    this._bubbles = type !== "mouseenter" && type !== "mouseleave";
     this.intersection = intersection;
     this.relatedTarget = relatedTarget;
     if (intersection?.object === lastIntersection?.object) {
@@ -124,7 +124,7 @@ export class PointerEventExt extends MouseEventExt {
 
   constructor(event: PointerEvent, type: keyof Events, target: Object3D, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
     super(event, type, target, intersection, lastIntersection, relatedTarget);
-    this._bubbles = type === "pointerenter" || type === "pointerleave";
+    this._bubbles = type !== "pointerenter" && type !== "pointerleave";
     this._trunc = false;
   }
 
@@ -223,14 +223,14 @@ export interface KeyboardEventExt extends EventExt {
   getModifierState(keyArg: string): boolean;
 }
 
-export class CanvasResizeEvent extends EventExt {
+export class RendererResizeEvent extends EventExt {
   /** Returns the new window width. TODO */
   public readonly width: number;
   /** Returns the new window height. TODO */
   public readonly height: number;
 
   constructor(width: number, height: number) {
-    super("canvasResize", undefined);
+    super("rendererresize");
     this._bubbles = false;
     this.width = width;
     this.height = height;
@@ -259,16 +259,24 @@ export class FocusEventExt extends EventExt {
 }
 
 export interface Events extends DOMEvents {
-  pointerIntersection: PointerIntersectionEvent;
-  canvasResize: CanvasResizeEvent;
-  positionChange: VectorChangedEvent;
-  scaleChange: VectorChangedEvent;
-  // onRotationComponentChange: (args: ComponentChangeArgs) => void;
-  // onFrameGeneration: (delta: number) => void;
-  // onChildAdded: (objects: Object3D) => void;
-  // onEnabledChange: (value: boolean) => void; / This event propagation Up to down.
-  // onVisibleChange: (value: boolean) => void; / This event propagation Up to down.
-  // onAppIteration: (delta: number) => void;
+  pointerintersection: PointerIntersectionEvent;
+  rendererresize: RendererResizeEvent;
+  positionchange: VectorChangedEvent;
+  scalechange: VectorChangedEvent;
+  // rotationchange
+  // ownpositionchange: VectorChangedEvent;
+  // ownlscalechange: VectorChangedEvent;
+  // ownrotationchange
+  // onframerendering
+  // onanimate
+  // childadd
+  // childremove 
+  // parentdadd // This event propagation Up to down.
+  // parentremove // This event propagation Up to down.
+  // enablechange // This event propagation Up to down.
+  // visiblechange // This event propagation Up to down.
+  // ownenablechange // This event propagation Up to down.
+  // ownvisiblechange // This event propagation Up to down.
 }
 
 export interface DOMEvents {

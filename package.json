@@ -1,6 +1,6 @@
 {
   "name": "@ag-three/interaction",
-  "version": "0.0.5",
+  "version": "0.0.1-beta.0",
   "description": "three.js events and dragging",
   "author": "agargaro",
   "license": "MIT",
@@ -8,9 +8,10 @@
   "types": "index.d.ts",
   "repository": "https://github.com/agargaro/three-interaction",
   "scripts": {
-    "publish-patch": "npm version patch && npx webpack && cd dist && npm publish",
-    "publish-minor": "npm version minor && npx webpack && cd dist && npm publish",
-    "publish-major": "npm version major && npx webpack && cd dist && npm publish"
+    "publish-beta": "npm version prerelease --preid=beta --git-tag-version false && npx webpack && cd dist && npm publish --tag beta --access public",
+    "publish-patch": "npm version patch --git-tag-version false && npx webpack && cd dist && npm publish --access public",
+    "publish-minor": "npm version minor --git-tag-version false && npx webpack && cd dist && npm publish --access public",
+    "publish-major": "npm version major --git-tag-version false && npx webpack && cd dist && npm publish --access public"
   },
   "devDependencies": {
     "@types/three": "^0.150.2",
@@ -23,7 +24,6 @@
     "webpack-cli": "^5.0.1"
   },
   "peerDependencies": {
-    "three": "*",
-    "three-binding": "^1.0.2"
+    "three": "*"
   }
 }

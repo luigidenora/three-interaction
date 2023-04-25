@@ -1,8 +1,8 @@
 import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
-import { CanvasResizeEvent, DOMEvents, Events, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
+import { DOMEvents, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent, RendererResizeEvent } from "./Events";
+import { EventsCache } from "./EventsCache";
 import { EventsQueue } from "./EventsQueue";
 import { Utils } from "./Utils";
-import { EventsCache } from "./EventsCache";
 
 export class EventsManager {
     public enabled = true;
@@ -33,12 +33,11 @@ export class EventsManager {
     private _pointerOutEvents: (keyof DOMEvents)[] = ["pointerout", "mouseout"];
     private _pointerLeaveEvents: (keyof DOMEvents)[] = ["pointerleave", "mouseleave"];
 
-    constructor(renderer: Renderer, activeScene: Scene) {
+    constructor(renderer: Renderer, activeScene?: Scene) {
         this.activeScene = activeScene;
         this._domElement = renderer.domElement;
         this._domElement.addEventListener("contextmenu", (e) => e.preventDefault());
         this._domElement.addEventListener("mousemove", () => this._mouseDetected = true); //TODO togliere l'evento dopo il primo trigger e aggiungere touch to fix surface
-        window.addEventListener("resize", () => EventsCache.trigger(this.activeScene, "canvasResize", new CanvasResizeEvent(this._domElement.offsetWidth, this._domElement.offsetHeight)));
         this.bindEvents();
     }
 
@@ -56,12 +55,12 @@ export class EventsManager {
         this._queue.enqueue(event);
     }
 
-    public update(scene: Scene, camera: Camera): void {
+    public update(scene: Scene, camera: Camera): void { //todo user active scene?
         //TODO check se canvas ha perso focus
         if (!this.enabled) return;
         this._raycasted = false;
         for (const event of this._queue.dequeue()) {
-            this.computeQueuedEvent(event, scene, camera); //TODO aggiungere resize in queue
+            this.computeQueuedEvent(event, scene, camera);
         }
         this.pointerIntersection(scene, camera);
         // this._cursorHandler.update(this.objectDragging, this.mainObjIntercepted);

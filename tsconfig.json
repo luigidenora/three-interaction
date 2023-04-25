@@ -6,6 +6,7 @@
 		"noImplicitOverride": true,
 		"declaration": true,
 		"strictNullChecks": false,
+		"stripInternal": true,
 		"outDir": "dist",
 		"paths": {
 			"three": [
