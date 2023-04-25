@@ -1,4 +1,4 @@
-import { Intersection, Object3D, Vector3 } from "three";
+import { Intersection, Object3D, Vector3, WebGLRenderer } from "three";
 
 export class EventExt {
   /** A boolean value indicating whether or not the event bubbles up through the DOM. */
@@ -224,21 +224,24 @@ export interface KeyboardEventExt extends EventExt {
 }
 
 export class RendererResizeEvent extends EventExt {
-  /** Returns the new window width. TODO */
+  /** Returns the new renderer width. TODO */
   public readonly width: number;
-  /** Returns the new window height. TODO */
+  /** Returns the new renderer height. TODO */
   public readonly height: number;
+  /** Returns resized renderer. TODO */
+  public readonly renderer: WebGLRenderer;
 
-  constructor(width: number, height: number) {
+  constructor(renderer: WebGLRenderer, width: number, height: number) {
     super("rendererresize");
     this._bubbles = false;
+    this.renderer = renderer;
     this.width = width;
     this.height = height;
   }
 }
 
 export class VectorChangedEvent extends EventExt {
-    /** Returns the new window width. TODO */
+  /** TODO */
   public readonly oldValue: Vector3;
 
   constructor(type: keyof Events, target: Object3D, oldValue: Vector3) {

@@ -18,7 +18,7 @@ let methodToOverride: string[];
 /**
  * @internal //TODO capire
  */
-export function patchVector3(vec3: any, parent: Object3D, name: string): void {
+export function applyVector3Patch(vec3: any, parent: Object3D, name: string): void {
     vec3._triggerInSetter = true;
     vec3._changed = false;
     vec3._rootEventName = undefined;

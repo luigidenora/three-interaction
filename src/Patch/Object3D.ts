@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { Events } from "../Events/Events";
-import { patchVector3 } from "./Vector3";
+import { applyVector3Patch } from "./Vector3";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 
 export interface InteractionPrototype {
@@ -62,8 +62,8 @@ Object.defineProperty(Object3D.prototype, "userData", { //hack to inject code in
     set: function (value) {
         if (!this._patched) {
             this._eventsDispatcher = new EventsDispatcher(this);
-            patchVector3(this.position, this, "position");
-            patchVector3(this.scale, this, "scale");
+            applyVector3Patch(this.position, this, "position");
+            applyVector3Patch(this.scale, this, "scale");
             // patchEuler(this.position, this, "position");
             this._patched = true;
             experiment && autoUpdateMatrix(this);
@@ -74,7 +74,7 @@ Object.defineProperty(Object3D.prototype, "userData", { //hack to inject code in
 
 // EXPERIMENT AUTO UPDATE MATRIX
 
-const experiment = true;
+const experiment = false;
 
 Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !experiment;
 Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !experiment;

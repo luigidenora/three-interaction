@@ -1,7 +1,7 @@
-import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
-import { DOMEvents, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent, RendererResizeEvent } from "./Events";
-import { EventsQueue } from "./EventsQueue";
+import { Camera, Object3D, Raycaster, Scene, Vector2, WebGLRenderer } from "three";
 import { Utils } from "../Utils";
+import { DOMEvents, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
+import { EventsQueue } from "./EventsQueue";
 
 export class EventsManager {
     public enabled = true;
@@ -32,8 +32,13 @@ export class EventsManager {
     private _pointerOutEvents: (keyof DOMEvents)[] = ["pointerout", "mouseout"];
     private _pointerLeaveEvents: (keyof DOMEvents)[] = ["pointerleave", "mouseleave"];
 
-    constructor(renderer: Renderer, activeScene?: Scene) {
+    constructor(renderer?: WebGLRenderer, activeScene?: Scene) {
+        this.registerRenderer(renderer);
         this.activeScene = activeScene;
+    }
+
+    public registerRenderer(renderer: WebGLRenderer): void {
+        // TODO check se WebGLRenderer
         this._domElement = renderer.domElement;
         this._domElement.addEventListener("contextmenu", (e) => e.preventDefault());
         this._domElement.addEventListener("mousemove", () => this._mouseDetected = true); //TODO togliere l'evento dopo il primo trigger e aggiungere touch to fix surface

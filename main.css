@@ -15,8 +15,3 @@ body {
 	box-sizing: border-box;
 	text-align: center;
 }
-
-#canvas {
-	position:absolute;
-	height:100%; width:100%;
- }
