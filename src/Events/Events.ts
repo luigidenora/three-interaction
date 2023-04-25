@@ -292,8 +292,8 @@ export interface Events extends DOMEvents {
   ownrotationchange: EulerChangedEvent;
   quaternionchange: QuaternionChangedEvent;
   ownquaternionchange: QuaternionChangedEvent;
-  // onframerendering
-  // onanimate
+  framerendering: EventExt; //TODO cambia params
+  animate: EventExt; //TODO cambia params
   // childadd
   // childremove 
   // parentdadd // This event propagation Up to down.

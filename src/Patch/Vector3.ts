@@ -52,7 +52,7 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, 
             if (this[privateProperty] !== value) {
                 if (this._triggerInSetter) {
                     this[privateProperty] = value;
-                    parent.dispatchEvent({ type: eventChangedName, name, oldValue: this._oldValue });
+                    parent.dispatchEvent({ type: eventChangedName, oldValue: this._oldValue, name });
                     this._oldValue.copy(this);
                 } else {
                     this[privateProperty] = value;
@@ -76,7 +76,7 @@ function overrideMethod(vec3: any, method: string, parent: Object3D, name: strin
 
         if (this._rootEventName === method) {
             if (this._changed) {
-                parent.dispatchEvent({ type: eventChangedName, name, oldValue: this._oldValue });
+                parent.dispatchEvent({ type: eventChangedName, oldValue: this._oldValue, name });
                 this._oldValue.copy(this);
                 this._changed = false;
             }

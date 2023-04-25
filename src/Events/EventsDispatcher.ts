@@ -51,7 +51,7 @@ export class EventsDispatcher {
 
     public dispatchEvent<K extends keyof Events>(type: K, args: Events[K]): void {
         if (!this._listeners[type]) return;
-        args.stopPropagation(); //todo rendere tutti così
+        args.stopPropagation(); //todo rendere tutti così TODO mettere bubble nel costruttore
         for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
             if ((args as any)._stoppedImmediatePropagation) break;
             callback.call(this._parent, args);

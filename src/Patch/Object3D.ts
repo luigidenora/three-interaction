@@ -73,8 +73,8 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
             this._eventsDispatcher = new EventsDispatcher(this);
             applyVector3Patch(this.position, this, "position");
             applyVector3Patch(this.scale, this, "scale");
-            applyEulerPatch(this.rotation, this);
-            applyQuaternionPatch(this.quaternion, this);
+            applyEulerPatch(this.rotation, this, "rotation");
+            applyQuaternionPatch(this.quaternion, this, "quaternion");
             this._patched = true;
             bindAutoUpdateMatrix(this);
         }

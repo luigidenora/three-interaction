@@ -1,7 +1,9 @@
 import { Object3D } from "three";
 
-Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
-Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = false;
+const autoUpdateMatrix = true;
+
+Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !autoUpdateMatrix;
+Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !autoUpdateMatrix;
 
 let matrixUpdateQueue: { [x: string]: Object3D } = {};
 
@@ -9,18 +11,19 @@ let matrixUpdateQueue: { [x: string]: Object3D } = {};
 export function bindAutoUpdateMatrix(target: Object3D): void {
     // target.matrixAutoUpdate readonly and only false? TODO
     // target.matrixWorldAutoUpdate  readonly and only false? TODO
-
-    target.bindEvent(["ownpositionchange", "ownscalechange", "ownrotationchange"], () => {
+    autoUpdateMatrix && target.bindEvent(["ownpositionchange", "ownscalechange", "ownrotationchange"], () => {
         matrixUpdateQueue[target.id] = target;
     });
 }
 
 export function updateMatrices(): void {
-    for (const key in matrixUpdateQueue) {
-        const target = matrixUpdateQueue[key];
-        target.updateMatrix();
-        target.updateMatrixWorld();
-        //add TODO compute bbbox for mesh? 
+    if (autoUpdateMatrix) {
+        for (const key in matrixUpdateQueue) {
+            const target = matrixUpdateQueue[key];
+            target.updateMatrix();
+            target.updateMatrixWorld();
+            //TODO frustum check se camera muove su tutto altrimenti solo su quelli aggiornati
+        }
+        matrixUpdateQueue = {};
     }
-    matrixUpdateQueue = {};
 }
