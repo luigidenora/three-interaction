@@ -19,6 +19,8 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
         EventsCache.trigger(scene, "animate", new EventExt("animate")); //TODO correggere
         EventsCache.trigger(scene, "framerendering", new EventExt("framerendering"));
         updateMatrices();
+        //TODO raycasting e trigger eventi
+        // updateMatrices();
         baseRender(scene, camera);
     }
 

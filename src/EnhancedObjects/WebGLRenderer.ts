@@ -3,7 +3,7 @@ import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 
 export class FullScreenWebGLRenderer extends WebGLRendererBase {
 
-    constructor(scenes: Scene[], parameters?: WebGLRendererParameters) {
+    constructor(scenes: Scene[], animate: XRFrameRequestCallback, parameters?: WebGLRendererParameters) {
         super(parameters);
         !parameters.canvas && document.body.appendChild(this.domElement);
         applyWebGLRendererPatch(this);
@@ -11,6 +11,7 @@ export class FullScreenWebGLRenderer extends WebGLRendererBase {
         window.addEventListener("resize", () => this.setSize(window.innerWidth, window.innerHeight))
         this.setSize(window.innerWidth, window.innerHeight);
         this.setPixelRatio(window.devicePixelRatio);
+        this.setAnimationLoop(animate);
     }
 }
 

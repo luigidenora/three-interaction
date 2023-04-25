@@ -29,17 +29,16 @@ class CustomScene extends Scene {
 
 class Main {
     public scene = new CustomScene();
-    public renderer = new FullScreenWebGLRenderer([this.scene], { antialias: true });
-    public eventsManager = new EventsManager(this.renderer, this.scene); ciao
+    public renderer = new FullScreenWebGLRenderer([this.scene], this.animate.bind(this), { antialias: true });
+    public eventsManager = new EventsManager(this.renderer, this.scene);
     public stats = Stats();
 
     constructor() {
         document.body.appendChild(this.stats.dom);
-        this.renderer.setAnimationLoop(this.animate.bind(this)); //todo check se serve bind
     }
 
     public animate() {
-        this.eventsManager.update(this.scene, this.scene.camera);
+        this.eventsManager.update(this.scene, this.scene.camera); //TODO mettere events manager dentro renderer
         this.renderer.render(this.scene, this.scene.camera);
         this.stats.update();
     }
