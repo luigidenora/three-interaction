@@ -1,5 +1,4 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, Mesh, MeshLambertMaterial, Vector3, DirectionalLight, Object3D } from "three";
-import { EventsManager } from "./src";
+import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, Vector3, WebGLRenderer } from "three";
 import { computeAutoBinding } from "three-binding";
 import Stats from "three/examples/jsm/libs/stats.module";
 
@@ -10,10 +9,6 @@ class Box extends Mesh {
         super(new BoxGeometry(0.1, 0.1, 0.1), new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
         this.position.copy(position);
     }
-}
-
-class CustomCamera extends Scene {
-
 }
 
 class CustomScene extends Scene {
@@ -37,8 +32,6 @@ class Main {
     public stats = Stats();
 
     constructor() {
-        this.renderer = new WebGLRenderer({ antialias: true, canvas: document.getElementById("canvas") });
-        this.scene = new CustomScene();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setAnimationLoop(this.animate.bind(this));
@@ -53,4 +46,4 @@ class Main {
     }
 }
 
-window.main = new Main();
+(window as any).main = new Main();

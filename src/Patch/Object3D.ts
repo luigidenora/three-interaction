@@ -1,7 +1,7 @@
 import { Object3D } from "three";
-import { Events } from "../Events";
-import { EventsDispatcher } from "../EventsDispatcher";
+import { Events } from "../Events/Events";
 import { patchVector3 } from "./Vector3";
+import { EventsDispatcher } from "../Events/EventsDispatcher";
 
 export interface InteractionPrototype {
     activable: boolean; // default false
@@ -82,8 +82,8 @@ Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !experiment;
 function autoUpdateMatrix(target: Object3D) {
     target.matrixAutoUpdate = false;
     target.matrixWorldAutoUpdate = false;
-    target.bindEvent("positionChange", updateMatrix);
-    target.bindEvent("scaleChange", updateMatrix); 
+    target.bindEvent("positionchange", updateMatrix);
+    target.bindEvent("scalechange", updateMatrix); 
     //Todo unire eventi e aggiungere rotazione
 }
 

@@ -1,15 +1,11 @@
-import { Mesh as MeshBase } from "three/index";
-import { InteractionPrototype } from "../src/Patch/Object3D";
-import { BindingPrototype, DetectChangesMode } from "three-binding/dist/Binding";
 import { Object3D } from "three";
-import { Events } from "../src/Events";
+import { Mesh as MeshBase } from "three/index";
+import { Events } from "../src/Events/Events";
+import { InteractionPrototype } from "../src/Patch/Object3D";
 
-export class Mesh extends MeshBase implements InteractionPrototype, BindingPrototype {
-    detectChangesMode: DetectChangesMode;
-    detectChanges(): void;
-    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
-    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    unbindByKey(key: string): this;
+export class Mesh extends MeshBase  implements InteractionPrototype {
+    override parent: Object3D;
+    override children: Object3D[];
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;
@@ -25,7 +21,4 @@ export class Mesh extends MeshBase implements InteractionPrototype, BindingProto
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
     triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
-    override parent: Object3D;
-    override children: Object3D[];
-    
 }

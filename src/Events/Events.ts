@@ -146,7 +146,7 @@ export class PointerIntersectionEvent extends EventExt {
   public readonly movement: Vector3;
 
   constructor(target: Object3D, intersection: IntersectionExt, lastIntersection: IntersectionExt) {
-    super("pointerIntersection", target);
+    super("pointerintersection", target);
     this.intersection = intersection;
     if (intersection.object === lastIntersection?.object) {
       this.movement = intersection.point.clone().sub(lastIntersection.point);

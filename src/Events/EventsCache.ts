@@ -1,6 +1,6 @@
 import { Object3D, Scene } from "three";
 import { Events } from "./Events";
-import { Utils } from "./Utils";
+import { Utils } from "../Utils";
 
 type SceneEventsCache = { [x: string]: { [x: number]: Object3D } };
 
@@ -8,7 +8,7 @@ export class EventsCache {
    private static _events: { [x: number]: SceneEventsCache } = {};
 
    public static push(type: keyof Events, target: Object3D): void {
-      if (type === "canvasResize") {
+      if (type === "rendererresize") {
          const scene = Utils.getSceneFromObj(target);
          if (scene) {
             const sceneCache = this._events[scene.id] ?? (this._events[scene.id] = {});
@@ -23,7 +23,7 @@ export class EventsCache {
    }
 
    public static trigger<K extends keyof Events>(scene: Scene, type: K, args: Events[K]): void {
-      if (type === "canvasResize") {
+      if (type === "rendererresize") {
          const sceneCache = this._events[scene?.id];
          if (sceneCache) {
             const eventCache = sceneCache[type];

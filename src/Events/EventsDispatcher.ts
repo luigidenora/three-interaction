@@ -1,7 +1,7 @@
 import { Object3D } from "three";
 import { Events, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
-import { eventChangedName } from "./Patch/Vector3";
+import { eventChangedName } from "../Patch/Vector3";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
@@ -9,9 +9,9 @@ export class EventsDispatcher {
     constructor(private _parent: Object3D) {
         this._parent.addEventListener(eventChangedName, (args) => {  //todo capire se ha senso metterlo qui
             if (args.name === "position") {
-                this.dispatchEventAncestor("positionChange", new VectorChangedEvent("positionChange", this._parent, args.oldValue));
+                this.dispatchEventAncestor("positionchange", new VectorChangedEvent("positionchange", this._parent, args.oldValue));
             } else if (args.name === "scale") {
-                this.dispatchEventAncestor("scaleChange", new VectorChangedEvent("scaleChange", this._parent, args.oldValue));
+                this.dispatchEventAncestor("scalechange", new VectorChangedEvent("scalechange", this._parent, args.oldValue));
             }
         });
     }

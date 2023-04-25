@@ -1,8 +1,7 @@
 import { Camera, Object3D, Raycaster, Renderer, Scene, Vector2 } from "three";
 import { DOMEvents, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent, RendererResizeEvent } from "./Events";
-import { EventsCache } from "./EventsCache";
 import { EventsQueue } from "./EventsQueue";
-import { Utils } from "./Utils";
+import { Utils } from "../Utils";
 
 export class EventsManager {
     public enabled = true;
@@ -170,7 +169,7 @@ export class EventsManager {
             this.pointerOutOver(scene, camera, this._lastPointerMove, false);
         }
         if (this.hoveredObj && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point)) {
-            this.hoveredObj.triggerEventAncestor("pointerIntersection", this.createPointerIntersectionEvent());
+            this.hoveredObj.triggerEventAncestor("pointerintersection", this.createPointerIntersectionEvent());
         }
     }
 

@@ -1,5 +1,4 @@
-import { Scene } from "three";
-import { Object3D, Vector3 } from "three";
+import { Scene, Object3D, Vector3 } from "three";
 
 export class Utils {
     public static eps = 10 ** -7;
