@@ -2,8 +2,7 @@ import { Object3D } from "three";
 import { EulerChangedEvent, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
 
-/** @internal */
-export const eventChangedName = "__changed";
+/** @internal */ export const eventChangedName = "__changed";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};

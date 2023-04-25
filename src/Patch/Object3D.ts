@@ -4,6 +4,7 @@ import { applyVector3Patch } from "./Vector3";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { applyEulerPatch } from "./Euler";
 import { applyQuaternionPatch } from "./Quaternion";
+import { bindAutoUpdateMatrix } from "./AutoUpdateMatrix";
 
 export interface InteractionPrototype {
     activable: boolean; // default false
@@ -75,20 +76,8 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
             applyEulerPatch(this.rotation, this);
             applyQuaternionPatch(this.quaternion, this);
             this._patched = true;
-            autoUpdateMatrix(this);
+            bindAutoUpdateMatrix(this);
         }
         this._userData = value;
     }
 });
-
-Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
-Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = false;
-
-function autoUpdateMatrix(target: Object3D) {
-    target.matrixAutoUpdate = false;
-    target.matrixWorldAutoUpdate = false;
-    target.bindEvent(["ownpositionchange", "ownscalechange", "ownrotationchange"], () => {
-        target.updateMatrix();
-        target.updateMatrixWorld();
-    });
-}

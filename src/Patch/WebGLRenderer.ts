@@ -1,6 +1,7 @@
 import { Scene, WebGLRenderer } from "three";
 import { EventsCache } from "../Events/EventsCache";
 import { RendererResizeEvent } from "../Events/Events";
+import { updateMatrices } from "./AutoUpdateMatrix";
 
 export interface RendererInteractionPrototype {
     scenes: Scene[];
@@ -12,9 +13,15 @@ export interface RendererInteractionPrototype {
 export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     renderer.scenes = [];
 
-    const base = renderer.setSize.bind(renderer);
-    renderer.setSize = function (width: number, height: number, updateStyle?: boolean) {
-        base(width, height, updateStyle);
+    const baseRender = renderer.render.bind(renderer);
+    renderer.render = function (scene, camera) {
+        updateMatrices();
+        baseRender(scene, camera);
+    }
+
+    const baseSetSize = renderer.setSize.bind(renderer);
+    renderer.setSize = function (width, height, updateStyle?) {
+        baseSetSize(width, height, updateStyle);
         for (const scene of this.scenes) {
             EventsCache.trigger(scene, "rendererresize", new RendererResizeEvent(this, width, height));
         }
