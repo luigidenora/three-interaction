@@ -1,6 +1,6 @@
 import { Scene, WebGLRenderer } from "three";
 import { EventsCache } from "../Events/EventsCache";
-import { RendererResizeEvent } from "../Events/Events";
+import { EventExt, RendererResizeEvent } from "../Events/Events";
 import { updateMatrices } from "./AutoUpdateMatrix";
 
 export interface RendererInteractionPrototype {
@@ -14,7 +14,10 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     renderer.scenes = [];
 
     const baseRender = renderer.render.bind(renderer);
-    renderer.render = function (scene, camera) {
+    renderer.render = function (scene: Scene, camera) {
+        //TODO smart rendering
+        EventsCache.trigger(scene, "animate", new EventExt("animate")); //TODO correggere
+        EventsCache.trigger(scene, "framerendering", new EventExt("framerendering"));
         updateMatrices();
         baseRender(scene, camera);
     }
