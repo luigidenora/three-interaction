@@ -18,7 +18,7 @@ export function applyVector3Patch(vec3: any, parent: Object3D, name: string): vo
     vec3._triggerInSetter = true;
     vec3._changed = false;
     vec3._rootEventName = undefined;
-    vec3._oldValue = new Vector3();
+    vec3._oldValue = vec3.clone();
 
     overrideProperty(vec3, "x", parent, name);
     overrideProperty(vec3, "y", parent, name);
@@ -32,8 +32,9 @@ export function applyVector3Patch(vec3: any, parent: Object3D, name: string): vo
 function getKeysToOvveride(): string[] {
     if (!methodToOverride) {
         methodToOverride = [];
-        for (const key of Object.getOwnPropertyNames(Vector3.prototype)) {
-            if (typeof (Vector3.prototype as any)[key] === "function" && !ignoredMethodsSet.has(key)) {
+        const proto = Vector3.prototype as any;
+        for (const key of Object.getOwnPropertyNames(proto)) {
+            if (typeof proto[key] === "function" && !ignoredMethodsSet.has(key)) {
                 methodToOverride.push(key)
             }
         }
@@ -50,9 +51,9 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, 
         set: function (value) {
             if (this[privateProperty] !== value) {
                 if (this._triggerInSetter) {
-                    this._oldValue.set(this._x, this._y, this._z);
                     this[privateProperty] = value;
                     parent.dispatchEvent({ type: eventChangedName, name, oldValue: this._oldValue });
+                    this._oldValue.copy(this);
                 } else {
                     this[privateProperty] = value;
                     this._changed = true;
@@ -69,7 +70,6 @@ function overrideMethod(vec3: any, method: string, parent: Object3D, name: strin
         if (!this._rootEventName) {
             this._rootEventName = method;
             this._triggerInSetter = false;
-            this._oldValue.set(this._x, this._y, this._z);
         }
 
         base(...arguments);
@@ -77,6 +77,7 @@ function overrideMethod(vec3: any, method: string, parent: Object3D, name: strin
         if (this._rootEventName === method) {
             if (this._changed) {
                 parent.dispatchEvent({ type: eventChangedName, name, oldValue: this._oldValue });
+                this._oldValue.copy(this);
                 this._changed = false;
             }
             this._triggerInSetter = true;

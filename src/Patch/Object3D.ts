@@ -16,7 +16,7 @@ export interface InteractionPrototype {
     visibleUntilParent: boolean; //TODO Handle
     interceptByRaycaster: boolean; // default true
     objectsToRaycast: Object3D[];
-    bindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void;
+    bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
@@ -39,8 +39,14 @@ Object.defineProperty(Object3D.prototype, "activableObj", {
     }
 });
 
-Object3D.prototype.bindEvent = function (type, listener) {
-    return (this as any)._eventsDispatcher.addEventListener(type.toLowerCase(), listener);
+Object3D.prototype.bindEvent = function (this: any, types, listener) {
+    if (typeof (types) === "string") {
+        return this._eventsDispatcher.addEventListener(types.toLowerCase(), listener);
+    }
+    for (const type of types) {
+        this._eventsDispatcher.addEventListener(type.toLowerCase(), listener);
+    }
+    return listener;
 };
 
 Object3D.prototype.hasBoundEvent = function (type, listener) {
@@ -67,31 +73,22 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
             applyVector3Patch(this.position, this, "position");
             applyVector3Patch(this.scale, this, "scale");
             applyEulerPatch(this.rotation, this);
-            applyQuaternionPatch(this.quaterion, this);
+            applyQuaternionPatch(this.quaternion, this);
             this._patched = true;
-            experiment && autoUpdateMatrix(this);
+            autoUpdateMatrix(this);
         }
         this._userData = value;
     }
 });
 
-// EXPERIMENT AUTO UPDATE MATRIX
-
-const experiment = false;
-
-Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !experiment;
-Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !experiment;
+Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
+Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = false;
 
 function autoUpdateMatrix(target: Object3D) {
     target.matrixAutoUpdate = false;
     target.matrixWorldAutoUpdate = false;
-    target.bindEvent("ownpositionchange", updateMatrix);
-    target.bindEvent("ownscalechange", updateMatrix); 
-    target.bindEvent("ownrotationchange", updateMatrix); 
-}
-
-function updateMatrix(this: Object3D) {
-    this.updateMatrix();
-    this.updateMatrixWorld();
-    //bbox?
+    target.bindEvent(["ownpositionchange", "ownscalechange", "ownrotationchange"], () => {
+        target.updateMatrix();
+        target.updateMatrixWorld();
+    });
 }
