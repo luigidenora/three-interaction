@@ -1,8 +1,7 @@
 import { Object3D } from "three";
+import { positionChangedEvent, quaternionChangedEvent, rotationChangedEvent, scaleChangedEvent } from "../Patch/Object3D";
 import { EulerChangedEvent, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
-
-/** @internal */ export const eventChangedName = "__changed";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
@@ -12,25 +11,37 @@ export class EventsDispatcher {
     }
 
     private bindPositionScaleRotationChanged(): void {
-        this._parent.addEventListener(eventChangedName, (args) => {
-            switch (args.name) {
-                case "position":
-                    this.dispatchEvent("ownpositionchange", new VectorChangedEvent("ownpositionchange", this._parent, args.oldValue));
-                    return this.dispatchEventAncestor("positionchange", new VectorChangedEvent("positionchange", this._parent, args.oldValue));
-                case "scale":
-                    this.dispatchEvent("ownscalechange", new VectorChangedEvent("ownscalechange", this._parent, args.oldValue));
-                    return this.dispatchEventAncestor("scalechange", new VectorChangedEvent("scalechange", this._parent, args.oldValue));
-                case "rotation":
-                    this.dispatchEvent("ownrotationchange", new EulerChangedEvent("ownrotationchange", this._parent, args.oldValue));
-                    return this.dispatchEventAncestor("rotationchange", new EulerChangedEvent("rotationchange", this._parent, args.oldValue));
-                case "quaternion":
-                    this.dispatchEvent("ownquaternionchange", new QuaternionChangedEvent("ownquaternionchange", this._parent, args.oldValue));
-                    return this.dispatchEventAncestor("quaternionchange", new QuaternionChangedEvent("quaternionchange", this._parent, args.oldValue));
-            }
+        this._parent.addEventListener(positionChangedEvent, (args) => {
+            const event = new VectorChangedEvent("ownpositionchange", args.target, args.oldValue);
+            this.dispatchEvent("ownpositionchange", event);
+            (event as any).type = "positionchange"; //TODO opt
+            this.dispatchEventAncestor("positionchange", event);
+        });
+
+        this._parent.addEventListener(scaleChangedEvent, (args) => {
+            const event = new VectorChangedEvent("ownscalechange", args.target, args.oldValue);
+            this.dispatchEvent("ownscalechange", event);
+            (event as any).type = "scalechange";
+            this.dispatchEventAncestor("scalechange", event);
+        });
+
+        this._parent.addEventListener(rotationChangedEvent, (args) => {
+            const event = new EulerChangedEvent("ownrotationchange", args.target, args.oldValue);
+            this.dispatchEvent("ownrotationchange", event);
+            (event as any).type = "rotationchange";
+            this.dispatchEventAncestor("rotationchange", event);
+            //TODO rotazione generale evento
+        });
+
+        this._parent.addEventListener(quaternionChangedEvent, (args) => {
+            const event = new QuaternionChangedEvent("ownquaternionchange", args.target, args.oldValue);
+            this.dispatchEvent("ownquaternionchange", event);
+            (event as any).type = "quaternionchange";
+            this.dispatchEventAncestor("quaternionchange", event);
+            //TODO rotazione generale evento
         });
     }
 
-    //TODO multibind mousedown mouseup
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (!this._listeners[type]) {
             this._listeners[type] = [];

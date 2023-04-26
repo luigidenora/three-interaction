@@ -173,7 +173,7 @@ export class EventsManager {
         if (this._mouseDetected && !this._raycasted) {
             this.pointerOutOver(scene, camera, this._lastPointerMove, false);
         }
-        if (this.hoveredObj && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point)) {
+        if (this.hoveredObj /* && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point) */) {
             this.hoveredObj.triggerEventAncestor("pointerintersection", this.createPointerIntersectionEvent());
         }
     }

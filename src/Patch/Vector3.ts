@@ -1,5 +1,4 @@
 import { Object3D, Vector3 } from "three";
-import { eventChangedName } from "../Events/EventsDispatcher";
 
 const ignoredMethodsSet = new Set([
     // don't override because don't change values
@@ -14,18 +13,18 @@ let methodToOverride: string[];
 /**
  * @internal //TODO capire
  */
-export function applyVector3Patch(vec3: any, parent: Object3D, name: string): void {
+export function applyVector3Patch(vec3: any, parent: Object3D, eventName: string): void {
     vec3._triggerInSetter = true;
     vec3._changed = false;
     vec3._rootEventName = undefined;
     vec3._oldValue = vec3.clone();
 
-    overrideProperty(vec3, "x", parent, name);
-    overrideProperty(vec3, "y", parent, name);
-    overrideProperty(vec3, "z", parent, name);
+    overrideProperty(vec3, "x", parent, eventName);
+    overrideProperty(vec3, "y", parent, eventName);
+    overrideProperty(vec3, "z", parent, eventName);
 
     for (const key of getKeysToOvveride()) {
-        overrideMethod(vec3, key, parent, name);
+        overrideMethod(vec3, key, parent, eventName);
     }
 }
 
@@ -42,7 +41,7 @@ function getKeysToOvveride(): string[] {
     return methodToOverride;
 }
 
-function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, name: string): void {
+function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, eventName: string): void {
     const privateProperty = `_${property}`;
     vec3[privateProperty] = vec3[property];
 
@@ -52,7 +51,7 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, 
             if (this[privateProperty] !== value) {
                 if (this._triggerInSetter) {
                     this[privateProperty] = value;
-                    parent.dispatchEvent({ type: eventChangedName, oldValue: this._oldValue, name });
+                    parent.dispatchEvent({ type: eventName, oldValue: this._oldValue });
                     this._oldValue.copy(this);
                 } else {
                     this[privateProperty] = value;
@@ -63,7 +62,7 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, 
     });
 }
 
-function overrideMethod(vec3: any, method: string, parent: Object3D, name: string): void {
+function overrideMethod(vec3: any, method: string, parent: Object3D, eventName: string): void {
     const base = vec3[method].bind(vec3);
 
     vec3[method] = function () {
@@ -76,7 +75,7 @@ function overrideMethod(vec3: any, method: string, parent: Object3D, name: strin
 
         if (this._rootEventName === method) {
             if (this._changed) {
-                parent.dispatchEvent({ type: eventChangedName, oldValue: this._oldValue, name });
+                parent.dispatchEvent({ type: eventName, oldValue: this._oldValue });
                 this._oldValue.copy(this);
                 this._changed = false;
             }

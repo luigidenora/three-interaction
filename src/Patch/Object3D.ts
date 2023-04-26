@@ -6,6 +6,11 @@ import { applyEulerPatch } from "./Euler";
 import { applyQuaternionPatch } from "./Quaternion";
 import { bindAutoUpdateMatrix } from "./AutoUpdateMatrix";
 
+/** @internal */ export const positionChangedEvent = "positionChanged";
+/** @internal */ export const scaleChangedEvent = "scaleChanged";
+/** @internal */ export const rotationChangedEvent = "rotationChanged";
+/** @internal */ export const quaternionChangedEvent = "quaternionChanged";
+
 export interface InteractionPrototype {
     activable: boolean; // default false
     get activableObj(): Object3D; //TODO cache
@@ -71,10 +76,10 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
     set: function (value) {
         if (!this._patched) {
             this._eventsDispatcher = new EventsDispatcher(this);
-            applyVector3Patch(this.position, this, "position");
-            applyVector3Patch(this.scale, this, "scale");
-            applyEulerPatch(this.rotation, this, "rotation");
-            applyQuaternionPatch(this.quaternion, this, "quaternion");
+            applyVector3Patch(this.position, this, positionChangedEvent);
+            applyVector3Patch(this.scale, this, scaleChangedEvent);
+            applyEulerPatch(this.rotation, this, rotationChangedEvent);
+            applyQuaternionPatch(this.quaternion, this, quaternionChangedEvent);
             this._patched = true;
             bindAutoUpdateMatrix(this);
         }

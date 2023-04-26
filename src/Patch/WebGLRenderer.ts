@@ -9,7 +9,6 @@ export interface RendererInteractionPrototype {
     removeScene(scene: Scene): void;
 }
 
-/** @internal */
 export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     renderer.scenes = [];
 
