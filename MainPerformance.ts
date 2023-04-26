@@ -1,6 +1,6 @@
-import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, Vector3 } from "three";
+import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { EventsManager, PerspectiveCamera, FullScreenWebGLRenderer } from "./src/index";
+import { FullScreenWebGLRenderer, PerspectiveCamera } from "./src/index";
 
 class Box extends Mesh {
     public activable = true;
@@ -34,7 +34,6 @@ class CustomScene extends Scene {
 class Main {
     public scene = new CustomScene();
     public renderer = new FullScreenWebGLRenderer([this.scene], this.animate.bind(this), { antialias: true });
-    public eventsManager = new EventsManager(this.renderer, this.scene);
     public stats = Stats();
 
     constructor() {
@@ -42,7 +41,6 @@ class Main {
     }
 
     public animate() {
-        this.eventsManager.update(this.scene, this.scene.camera); //TODO mettere events manager dentro renderer
         this.renderer.render(this.scene, this.scene.camera);
         this.stats.update();
     }

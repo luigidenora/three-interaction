@@ -6,7 +6,7 @@ export class FullScreenWebGLRenderer extends WebGLRendererBase {
     public eventsManager: EventsManager;
     public activeScene: Scene;
 
-    constructor(scenes: Scene[], animate: XRFrameRequestCallback, parameters?: WebGLRendererParameters) {
+    constructor(scenes: Scene[], animate: XRFrameRequestCallback, parameters: WebGLRendererParameters = {}) {
         super(parameters);
         !parameters.canvas && document.body.appendChild(this.domElement);
         applyWebGLRendererPatch(this);

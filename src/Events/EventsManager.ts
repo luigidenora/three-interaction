@@ -40,7 +40,10 @@ export class EventsManager {
     }
 
     public registerRenderer(renderer: WebGLRenderer): void {
-        // TODO check se WebGLRenderer
+        if (!(renderer instanceof WebGLRenderer)) {
+            console.error("Renderer not supported.");
+            return;
+        }
         renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
         renderer.domElement.addEventListener("mousemove", () => this._mouseDetected = true); //TODO togliere l'evento dopo il primo trigger e aggiungere touch to fix surface
         this.bindEvents();

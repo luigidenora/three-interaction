@@ -1,10 +1,10 @@
 import { Object3D } from "three";
 import { Events } from "../Events/Events";
-import { applyVector3Patch } from "./Vector3";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
+import { bindAutoUpdateMatrix } from "./AutoUpdateMatrix";
 import { applyEulerPatch } from "./Euler";
 import { applyQuaternionPatch } from "./Quaternion";
-import { bindAutoUpdateMatrix } from "./AutoUpdateMatrix";
+import { applyVector3Patch } from "./Vector3";
 
 /** @internal */ export const positionChangedEvent = "positionChanged";
 /** @internal */ export const scaleChangedEvent = "scaleChanged";
@@ -85,8 +85,8 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
             applyVector3Patch(this.scale, this, scaleChangedEvent);
             applyEulerPatch(this.rotation, this, rotationChangedEvent);
             applyQuaternionPatch(this.quaternion, this, quaternionChangedEvent);
-            this._patched = true;
             bindAutoUpdateMatrix(this);
+            this._patched = true;
         }
         this._userData = value;
     }
