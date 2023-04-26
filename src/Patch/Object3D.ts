@@ -30,6 +30,8 @@ export interface InteractionPrototype {
     triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
 }
 
+export const object3DList: { [x: number]: Object3D } = {};
+
 Object3D.prototype.activable = false;
 Object3D.prototype.active = false;
 Object3D.prototype.hovered = false;
@@ -77,6 +79,7 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
     get: function () { return this._userData },
     set: function (value) {
         if (!this._patched) {
+            object3DList[this.id] = this;
             this._eventsDispatcher = new EventsDispatcher(this);
             applyVector3Patch(this.position, this, positionChangedEvent);
             applyVector3Patch(this.scale, this, scaleChangedEvent);
