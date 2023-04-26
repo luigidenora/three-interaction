@@ -1,20 +1,42 @@
-import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene } from "three";
+import { Color, DirectionalLight, DynamicDrawUsage, InstancedMesh, MeshPhongMaterial, Object3D, Scene, SphereGeometry } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { FullScreenWebGLRenderer, PerspectiveCamera } from "./src/index";
+import { setAutoUpdateMatrix } from "./src/Patch/AutoUpdateMatrix";
 
-class Box extends Mesh {
+class Boxes extends InstancedMesh {
     public activable = true;
+    public activeId: number;
+    private _color = new Color();
 
     constructor() {
-        super(new BoxGeometry(0.2, 0.2, 0.2), new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
-        (this as any).bindEvent(["focusin", "focusout"], (e) => this.material.emissive.set(e.type == "focusin" ? 0xffff00 : 0));
-        (this as any).bindEvent(["mouseenter", "mouseleave"], (e) => !this.active && this.material.emissive.set(e.type == "mouseenter" ? 0xaaaaaa : 0));
-        const angleX = Math.random() * Math.PI * 2;
-        const angleY = Math.random() * Math.PI * 2;
+        super(new SphereGeometry(0.1), new MeshPhongMaterial(), 5000);
+        this.instanceMatrix.setUsage(DynamicDrawUsage);
+
+        (this as any).bindEvent("pointerintersection", (e) => {
+            this.setColorAt(e.intersection.instanceId, this._color.setHex(0xff0000));
+            this.instanceColor.needsUpdate = true;
+        });
+
+        const temp = new Object3D();
+        (temp as any).enabled = false; //TODO per evitare eventi
+
+        const angleX: number[] = [];
+        const angleY: number[] = [];
+        for (let i = 0; i < this.count; i++) {
+            angleX.push(Math.random() * Math.PI * 2);
+            angleY.push(Math.random() * Math.PI * 2);
+            this.setColorAt(i, new Color().setHex(0xffffff));
+        }
+
         (this as any).bindEvent("framerendering", () => {
             const now = performance.now() / 10000;
-            this.position.setFromSphericalCoords(5, angleX * now, angleY * now);
-            this.lookAt(this.position);
+            for (let i = 0; i < this.count; i++) {
+                temp.position.setFromSphericalCoords(5, angleX[i] * now, angleY[i] * now);
+                temp.updateMatrix();
+                this.setMatrixAt(i, temp.matrix);
+            }
+            this.instanceMatrix.needsUpdate = true;
+            this.computeBoundingSphere();
         });
     }
 }
@@ -25,9 +47,7 @@ class CustomScene extends Scene {
     constructor() {
         super();
         this.add(this.camera, new DirectionalLight(0xffffff, 0.9).translateZ(10)); //import adding camera to scene to trigger renderresize event
-        for (let i = 0; i < 1000; i++) {
-            this.add(new Box());
-        }
+        this.add(new Boxes());
     }
 }
 

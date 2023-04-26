@@ -5,7 +5,7 @@ import { EventsQueue } from "./EventsQueue";
 
 export class EventsManager {
     public enabled = true;
-    public raycastGPU = false;
+    public raycastGPU = false; //todo capire se ha senso
     public pickingTexture = new WebGLRenderTarget(1, 1); // todo move
     public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => { return a.distance === b.distance ? b.object.id - a.object.id : a.distance - b.distance };
     public continousPointerRaycasting = true; //for intersection event
@@ -138,12 +138,12 @@ export class EventsManager {
             } else {
                 this._raycaster.intersectObject(object, false, target);
             }
-    
+
             for (const intersection of target) {
                 intersection.hitbox = intersection.object;
                 intersection.object = object;
             }
-        }   
+        }
 
         return target;
     }
@@ -154,7 +154,7 @@ export class EventsManager {
         this.pointer.set(event.offsetX, event.offsetY);
     }
 
-    private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target = this.hoveredObj, relatedTarget?: Object3D): PointerEventExt {
+    private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D): PointerEventExt {
         if (target) {
             const pointerEvent = new PointerEventExt(event, this.intersection, this._lastIntersection, relatedTarget);
             target.triggerEventAncestor(type, pointerEvent);
@@ -162,7 +162,7 @@ export class EventsManager {
         }
     }
 
-    private triggerAncestorPointerMulti(types: (keyof DOMEvents)[], event: PointerEvent, target = this.hoveredObj, relatedTarget?: Object3D): PointerEventExt {
+    private triggerAncestorPointerMulti(types: (keyof DOMEvents)[], event: PointerEvent, target: Object3D, relatedTarget?: Object3D): PointerEventExt {
         if (target) {
             const isMouse = event.pointerType === "mouse";
             const isTouch = event.pointerType === "touch" || event.pointerType === "pen";
@@ -184,7 +184,7 @@ export class EventsManager {
     }
 
     private pointerDown(event: PointerEvent): void {
-        this._lastPointerDown = this.triggerAncestorPointerMulti(this._pointerDownEvents, event);
+        this._lastPointerDown = this.triggerAncestorPointerMulti(this._pointerDownEvents, event, this.hoveredObj);
         this.focus();
     }
 
@@ -192,7 +192,7 @@ export class EventsManager {
         this._lastPointerMove = event;
         this.updateCanvasPointerPosition(event);
         this.pointerOutOver(scene, camera, event);
-        this.triggerAncestorPointerMulti(this._pointerMoveEvents, event);
+        this.triggerAncestorPointerMulti(this._pointerMoveEvents, event, this.hoveredObj);
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
@@ -224,10 +224,10 @@ export class EventsManager {
         this.triggerAncestorPointerMulti(this._pointerUpEvents, event, this.hoveredObj, this._lastPointerDown?._target);
         if (this.hoveredObj === (this._lastPointerDown?._target ?? null)) {
             const prevClick = this._lastClick;
-            this._lastClick = this.triggerAncestorPointer("click", event);
+            this._lastClick = this.triggerAncestorPointer("click", event, this.hoveredObj);
 
             if (this.hoveredObj === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
-                this.triggerAncestorPointer("dblclick", event);
+                this.triggerAncestorPointer("dblclick", event, this.hoveredObj);
                 this._lastClick = undefined;
             }
         } else {
