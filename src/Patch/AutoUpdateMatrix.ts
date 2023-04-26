@@ -1,6 +1,7 @@
 import { Object3D } from "three";
 
-const autoUpdateMatrix = true;
+/** @internal */
+export const autoUpdateMatrix = true;
 
 Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !autoUpdateMatrix;
 Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !autoUpdateMatrix;
@@ -18,11 +19,11 @@ export function bindAutoUpdateMatrix(target: Object3D): void {
 
 export function updateMatrices(): void {
     if (autoUpdateMatrix) {
-        for (const key in matrixUpdateQueue) {
+        for (const key in matrixUpdateQueue) { //TODO add check profondità
             const target = matrixUpdateQueue[key];
             target.updateMatrix();
             target.updateMatrixWorld();
-            //TODO frustum check se camera muove su tutto altrimenti solo su quelli aggiornati
+            // target.frustumNeedsUpdate = true; //TODO anche i child
         }
         matrixUpdateQueue = {};
     }

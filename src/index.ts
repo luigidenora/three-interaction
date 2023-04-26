@@ -6,6 +6,7 @@ export * from './Events/EventsDispatcher';
 export * from './Events/EventsManager';
 export * from './Events/EventsQueue';
 export * from './Patch/Euler';
+// export * from './Patch/Frustum';
 export * from './Patch/Object3D';
 export * from './Patch/Quaternion';
 export * from './Patch/Vector3';

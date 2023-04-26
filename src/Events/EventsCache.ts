@@ -34,13 +34,12 @@ export class EventsCache {
       // TODO
    }
 
-   public static trigger<K extends keyof Events>(scene: Scene, type: K, args: Events[K]): void {
+   public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache) {
          const eventCache = sceneCache[type];
          for (const key in eventCache) {
-            args.target = args.currentTarget = eventCache[key];
-            eventCache[key].triggerEvent(type, args); //TODO fix immediate propagation
+            eventCache[key].triggerEvent(type, event);
          }
       }
    }

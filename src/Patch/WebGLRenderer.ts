@@ -15,8 +15,8 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera) {
         //TODO smart rendering
-        EventsCache.trigger(scene, "animate", new EventExt("animate")); //TODO correggere
-        EventsCache.trigger(scene, "framerendering", new EventExt("framerendering"));
+        EventsCache.dispatchEvent(scene, "animate", new EventExt()); //TODO correggere
+        EventsCache.dispatchEvent(scene, "framerendering", new EventExt());
         updateMatrices();
         //TODO raycasting e trigger eventi
         // updateMatrices();
@@ -27,7 +27,7 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     renderer.setSize = function (width, height, updateStyle?) {
         baseSetSize(width, height, updateStyle);
         for (const scene of this.scenes) {
-            EventsCache.trigger(scene, "rendererresize", new RendererResizeEvent(this, width, height));
+            EventsCache.dispatchEvent(scene, "rendererresize", new RendererResizeEvent(this, width, height));
         }
     }
 

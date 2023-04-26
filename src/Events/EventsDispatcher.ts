@@ -1,42 +1,38 @@
 import { Object3D } from "three";
 import { positionChangedEvent, quaternionChangedEvent, rotationChangedEvent, scaleChangedEvent } from "../Patch/Object3D";
-import { EulerChangedEvent, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
+import { EulerChangedEvent, EventExt, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args: any) => void)[] } = {};
 
-    constructor(private _parent: Object3D) {
+    constructor(private _object3D: Object3D) {
         this.bindPositionScaleRotationChanged();
     }
 
-    private bindPositionScaleRotationChanged(): void {
-        this._parent.addEventListener(positionChangedEvent, (args) => {
-            const event = new VectorChangedEvent("ownpositionchange", args.target, args.oldValue);
+    private bindPositionScaleRotationChanged(): void { //todo consider to move
+        this._object3D.addEventListener(positionChangedEvent, (args) => {
+            const event = new VectorChangedEvent(args.oldValue);
             this.dispatchEvent("ownpositionchange", event);
-            (event as any).type = "positionchange"; //TODO opt
             this.dispatchEventAncestor("positionchange", event);
         });
 
-        this._parent.addEventListener(scaleChangedEvent, (args) => {
-            const event = new VectorChangedEvent("ownscalechange", args.target, args.oldValue);
+        this._object3D.addEventListener(scaleChangedEvent, (args) => {
+            const event = new VectorChangedEvent(args.oldValue);
             this.dispatchEvent("ownscalechange", event);
-            (event as any).type = "scalechange";
             this.dispatchEventAncestor("scalechange", event);
         });
 
-        this._parent.addEventListener(rotationChangedEvent, (args) => {
-            const event = new EulerChangedEvent("ownrotationchange", args.target, args.oldValue);
+        this._object3D.addEventListener(rotationChangedEvent, (args) => {
+            const event = new EulerChangedEvent(args.oldValue);
             this.dispatchEvent("ownrotationchange", event);
-            (event as any).type = "rotationchange";
             this.dispatchEventAncestor("rotationchange", event);
             //TODO rotazione generale evento
         });
 
-        this._parent.addEventListener(quaternionChangedEvent, (args) => {
-            const event = new QuaternionChangedEvent("ownquaternionchange", args.target, args.oldValue);
+        this._object3D.addEventListener(quaternionChangedEvent, (args) => {
+            const event = new QuaternionChangedEvent(args.oldValue);
             this.dispatchEvent("ownquaternionchange", event);
-            (event as any).type = "quaternionchange";
             this.dispatchEventAncestor("quaternionchange", event);
             //TODO rotazione generale evento
         });
@@ -45,36 +41,56 @@ export class EventsDispatcher {
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (!this._listeners[type]) {
             this._listeners[type] = [];
-            EventsCache.push(type, this._parent);
+            EventsCache.push(type, this._object3D);
         }
-        this._listeners[type].indexOf(listener) === -1 && this._listeners[type].push(listener);
+        if (this._listeners[type].indexOf(listener) === -1) {
+            this._listeners[type].push(listener);
+        }
         return listener;
     }
 
     public hasEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
-        return this._listeners[type]?.indexOf(listener) !== -1 ?? false;
+        if (this._listeners[type]?.indexOf(listener) ?? -1 !== -1) {
+            return true;
+        }
+        return false;
     }
 
     public removeEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
         const index = this._listeners[type]?.indexOf(listener) ?? -1;
-        index !== -1 && this._listeners[type].splice(index, 1);
+        if (index !== -1) {
+            this._listeners[type].splice(index, 1);
+        }
     }
 
-    public dispatchEvent<K extends keyof Events>(type: K, args: Events[K]): void {
+    public dispatchEvent<K extends keyof Events>(type: K, event: Events[K]): void {
+        event._bubbles = false;
+        event._stoppedImmediatePropagation = false;
+        event._defaultPrevented = false;
+        event._type = type;
+        event._target = this._object3D;
+        this._dispatchEvent(type, event);
+    }
+
+    private _dispatchEvent<K extends keyof Events>(type: K, event: Events[K]): void {
         if (!this._listeners[type]) return;
-        args.stopPropagation(); //todo rendere tutti così TODO mettere bubble nel costruttore
-        for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
-            if ((args as any)._stoppedImmediatePropagation) break;
-            callback.call(this._parent, args);
+        const object3D = event.currentTarget = this._object3D;
+        // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
+        for (const callback of this._listeners[type]) {
+            if (event._stoppedImmediatePropagation) break;
+            callback.call(object3D, event);
         }
     }
 
     public dispatchEventAncestor<K extends keyof Events>(type: K, event: Events[K]): void {
-        let target = this._parent;
-        while (target) {
-            event.currentTarget = target;
-            target.triggerEvent(type, event);
-            if (!event.bubbles) break;
+        let target = this._object3D;
+        event._bubbles = true;
+        event._stoppedImmediatePropagation = false;
+        event._defaultPrevented = false;
+        event._type = type;
+        event._target = target;
+        while (target && event._bubbles) {
+            target._eventsDispatcher._dispatchEvent(type, event);
             target = target.parent;
         }
     }

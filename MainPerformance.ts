@@ -4,11 +4,13 @@ import { EventsManager, PerspectiveCamera, FullScreenWebGLRenderer } from "./src
 
 class Box extends Mesh {
     public activable = true;
-    public override material: MeshLambertMaterial;
 
-    constructor() {
-        super(new BoxGeometry(2, 2, 2), new MeshLambertMaterial({ color: 0xaaaaaa * Math.random() }));
-        this.bindEvent(["focusin", "focusout"], (e) => this.material.emissive.set(e.type == "focusin" ? 0xffff00 : 0));
+    constructor(position: Vector3) {
+        super(new BoxGeometry(0.1, 0.1, 0.1), new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
+        this.position.copy(position);
+        this.id <= 2500 && (this as any).bindEvent("framerendering", () => {
+            this.position.x += 0.1;
+        });
     }
 }
 
@@ -18,8 +20,9 @@ class CustomScene extends Scene {
     constructor() {
         super();
         this.add(this.camera, new DirectionalLight(0xffffff, 0.9).translateZ(10)); //import adding camera to scene to trigger renderresize event
-        for (let i = 0; i < 10; i++) {
-            this.add(new Box().translateX(Math.random() * 10 - 5).translateY(Math.random() * 10 - 5));
+        for (let i = 0; i < 50000; i++) {
+            this.add(new Box(new Vector3().random().multiplyScalar(500).subScalar(250).setZ(0)));
+            // this.add(new Box(new Vector3().random().multiplyScalar(50).subScalar(25).setZ(0)));
         }
     }
 }
@@ -27,6 +30,7 @@ class CustomScene extends Scene {
 class Main {
     public scene = new CustomScene();
     public renderer = new FullScreenWebGLRenderer([this.scene], this.animate.bind(this), { antialias: true });
+    public eventsManager = new EventsManager(this.renderer, this.scene);
     public stats = Stats();
 
     constructor() {
@@ -34,6 +38,7 @@ class Main {
     }
 
     public animate() {
+        this.eventsManager.update(this.scene, this.scene.camera); //TODO mettere events manager dentro renderer
         this.renderer.render(this.scene, this.scene.camera);
         this.stats.update();
     }

@@ -2,8 +2,10 @@ import { Object3D } from "three";
 import { Scene as SceneBase } from "three/index";
 import { Events } from "../src/Events/Events";
 import { InteractionPrototype } from "../src/Patch/Object3D";
+import { EventsDispatcher } from "../src/index";
 
 export class Scene extends SceneBase  implements InteractionPrototype {
+    _eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];
     activable: boolean;

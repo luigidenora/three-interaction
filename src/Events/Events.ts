@@ -10,20 +10,17 @@ export class EventExt {
   /** Indicates whether or not the call to event.preventDefault() canceled the event. */
   public get defaultPrevented() { return this._defaultPrevented }
   /** A reference to the object to which the event was originally dispatched. */
-  public target: Object3D;
+  public get target() { return this._target }
   /** The time at which the event was created (in milliseconds). By specification, this value is time since epoch—but in reality, browsers' definitions vary. In addition, work is underway to change this to be a DOMHighResTimeStamp instead. */
   public readonly timeStamp = performance.now();
   /** The case-insensitive name identifying the type of the event. */
-  public readonly type: keyof Events;
+  public get type() { return this._type }
 
-  protected _defaultPrevented = false;
-  protected _stoppedImmediatePropagation = false;
-  protected _bubbles = true;
-
-  constructor(type: keyof Events, target?: Object3D) {
-    this.target = this.currentTarget = target;
-    this.type = type;
-  }
+    /** @internal */ public _defaultPrevented: boolean;
+    /** @internal */ public _stoppedImmediatePropagation: boolean;
+    /** @internal */ public _bubbles: boolean;
+    /** @internal */ public _type: keyof Events;
+    /** @internal */ public _target: Object3D;
 
   /** Cancels the event. */
   public preventDefault(): void {
@@ -83,10 +80,8 @@ export class MouseEventExt extends EventExt {
 
   protected _trunc = true;
 
-  constructor(protected _event: PointerEvent, type: keyof Events, target: Object3D, intersection: IntersectionExt, lastIntersection: IntersectionExt,
-    relatedTarget?: Object3D) {
-    super(type, target);
-    this._bubbles = type !== "mouseenter" && type !== "mouseleave";
+  constructor(protected _event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
+    super();
     this.intersection = intersection;
     this.relatedTarget = relatedTarget;
     if (intersection?.object === lastIntersection?.object) {
@@ -122,20 +117,19 @@ export class PointerEventExt extends MouseEventExt {
   /** Indicates if the pointer represents the primary pointer of this pointer type. */
   public get isPrimary() { return this._event.isPrimary }
 
-  constructor(event: PointerEvent, type: keyof Events, target: Object3D, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
-    super(event, type, target, intersection, lastIntersection, relatedTarget);
-    this._bubbles = type !== "pointerenter" && type !== "pointerleave";
+  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
+    super(event, intersection, lastIntersection, relatedTarget);
     this._trunc = false;
   }
 
   /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */
   public getCoalescedEvents(): PointerEventExt {
-    return undefined;
+    return undefined; // TODO
   }
 
   /** Returns a sequence of PointerEvent instances that the browser predicts will follow the dispatched pointermove event's coalesced events. */
   public getPredictedEvents(): PointerEventExt {
-    return undefined;
+    return undefined; // TODO
   }
 }
 
@@ -145,8 +139,8 @@ export class PointerIntersectionEvent extends EventExt {
   /** TODO. */
   public readonly movement: Vector3;
 
-  constructor(target: Object3D, intersection: IntersectionExt, lastIntersection: IntersectionExt) {
-    super("pointerintersection", target);
+  constructor(intersection: IntersectionExt, lastIntersection: IntersectionExt) {
+    super();
     this.intersection = intersection;
     if (intersection.object === lastIntersection?.object) {
       this.movement = intersection.point.clone().sub(lastIntersection.point);
@@ -232,8 +226,7 @@ export class RendererResizeEvent extends EventExt {
   public readonly renderer: WebGLRenderer;
 
   constructor(renderer: WebGLRenderer, width: number, height: number) {
-    super("rendererresize");
-    this._bubbles = false;
+    super();
     this.renderer = renderer;
     this.width = width;
     this.height = height;
@@ -244,8 +237,8 @@ export class VectorChangedEvent extends EventExt {
   /** TODO */
   public readonly oldValue: Vector3;
 
-  constructor(type: keyof Events, target: Object3D, oldValue: Vector3) {
-    super(type, target);
+  constructor(oldValue: Vector3) {
+    super();
     this.oldValue = oldValue;
   }
 }
@@ -254,8 +247,8 @@ export class EulerChangedEvent extends EventExt {
   /** TODO */
   public readonly oldValue: Euler;
 
-  constructor(type: keyof Events, target: Object3D, oldValue: Euler) {
-    super(type, target);
+  constructor(oldValue: Euler) {
+    super();
     this.oldValue = oldValue;
   }
 }
@@ -264,19 +257,18 @@ export class QuaternionChangedEvent extends EventExt {
   /** TODO */
   public readonly oldValue: Quaternion;
 
-  constructor(type: keyof Events, target: Object3D, oldValue: Quaternion) {
-    super(type, target);
+  constructor(oldValue: Quaternion) {
+    super();
     this.oldValue = oldValue;
   }
 }
 
 export class FocusEventExt extends EventExt {
   /** The secondary target for the event. */
-  public readonly relatedTarget: Object3D
+  public relatedTarget: Object3D
 
-  constructor(type: keyof Events, target: Object3D, relatedTarget: Object3D) {
-    super(type, target);
-    this._bubbles = type === "focus" || type === "blur";
+  constructor(relatedTarget: Object3D) {
+    super();
     this.relatedTarget = relatedTarget;
   }
 }
