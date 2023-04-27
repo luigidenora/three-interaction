@@ -1,10 +1,10 @@
 import { Object3D } from "three";
-import { Mesh as MeshBase } from "three/index";
+import { InstancedMesh as InstancedMeshBase } from "three/index";
 import { Events } from "../src/Events/Events";
 import { EventsDispatcher } from "../src/index";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 
-export class Mesh extends MeshBase  implements InteractionPrototype {
+export class InstancedMesh extends InstancedMeshBase implements InteractionPrototype {
     _eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];

@@ -323,8 +323,8 @@ export interface DOMEvents {
   dblclick: PointerEventExt;
   wheel: WheelEventExt;
 
-  focusIn: FocusEventExt
-  focusOut: FocusEventExt
+  focusin: FocusEventExt
+  focusout: FocusEventExt
   focus: FocusEventExt
   blur: FocusEventExt
 

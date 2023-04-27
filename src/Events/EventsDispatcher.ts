@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { positionChangedEvent, quaternionChangedEvent, rotationChangedEvent, scaleChangedEvent } from "../Patch/Object3D";
-import { EulerChangedEvent, EventExt, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
+import { EulerChangedEvent, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
 import { EventsCache } from "./EventsCache";
 
 export class EventsDispatcher {

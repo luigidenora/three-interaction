@@ -1,9 +1,11 @@
 import { Object3D } from "three";
 import { PerspectiveCamera as PerspectiveCameraBase } from "three/index";
 import { Events } from "../src/Events/Events";
+import { EventsDispatcher } from "../src/index";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 
 export class PerspectiveCamera extends PerspectiveCameraBase implements InteractionPrototype {
+    _eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];
     activable: boolean;

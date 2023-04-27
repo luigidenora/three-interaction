@@ -198,7 +198,7 @@ export class EventsManager {
     private pointerIntersection(scene: Scene, camera: Camera): void {
         if (!this.continousPointerRaycasting) return;
         if (this._mouseDetected && !this._raycasted) {
-            this.pointerOutOver(scene, camera, this._lastPointerMove);
+            this.pointerOutOver(scene, camera, this._lastPointerMove); //TODO bug se cambio 
         }
         if (this.hoveredObj /* && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point) */) {
             this.hoveredObj.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(this.intersection, this._lastIntersection));
@@ -247,14 +247,14 @@ export class EventsManager {
             if (oldActiveObj) {
                 oldActiveObj.active = false;
                 oldActiveObj.triggerEventAncestor("blur", event);
-                oldActiveObj.triggerEvent("focusOut", event);
+                oldActiveObj.triggerEvent("focusout", event);
             }
 
             if (activableObj) {
                 activableObj.active = true
                 event.relatedTarget = oldActiveObj;
                 activableObj.triggerEventAncestor("focus", event);
-                activableObj.triggerEvent("focusIn", event);
+                activableObj.triggerEvent("focusin", event);
             }
 
             this.activeObj = activableObj;
