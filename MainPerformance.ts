@@ -1,47 +1,38 @@
-import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, RawShaderMaterial, Scene, ShaderMaterial, SphereGeometry, Vector3 } from "three";
+import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, Matrix4, Mesh, MeshPhongMaterial, Scene, SphereGeometry, Vector3 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { FullScreenWebGLRenderer, PerspectiveCamera, LoadingMaterial } from "./src/index";
+import { FullScreenWebGLRenderer, LoadingMaterial, PerspectiveCamera, InstancedMeshEn, InstancedMeshSingle } from "./src/index";
 
-class Spheres extends InstancedMesh {
+class Spheres extends InstancedMeshEn {
     public activable = true;
     public activatedSpheres = 0;
-    private _color = new Color();
-    private _red = new Color().setHex(0xff0000);
-    private _white = new Color().setHex(0xffffff);
+    public tempPosition = new Vector3();
 
     constructor() {
-        super(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 5000);
+        super(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 5000, Sphere, new Color(0xffffff));
         this.instanceMatrix.setUsage(DynamicDrawUsage);
+    }
+}
 
-        (this as any).bindEvent("pointerintersection", (e) => {
-            this.getColorAt(e.intersection.instanceId, this._color);
-            if (this._color.equals(this._white)) {
-                this.setColorAt(e.intersection.instanceId, this._red);
-                this.instanceColor.needsUpdate = true;
-                this.dispatchEvent({ type: "updated", percentage: ++this.activatedSpheres / this.count });
-            }
+class Sphere extends InstancedMeshSingle {
+    public override parent: Spheres;
+    protected _red = new Color().setHex(0xff0000);
+    protected _white = new Color().setHex(0xffffff);
+
+    constructor(parent: InstancedMeshEn, index: number, color?: Color) {
+        super(parent, index, color);
+        const angleX = Math.random() * Math.PI * 2;
+        const angleY = Math.random() * Math.PI * 2;
+
+        this.bindEvent("framerendering", (e) => {
+            const now = performance.now() / 10000;
+            this.update(this.parent.tempPosition.setFromSphericalCoords(5, angleX * now, angleY * now));
         });
 
-        const matrix = new Matrix4();
-        const position = new Vector3();
-
-        const angleX: number[] = [];
-        const angleY: number[] = [];
-        for (let i = 0; i < this.count; i++) {
-            angleX.push(Math.random() * Math.PI * 2);
-            angleY.push(Math.random() * Math.PI * 2);
-            this.setColorAt(i, this._white);
-        }
-
-        (this as any).bindEvent("framerendering", () => {
-            const now = performance.now() / 10000;
-            for (let i = 0; i < this.count; i++) {
-                position.setFromSphericalCoords(5, angleX[i] * now, angleY[i] * now);
-                matrix.makeTranslation(position.x, position.y, position.z);
-                this.setMatrixAt(i, matrix);
+        this.bindEvent("pointerintersection", (e) => {
+            if (this.getColor().equals(this._white)) {
+                this.setColor(this._red);
+                this.parent.dispatchEvent({ type: "updated", percentage: ++this.parent.activatedSpheres / this.parent.count });
             }
-            this.instanceMatrix.needsUpdate = true;
-            this.computeBoundingSphere();
         });
     }
 }
@@ -66,9 +57,9 @@ class CustomScene extends Scene {
 
     constructor() {
         super();
-        
+
         this.add(this.camera, this.loadingBar, this.spheres, new DirectionalLight(0xffffff, 0.9).translateZ(10)); //import adding camera to scene to trigger renderresize event
-        
+
         this.spheres.addEventListener("updated", (e) => {
             this.loadingBar.material.setPercentage(e.percentage);
         });
