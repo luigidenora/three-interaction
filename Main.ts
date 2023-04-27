@@ -1,6 +1,6 @@
-import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, Vector3 } from "three";
+import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { EventsManager, PerspectiveCamera, FullScreenWebGLRenderer } from "./src/index";
+import { FullScreenWebGLRenderer, PerspectiveCamera } from "./src/index";
 
 class Box extends Mesh {
     public activable = true;
