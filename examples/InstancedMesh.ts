@@ -1,6 +1,6 @@
 import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, Mesh, MeshPhongMaterial, Scene, SphereGeometry, Vector3 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { FullScreenWebGLRenderer, InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera } from "./src/index";
+import { FullScreenWebGLRenderer, InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera } from "../src/index";
 
 class Spheres extends InstancedMesh {
     public activatedSpheres = 0;
@@ -37,7 +37,8 @@ class Sphere extends InstancedMeshSingle {
 }
 
 class LoadingBar extends Mesh {
-    public interceptByRaycaster = false;
+    public override interceptByRaycaster = false;
+    public override material: LoadingMaterial;
 
     constructor() {
         super(new BoxGeometry(0.2, 10, 1), new LoadingMaterial(10, 0xff0000, 0x00ff00));
@@ -68,7 +69,7 @@ class CustomScene extends Scene {
 class Main {
     public scene = new CustomScene();
     public renderer = new FullScreenWebGLRenderer([this.scene], this.animate.bind(this), { antialias: true });
-    public stats = Stats();
+    public stats = (Stats as any)();
 
     constructor() {
         document.body.appendChild(this.stats.dom);

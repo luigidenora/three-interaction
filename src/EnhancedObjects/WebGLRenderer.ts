@@ -1,10 +1,11 @@
-import { Scene, WebGLRenderer as WebGLRendererBase, WebGLRendererParameters } from "three";
+import { Camera, Scene, WebGLRenderer as WebGLRendererBase, WebGLRendererParameters } from "three";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsManager } from "../Events/EventsManager";
 
 export class FullScreenWebGLRenderer extends WebGLRendererBase {
     public eventsManager: EventsManager;
     public activeScene: Scene;
+    public activeCamera: Camera;
 
     constructor(scenes: Scene[], animate: XRFrameRequestCallback, parameters: WebGLRendererParameters = {}) {
         super(parameters);
@@ -12,12 +13,20 @@ export class FullScreenWebGLRenderer extends WebGLRendererBase {
         applyWebGLRendererPatch(this);
         this.addScene(...scenes);
         this.activeScene = scenes[0];
+        if (this.activeScene) {  //TODO documenta
+            for (const obj of this.activeScene.children) {
+                if ((obj as unknown as Camera).isCamera) {
+                    this.activeCamera = obj as unknown as Camera;
+                    break;
+                }
+            }
+        }
         window.addEventListener("resize", () => this.setSize(window.innerWidth, window.innerHeight))
         this.setSize(window.innerWidth, window.innerHeight);
         this.setPixelRatio(window.devicePixelRatio);
         this.eventsManager = new EventsManager(this, scenes[0]);
         this.setAnimationLoop((time, frame) => {
-            this.eventsManager.update(this.activeScene, this.activeScene.camera); //TODO fix camera ref
+            this.eventsManager.update(this.activeScene, this.activeCamera);
             animate(time, frame);
         });
     }

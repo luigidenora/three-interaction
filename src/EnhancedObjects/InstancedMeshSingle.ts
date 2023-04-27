@@ -110,7 +110,7 @@ export class InstancedMesh extends InstancedMeshBase {
 
             if (this._needsUpdate) {
                 this.instanceMatrix.needsUpdate = true;
-                this.computeBoundingSphere();
+                (this as any).computeBoundingSphere(); //TODO fix ref
                 this._needsUpdate = false;
             }
         });

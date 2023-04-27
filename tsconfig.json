@@ -8,6 +8,7 @@
 		"strictNullChecks": false,
 		"stripInternal": true,
 		"outDir": "dist",
+		"allowSyntheticDefaultImports": true,
 		"paths": {
 			"three": [
 				"./types/three.d.ts"
@@ -15,10 +16,7 @@
 		}
 	},
 	"include": [
-		"src/**/*.ts"
+		"src/**/*.ts",
+		"examples/**/*.ts"
 	],
-	"exclude": [
-		"node_modules",
-		"dist",
-	]
 }
