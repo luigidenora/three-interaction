@@ -1,11 +1,11 @@
-import { BufferGeometry, Color, DynamicDrawUsage, EventDispatcher, InstancedMesh, Material, Matrix4, Quaternion, Vector3 } from "three";
+import { BufferGeometry, Color, EventDispatcher, InstancedMesh as InstancedMeshBase, Material, Matrix4, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
 
 export class InstancedMeshSingle extends EventDispatcher {
-    public parent: InstancedMeshEn;
+    public parent: InstancedMesh;
     public index: number;
 
-    constructor(parent: InstancedMeshEn, index: number, color?: Color) {
+    constructor(parent: InstancedMesh, index: number, color?: Color) {
         super();
         this.parent = parent;
         this.index = index;
@@ -70,7 +70,7 @@ export class InstancedMeshSingle extends EventDispatcher {
 }
 
 
-export class InstancedMeshEn extends InstancedMesh {
+export class InstancedMesh extends InstancedMeshBase {
     public activeId: number;
     // public hoveredId: number;
     /** @internal */ public _tempMatrix = new Matrix4();
