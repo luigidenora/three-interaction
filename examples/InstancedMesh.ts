@@ -1,6 +1,6 @@
 import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, Mesh, MeshPhongMaterial, Scene, SphereGeometry, Vector3 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { FullScreenWebGLRenderer, InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera } from "../src/index";
+import { WebGLRenderer, InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera } from "../src/index";
 
 class Spheres extends InstancedMesh {
     public activatedSpheres = 0;
@@ -68,7 +68,7 @@ class CustomScene extends Scene {
 
 class Main {
     public scene = new CustomScene();
-    public renderer = new FullScreenWebGLRenderer([this.scene], this.animate.bind(this), { antialias: true });
+    public renderer = new WebGLRenderer([this.scene], this.animate.bind(this), true, { antialias: true });
     public stats = (Stats as any)();
 
     constructor() {

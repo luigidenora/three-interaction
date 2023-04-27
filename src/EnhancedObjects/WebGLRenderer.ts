@@ -2,13 +2,15 @@ import { Camera, Scene, WebGLRenderer as WebGLRendererBase, WebGLRendererParamet
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsManager } from "../Events/EventsManager";
 
-export class FullScreenWebGLRenderer extends WebGLRendererBase {
+export class WebGLRenderer extends WebGLRendererBase {
     public eventsManager: EventsManager;
     public activeScene: Scene;
     public activeCamera: Camera;
+    public fullscreen: boolean;
 
-    constructor(scenes: Scene[], animate: XRFrameRequestCallback, parameters: WebGLRendererParameters = {}) {
+    constructor(scenes: Scene[], animate: XRFrameRequestCallback, fullscreen = true, parameters: WebGLRendererParameters = {}) {
         super(parameters);
+        this.fullscreen = fullscreen;
         !parameters.canvas && document.body.appendChild(this.domElement);
         applyWebGLRendererPatch(this);
         this.addScene(...scenes);
@@ -21,8 +23,8 @@ export class FullScreenWebGLRenderer extends WebGLRendererBase {
                 }
             }
         }
-        window.addEventListener("resize", () => this.setSize(window.innerWidth, window.innerHeight))
-        this.setSize(window.innerWidth, window.innerHeight);
+        window.addEventListener("resize", () => this.setSizeByCanvas())
+        this.setSizeByCanvas();
         this.setPixelRatio(window.devicePixelRatio);
         this.eventsManager = new EventsManager(this, scenes[0]);
         this.setAnimationLoop((time, frame) => {
@@ -30,12 +32,13 @@ export class FullScreenWebGLRenderer extends WebGLRendererBase {
             animate(time, frame);
         });
     }
-}
 
-export class ResponsiveWebGLRenderer extends WebGLRendererBase {
-
-    constructor(scenes: Scene[], parameters?: WebGLRendererParameters) {
-        super(parameters);
-        console.error("ResponsiveWebGLRenderer missing implementation.");
+    public setSizeByCanvas(): void {
+        if (this.fullscreen) {
+            this.setSize(window.innerWidth, window.innerHeight);
+        } else {
+            const { width, height } = this.domElement.getBoundingClientRect();
+            this.setSize(width, height, false);
+        }
     }
 }
