@@ -15,8 +15,8 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera) {
         //TODO smart rendering
-        EventsCache.dispatchEvent(scene, "animate", new EventExt()); //TODO correggere
-        EventsCache.dispatchEvent(scene, "framerendering", new EventExt());
+        EventsCache.dispatchEvent(scene, "animate", performance.now()); //TODO correggere
+        EventsCache.dispatchEvent(scene, "framerendering");
         updateMatrices();
         //TODO raycasting e trigger eventi
         // updateMatrices();

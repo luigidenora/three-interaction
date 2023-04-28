@@ -1,14 +1,14 @@
-import { Object3D, Scene } from "three";
-import { Events } from "./Events";
+import { Scene } from "three";
 import { Utils } from "../Utils";
+import { Events, Target } from "./Events";
 
-type SceneEventsCache = { [x: string]: { [x: number]: Object3D } };
+type SceneEventsCache = { [x: string]: Target[] };
 
 export class EventsCache {
    private static _allowedEventsSet = new Set(["rendererresize", "framerendering", "animate"] as (keyof Events)[]);
    private static _events: { [x: number]: SceneEventsCache } = {};
 
-   public static push(type: keyof Events, target: Object3D): void {
+   public static push(type: keyof Events, target: Target): void {
       if (this._allowedEventsSet.has(type)) {
          let scene = Utils.getSceneFromObj(target);
          if (scene) {
@@ -24,22 +24,23 @@ export class EventsCache {
       }
    }
 
-   private static pushScene(scene: Scene, type: keyof Events, target: Object3D): void {
+   private static pushScene(scene: Scene, type: keyof Events, target: Target): void {
       const sceneCache = this._events[scene.id] ?? (this._events[scene.id] = {});
-      const eventCache = sceneCache[type] ?? (sceneCache[type] = {});
-      eventCache[target.id] = target;
+      const eventCache = sceneCache[type] ?? (sceneCache[type] = []);
+      if (eventCache.indexOf(target) === -1) {
+         eventCache.push(target);
+      }
    }
 
    public static remove(): void {
       // TODO
    }
 
-   public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event: Events[K]): void {
+   public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache) {
-         const eventCache = sceneCache[type];
-         for (const key in eventCache) {
-            eventCache[key].triggerEvent(type, event);
+         for (const target of sceneCache[type]) {
+            target._eventsDispatcher.dispatchEvent(type, event);
          }
       }
    }

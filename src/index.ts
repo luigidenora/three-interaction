@@ -1,3 +1,4 @@
+export * from './EnhancedObjects/InstancedMesh';
 export * from './EnhancedObjects/InstancedMeshSingle';
 export * from './EnhancedObjects/LoadingMaterial';
 export * from './EnhancedObjects/PerspectiveCamera';

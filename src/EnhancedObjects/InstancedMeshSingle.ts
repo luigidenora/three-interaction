@@ -1,118 +1,87 @@
-import { BufferGeometry, Color, EventDispatcher, InstancedMesh as InstancedMeshBase, Material, Matrix4, Quaternion, Vector3 } from "three";
+import { Color, EventDispatcher, Object3D, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
+import { EventsDispatcher, InteractionPrototype } from "../index";
+import { InstancedMesh } from "./InstancedMesh";
 
-export class InstancedMeshSingle extends EventDispatcher {
+let id = 0;
+
+export class InstancedMeshSingle extends EventDispatcher implements InteractionPrototype {
     public parent: InstancedMesh;
-    public index: number;
+    public instanceId: number;
+    public id: string;
+    public position = new Vector3();
+    public scale = new Vector3(1, 1, 1);
+    public quaternion = new Quaternion();
+    public activable = false;
+    public active = false;
+    public activeUntilParent = false;
+    public hovered = false;
+    public enabled = true; // TODO
+    public enabledUntilParent: boolean; // TODO
+    public visibleUntilParent: boolean; // TODO
+    /** @internal */
+    public _eventsDispatcher: EventsDispatcher;
+
+    public get activableObj(): Object3D {
+        return this.activable ? this as unknown as Object3D : this.parent.activableObj;
+    }
 
     constructor(parent: InstancedMesh, index: number, color?: Color) {
         super();
+        this.id = `_${id++}`;
         this.parent = parent;
-        this.index = index;
-        color && this.setColor(color);
-    }
+        this.instanceId = index;
+        this._eventsDispatcher = new EventsDispatcher(this);
 
-    public bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
-        this.addEventListener(type as any, (e) => listener(e.args));
-        return listener;
-    }
+        if (color) {
+            this.setColor(color);
+        }
 
-    public triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void {
-        this.dispatchEvent({ type, args });
+        this.bindEvent(["positionchange", "scalechange", "rotationchange"], () => {
+            this.update(); // TODO opt cache
+        });
     }
 
     public setColor(color: Color): void {
-        this.parent.setColorAt(this.index, color);
+        this.parent.setColorAt(this.instanceId, color);
         this.parent.instanceColor.needsUpdate = true;
     }
 
-    public getColor(color = new Color()): Color {
-        this.parent.getColorAt(this.index, color);
+    public getColor(color = this.parent._tempColor): Color {
+        this.parent.getColorAt(this.instanceId, color);
         return color;
     }
 
-    public update(position?: Vector3, quaternion?: Quaternion, scale?: Vector3): void {
+    private update(): void {
         const matrix = this.parent._tempMatrix;
-
-        if (position && quaternion && scale) {
-            matrix.compose(position, quaternion, scale);
-            return;
-        }
-
-        let cleared = false;
-
-        if (quaternion) {
-            matrix.makeRotationFromQuaternion(quaternion);
-            cleared = true;
-        }
-
-        if (scale) {
-            if (cleared) {
-                matrix.scale(scale);
-            } else {
-                matrix.makeScale(scale.x, scale.y, scale.z);
-                cleared = true;
-            }
-        }
-
-        if (position) {
-            if (cleared) {
-                matrix.setPosition(position);
-            } else {
-                matrix.makeTranslation(position.x, position.y, position.z);
-                cleared = true;
-            }
-        }
-
-        this.parent.setMatrixAt(this.index, matrix);
+        matrix.compose(this.position, this.quaternion, this.scale);
+        this.parent.setMatrixAt(this.instanceId, matrix);
         this.parent._needsUpdate = true;
     }
-}
 
-
-export class InstancedMesh extends InstancedMeshBase {
-    public activeId: number;
-    // public hoveredId: number;
-    /** @internal */ public _tempMatrix = new Matrix4();
-    /** @internal */ public _needsUpdate = false;
-    public instances: InstancedMeshSingle[] = [];
-
-    constructor(geometry: BufferGeometry, material: Material, count: number, singleInstanceType: typeof InstancedMeshSingle, color?: Color) {
-        super(geometry, material, count);
-
-        for (let i = 0; i < count; i++) {
-            this.instances.push(new singleInstanceType(this, i, color));
+    public bindEvent<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
+        if (typeof (types) === "string") {
+            return this._eventsDispatcher.addEventListener((types as any).toLowerCase(), listener);
         }
+        for (const type of types) {
+            this._eventsDispatcher.addEventListener((type as any).toLowerCase(), listener);
+        }
+        return listener;
+    }
 
-        // this.bindEvent("click", (e) => {
-        //     this.activeId = e.intersection.instanceId;
-        //     this.instances[this.activeId].dispatchEvent();
-        // });
+    public hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
+        return this._eventsDispatcher.hasEventListener((type as any).toLowerCase(), listener);
+    }
 
-        // this.bindEvent("focusout", (e) => {
-        //     this.activeId = undefined;
-        // });
+    public unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
+        this._eventsDispatcher.removeEventListener((type as any).toLowerCase(), listener);
+    }
 
-        // this.bindEvent("animate", (e) => {
-        //     for (let i = 0; i < count; i++) {
-        //         this.instances[i].triggerEvent("animate", e); //todo apply cache?
-        //     }
-        // });
+    public triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void {
+        this._eventsDispatcher.dispatchDOMEvent((type as any).toLowerCase(), args);
+    }
 
-        this.bindEvent("pointerintersection", (e) => {
-            this.instances[e.intersection.instanceId].triggerEvent("pointerintersection", e);
-        });
-
-        this.bindEvent("framerendering", (e) => {
-            for (let i = 0; i < count; i++) {
-                this.instances[i].triggerEvent("framerendering", e); //todo apply cache?
-            }
-
-            if (this._needsUpdate) {
-                this.instanceMatrix.needsUpdate = true;
-                (this as any).computeBoundingSphere(); //TODO fix ref
-                this._needsUpdate = false;
-            }
-        });
+    public triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void {
+        throw new Error("Method not implemented.");
     }
 }

@@ -1,4 +1,5 @@
-import { Scene, Object3D, Vector3 } from "three";
+import { Scene, Vector3 } from "three";
+import { Target } from "./Events/Events";
 
 export class Utils {
     public static eps = 10 ** -8;
@@ -10,7 +11,7 @@ export class Utils {
         return false;
     }
 
-    public static getSceneFromObj(obj: Object3D): Scene {
+    public static getSceneFromObj(obj: Target): Scene {
         while (obj) {
             if ((obj as Scene).isScene) {
                 return obj as Scene;

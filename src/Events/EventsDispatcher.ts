@@ -1,47 +1,23 @@
 import { Object3D } from "three";
-import { positionChangedEvent, quaternionChangedEvent, rotationChangedEvent, scaleChangedEvent } from "../Patch/Object3D";
-import { EulerChangedEvent, Events, QuaternionChangedEvent, VectorChangedEvent } from "./Events";
+import { applyEulerPatch, rotationChangedEvent } from "../Patch/Euler";
+import { applyQuaternionPatch, quaternionChangedEvent } from "../Patch/Quaternion";
+import { applyVector3Patch, positionChangedEvent, scaleChangedEvent } from "../Patch/Vector3";
+import { DOMEvents, Events, Target } from "./Events";
 import { EventsCache } from "./EventsCache";
 
 export class EventsDispatcher {
-    private _listeners: { [x: string]: ((args: any) => void)[] } = {};
+    private _listeners: { [x: string]: ((args?: any) => void)[] } = {};
 
-    constructor(private _object3D: Object3D) {
-        this.bindPositionScaleRotationChanged();
+    constructor(public parent: Target) {
+        parent.position && applyVector3Patch(parent.position, parent, "positionchange");
+        parent.scale && applyVector3Patch(parent.scale, parent, "scalechange");
+        parent.quaternion && applyQuaternionPatch(parent, "quaternionchange");
+        (parent as Object3D).rotation && applyEulerPatch(parent as Object3D, "rotationchange");
     }
-
-    private bindPositionScaleRotationChanged(): void { //todo consider to move
-        this._object3D.addEventListener(positionChangedEvent, (args) => {
-            const event = new VectorChangedEvent(args.oldValue);
-            this.dispatchEvent("ownpositionchange", event);
-            this.dispatchEventAncestor("positionchange", event);
-        });
-
-        this._object3D.addEventListener(scaleChangedEvent, (args) => {
-            const event = new VectorChangedEvent(args.oldValue);
-            this.dispatchEvent("ownscalechange", event);
-            this.dispatchEventAncestor("scalechange", event);
-        });
-
-        this._object3D.addEventListener(rotationChangedEvent, (args) => {
-            const event = new EulerChangedEvent(args.oldValue);
-            this.dispatchEvent("ownrotationchange", event);
-            this.dispatchEventAncestor("rotationchange", event);
-            //TODO rotazione generale evento
-        });
-
-        this._object3D.addEventListener(quaternionChangedEvent, (args) => {
-            const event = new QuaternionChangedEvent(args.oldValue);
-            this.dispatchEvent("ownquaternionchange", event);
-            this.dispatchEventAncestor("quaternionchange", event);
-            //TODO rotazione generale evento
-        });
-    }
-
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (!this._listeners[type]) {
             this._listeners[type] = [];
-            EventsCache.push(type, this._object3D);
+            EventsCache.push(type, this.parent);
         }
         if (this._listeners[type].indexOf(listener) === -1) {
             this._listeners[type].push(listener);
@@ -63,35 +39,43 @@ export class EventsDispatcher {
         }
     }
 
-    public dispatchEvent<K extends keyof Events>(type: K, event: Events[K]): void {
+    public dispatchDOMEvent<K extends keyof DOMEvents>(type: K, event: DOMEvents[K]): void {
         event._bubbles = false;
         event._stoppedImmediatePropagation = false;
         event._defaultPrevented = false;
         event._type = type;
-        event._target = this._object3D;
-        this._dispatchEvent(type, event);
+        event._target = this.parent;
+        this._dispatchDOMEvent(type, event);
     }
 
-    private _dispatchEvent<K extends keyof Events>(type: K, event: Events[K]): void {
+    private _dispatchDOMEvent<K extends keyof DOMEvents>(type: K, event: DOMEvents[K]): void {
         if (!this._listeners[type]) return;
-        const object3D = event.currentTarget = this._object3D;
+        const target = event.currentTarget = this.parent;
         // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
         for (const callback of this._listeners[type]) {
             if (event._stoppedImmediatePropagation) break;
-            callback.call(object3D, event);
+            callback.call(target, event);
         }
     }
 
-    public dispatchEventAncestor<K extends keyof Events>(type: K, event: Events[K]): void {
-        let target = this._object3D;
+    public dispatchDOMEventAncestor<K extends keyof DOMEvents>(type: K, event: DOMEvents[K]): void {
+        let target = this.parent;
         event._bubbles = true;
         event._stoppedImmediatePropagation = false;
         event._defaultPrevented = false;
         event._type = type;
         event._target = target;
         while (target && event._bubbles) {
-            target._eventsDispatcher._dispatchEvent(type, event);
+            target._eventsDispatcher._dispatchDOMEvent(type, event);
             target = target.parent;
+        }
+    }
+
+    public dispatchEvent(type: keyof Events, args?: any): void {
+        if (!this._listeners[type]) return;
+        // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
+        for (const callback of this._listeners[type]) {
+            callback.call(this.parent, args);
         }
     }
 }

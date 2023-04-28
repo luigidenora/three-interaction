@@ -1,4 +1,72 @@
-import { Euler, Intersection, Object3D, Quaternion, Vector3, WebGLRenderer } from "three";
+import { Intersection, Object3D, Vector3, WebGLRenderer } from "three";
+import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
+
+export type Target = Object3D | InstancedMeshSingle;
+
+export interface Events extends DOMEvents { //todo rimuovere extends
+  positionchange: never;
+  scalechange: never;
+  rotationchange: never;
+  quaternionchange: never;
+  rendererresize: RendererResizeEvent;
+  framerendering: never;
+  animate: DOMHighResTimeStamp;
+  // childadd
+  // childremove 
+  // parentdadd // This event propagation Up to down.
+  // parentremove // This event propagation Up to down.
+  // enablechange // This event propagation Up to down.
+  // visiblechange // This event propagation Up to down.
+  // ownenablechange // This event propagation Up to down.
+  // ownvisiblechange // This event propagation Up to down.
+}
+
+export interface DOMEvents {
+  pointerover: PointerEventExt;
+  pointerenter: PointerEventExt;
+  pointerout: PointerEventExt;
+  pointerleave: PointerEventExt;
+  pointermove: PointerEventExt;
+  pointerdown: PointerEventExt;
+  pointerup: PointerEventExt;
+  pointercancel: PointerEventExt;
+  pointerintersection: PointerIntersectionEvent;
+  // mouseover: PointerEventExt;
+  // mouseenter: PointerEventExt;
+  // mouseout: PointerEventExt;
+  // mouseleave: PointerEventExt;
+  // mousemove: PointerEventExt;
+  // mousedown: PointerEventExt;
+  // mouseup: PointerEventExt;
+  // touchstart: TouchEventExt;
+  // touchmove: TouchEventExt;
+  // touchend: TouchEventExt;
+  // touchcancel: TouchEventExt;
+  click: PointerEventExt;
+  dblclick: PointerEventExt;
+  wheel: WheelEventExt;
+  focusin: FocusEventExt
+  focusout: FocusEventExt
+  focus: FocusEventExt
+  blur: FocusEventExt
+  keydown: KeyboardEventExt;
+  keyup: KeyboardEventExt;
+  dragvalidation: DragEventExt;
+  drag: DragEventExt;
+  afterdrag: DragEventExt;
+  dragstart: DragEventExt;
+  dragenter: DragEventExt;
+  dragover: DragEventExt;
+  dragleave: DragEventExt;
+  dragend: DragEventExt;
+  drop: DragEventExt;
+}
+
+export interface IntersectionExt extends Intersection {
+  object: Object3D;
+  /** The hitbox hit by the raycaster. */
+  hitbox: Object3D;
+}
 
 export class EventExt {
   /** A boolean value indicating whether or not the event bubbles up through the DOM. */
@@ -6,7 +74,7 @@ export class EventExt {
   /** A boolean value indicating whether the event is cancelable. */
   public readonly cancelable = false;
   /** A reference to the currently registered target for the event. This is the object to which the event is currently slated to be sent. It's possible this has been changed along the way through retargeting. */
-  public currentTarget: Object3D;
+  public currentTarget: Target;
   /** Indicates whether or not the call to event.preventDefault() canceled the event. */
   public get defaultPrevented() { return this._defaultPrevented }
   /** A reference to the object to which the event was originally dispatched. */
@@ -20,7 +88,7 @@ export class EventExt {
     /** @internal */ public _stoppedImmediatePropagation: boolean;
     /** @internal */ public _bubbles: boolean;
     /** @internal */ public _type: keyof Events;
-    /** @internal */ public _target: Object3D;
+    /** @internal */ public _target: Target;
 
   /** Cancels the event. */
   public preventDefault(): void {
@@ -38,64 +106,7 @@ export class EventExt {
   }
 }
 
-export class MouseEventExt extends EventExt {
-  /** Returns true if the alt key was down when the mouse event was fired. */
-  public get altKey() { return this._event.altKey }
-  /** The button number that was pressed (if applicable) when the mouse event was fired. */
-  public get button() { return this._event.button }
-  /** The buttons being pressed (if any) when the mouse event was fired. */
-  public get buttons() { return this._event.buttons }
-  /** The X coordinate of the mouse pointer in local (DOM content) coordinates. */
-  public get clientX() { return this._trunc ? Math.trunc(this._event.clientX) : this._event.clientX }
-  /** The Y coordinate of the mouse pointer in local (DOM content) coordinates. */
-  public get clientY() { return this._trunc ? Math.trunc(this._event.clientY) : this._event.clientY }
-  /** Returns true if the control key was down when the mouse event was fired. */
-  public get ctrlKey() { return this._event.ctrlKey }
-  /** Returns true if the meta key was down when the mouse event was fired. */
-  public get metaKey() { return this._event.metaKey }
-  /** The X coordinate of the pointer relative to the position of the last event. */
-  public get movementX() { return this._event.movementX }
-  /** The Y coordinate of the pointer relative to the position of the last event. */
-  public get movementY() { return this._event.movementY }
-  /** The X coordinate of the mouse pointer relative to the position of the padding edge of the target node. */
-  public get offsetX() { return this._trunc ? Math.trunc(this._event.offsetX) : this._event.offsetX }
-  /** The Y coordinate of the mouse pointer relative to the position of the padding edge of the target node. */
-  public get offsetY() { return this._trunc ? Math.trunc(this._event.offsetY) : this._event.offsetY }
-  /** The X coordinate of the mouse pointer relative to the whole document. */
-  public get pageX() { return this._trunc ? Math.trunc(this._event.pageX) : this._event.pageX }
-  /** The Y coordinate of the mouse pointer relative to the whole document. */
-  public get pageY() { return this._trunc ? Math.trunc(this._event.pageY) : this._event.pageY }
-  /** The secondary target for the event, if there is one. */
-  public readonly relatedTarget: Object3D;
-  /** The X coordinate of the mouse pointer in global (screen) coordinates. */
-  public get screenX() { return this._event.screenX }
-  /** The Y coordinate of the mouse pointer in global (screen) coordinates. */
-  public get screenY() { return this._event.screenY }
-  /** Returns true if the shift key was down when the mouse event was fired. */
-  public get shiftKey() { return this._event.shiftKey }
-  /** TODO. */
-  public readonly intersection: IntersectionExt;
-  /** TODO. */
-  public readonly movement: Vector3;
-
-  protected _trunc = true;
-
-  constructor(protected _event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
-    super();
-    this.intersection = intersection;
-    this.relatedTarget = relatedTarget;
-    if (intersection?.object === lastIntersection?.object) {
-      this.movement = intersection.point.clone().sub(lastIntersection.point);
-    }
-  }
-
-  /** Returns the current state of the specified modifier key. See KeyboardEvent.getModifierState() for details. */
-  public getModifierState(keyArg: string): boolean {
-    return this._event.getModifierState(keyArg);
-  }
-}
-
-export class PointerEventExt extends MouseEventExt {
+export class PointerEventExt extends EventExt {
   /** A unique identifier for the pointer causing the event. */
   public get pointerId() { return this._event.pointerId }
   /** The width (magnitude on the X axis), in CSS pixels, of the contact geometry of the pointer. */
@@ -116,10 +127,55 @@ export class PointerEventExt extends MouseEventExt {
   public get pointerType() { return this._event.pointerType }
   /** Indicates if the pointer represents the primary pointer of this pointer type. */
   public get isPrimary() { return this._event.isPrimary }
+  /** Returns true if the alt key was down when the mouse event was fired. */
+  public get altKey() { return this._event.altKey }
+  /** The button number that was pressed (if applicable) when the mouse event was fired. */
+  public get button() { return this._event.button }
+  /** The buttons being pressed (if any) when the mouse event was fired. */
+  public get buttons() { return this._event.buttons }
+  /** The X coordinate of the mouse pointer in local (DOM content) coordinates. */
+  public get clientX() { return this._event.clientX }
+  /** The Y coordinate of the mouse pointer in local (DOM content) coordinates. */
+  public get clientY() { return this._event.clientY }
+  /** Returns true if the control key was down when the mouse event was fired. */
+  public get ctrlKey() { return this._event.ctrlKey }
+  /** Returns true if the meta key was down when the mouse event was fired. */
+  public get metaKey() { return this._event.metaKey }
+  /** The X coordinate of the pointer relative to the position of the last event. */
+  public get movementX() { return this._event.movementX }
+  /** The Y coordinate of the pointer relative to the position of the last event. */
+  public get movementY() { return this._event.movementY }
+  /** The X coordinate of the mouse pointer relative to the position of the padding edge of the target node. */
+  public get offsetX() { return this._event.offsetX }
+  /** The Y coordinate of the mouse pointer relative to the position of the padding edge of the target node. */
+  public get offsetY() { return this._event.offsetY }
+  /** The X coordinate of the mouse pointer relative to the whole document. */
+  public get pageX() { return this._event.pageX }
+  /** The Y coordinate of the mouse pointer relative to the whole document. */
+  public get pageY() { return this._event.pageY }
+  /** The secondary target for the event, if there is one. */
+  public readonly relatedTarget: Target;
+  /** The X coordinate of the mouse pointer in global (screen) coordinates. */
+  public get screenX() { return this._event.screenX }
+  /** The Y coordinate of the mouse pointer in global (screen) coordinates. */
+  public get screenY() { return this._event.screenY }
+  /** Returns true if the shift key was down when the mouse event was fired. */
+  public get shiftKey() { return this._event.shiftKey }
+  /** Original dom event */
+  public _event: PointerEvent;
+  /** TODO. */
+  public readonly intersection: IntersectionExt;
+  /** TODO. */
+  public readonly movement: Vector3;
 
-  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
-    super(event, intersection, lastIntersection, relatedTarget);
-    this._trunc = false;
+  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Target) {
+    super();
+    this._event = event;
+    this.intersection = intersection;
+    this.relatedTarget = relatedTarget;
+    if (intersection?.object === lastIntersection?.object) {
+      this.movement = intersection.point.clone().sub(lastIntersection.point); //TODO cache vec
+    }
   }
 
   /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */
@@ -130,6 +186,11 @@ export class PointerEventExt extends MouseEventExt {
   /** Returns a sequence of PointerEvent instances that the browser predicts will follow the dispatched pointermove event's coalesced events. */
   public getPredictedEvents(): PointerEventExt {
     return undefined; // TODO
+  }
+
+  /** Returns the current state of the specified modifier key. See KeyboardEvent.getModifierState() for details. */
+  public getModifierState(keyArg: string): boolean {
+    return this._event.getModifierState(keyArg);
   }
 }
 
@@ -148,37 +209,7 @@ export class PointerIntersectionEvent extends EventExt {
   }
 }
 
-export interface TouchEventExt extends EventExt {
-  /** A Boolean value indicating whether or not the alt key was down when the touch event was fired. */
-  altKey: boolean;
-  /** A TouchList of all the Touch objects representing individual points of contact whose states changed between the previous touch event and this one. */
-  changedTouches: TouchList;
-  /** A Boolean value indicating whether or not the control key was down when the touch event was fired. */
-  ctrlKey: boolean;
-  /** A Boolean value indicating whether or not the meta key was down when the touch event was fired. */
-  metaKey: boolean;
-  /** A Boolean value indicating whether or not the shift key was down when the touch event was fired. */
-  shiftKey: boolean;
-  /** A TouchList of all the Touch objects that are both currently in contact with the touch surface and were also started on the same element that is the target of the event. */
-  targetTouches: TouchExt[];
-  /** A TouchList of all the Touch objects representing all current points of contact with the surface, regardless of target or changed status. */
-  touches: TouchExt[];
-}
-
-export interface TouchExt {
-  /** Returns the amount of pressure being applied to the surface by the user, as a float between 0.0 (no pressure) and 1.0 (maximum pressure). */
-  force: number;
-  /** Returns a unique identifier for this Touch object. A given touch point (say, by a finger) will have the same identifier for the duration of its movement around the surface. This lets you ensure that you're tracking the same touch all the time. */
-  identifier: number;
-  /** Returns the angle (in degrees) that the ellipse described by radiusX and radiusY must be rotated, clockwise, to most accurately cover the area of contact between the user and the surface. */
-  rotationAngle: number;
-  /** Returns the element on which the touch point started when it was first placed on the surface, even if the touch point has since moved outside the interactive area of that element or even been removed. */
-  target: Object3D;
-  /** The coordinates of the touch in local (scene) coordinates. */
-  intersection: IntersectionExt;
-}
-
-export interface WheelEventExt extends MouseEventExt {
+export interface WheelEventExt extends PointerEventExt {
   /*  Returns an unsigned long representing the unit of the delta* values' scroll amount. Permitted values are: 0 = pixels, 1 = lines, 2 = pages. */
   deltaMode: number;
   /** Returns a double representing the horizontal scroll amount. */
@@ -189,7 +220,7 @@ export interface WheelEventExt extends MouseEventExt {
   deltaZ: number;
 }
 
-export interface DragEventExt extends MouseEventExt {
+export interface DragEventExt extends PointerEventExt {
   /** The coordinates of the pointer in local (scene) coordinates. */
   positionToApply: Vector3;
   /** The coordinates of the pointer in local (scene) coordinates. */
@@ -233,117 +264,12 @@ export class RendererResizeEvent extends EventExt {
   }
 }
 
-export class VectorChangedEvent extends EventExt {
-  /** TODO */
-  public readonly oldValue: Vector3;
-
-  constructor(oldValue: Vector3) {
-    super();
-    this.oldValue = oldValue;
-  }
-}
-
-export class EulerChangedEvent extends EventExt {
-  /** TODO */
-  public readonly oldValue: Euler;
-
-  constructor(oldValue: Euler) {
-    super();
-    this.oldValue = oldValue;
-  }
-}
-
-export class QuaternionChangedEvent extends EventExt {
-  /** TODO */
-  public readonly oldValue: Quaternion;
-
-  constructor(oldValue: Quaternion) {
-    super();
-    this.oldValue = oldValue;
-  }
-}
-
 export class FocusEventExt extends EventExt {
   /** The secondary target for the event. */
-  public relatedTarget: Object3D
+  public relatedTarget: Target
 
-  constructor(relatedTarget: Object3D) {
+  constructor(relatedTarget: Target) {
     super();
     this.relatedTarget = relatedTarget;
   }
-}
-
-export interface Events extends DOMEvents {
-  pointerintersection: PointerIntersectionEvent;
-  rendererresize: RendererResizeEvent;
-  positionchange: VectorChangedEvent;
-  ownpositionchange: VectorChangedEvent;
-  scalechange: VectorChangedEvent;
-  ownscalechange: VectorChangedEvent;
-  rotationchange: EulerChangedEvent;
-  ownrotationchange: EulerChangedEvent;
-  quaternionchange: QuaternionChangedEvent;
-  ownquaternionchange: QuaternionChangedEvent;
-  framerendering: EventExt; //TODO cambia params
-  animate: EventExt; //TODO cambia params
-  // childadd
-  // childremove 
-  // parentdadd // This event propagation Up to down.
-  // parentremove // This event propagation Up to down.
-  // enablechange // This event propagation Up to down.
-  // visiblechange // This event propagation Up to down.
-  // ownenablechange // This event propagation Up to down.
-  // ownvisiblechange // This event propagation Up to down.
-}
-
-export interface DOMEvents {
-  pointerover: PointerEventExt;
-  pointerenter: PointerEventExt;
-  pointerout: PointerEventExt;
-  pointerleave: PointerEventExt;
-  pointermove: PointerEventExt;
-  pointerdown: PointerEventExt;
-  pointerup: PointerEventExt;
-  pointercancel: PointerEventExt;
-
-  mouseover: PointerEventExt;
-  mouseenter: PointerEventExt;
-  mouseout: PointerEventExt;
-  mouseleave: PointerEventExt;
-  mousemove: MouseEventExt;
-  mousedown: MouseEventExt;
-  mouseup: MouseEventExt;
-
-  touchstart: TouchEventExt;
-  touchmove: TouchEventExt;
-  touchend: TouchEventExt;
-  touchcancel: TouchEventExt;
-
-  click: PointerEventExt;
-  dblclick: PointerEventExt;
-  wheel: WheelEventExt;
-
-  focusin: FocusEventExt
-  focusout: FocusEventExt
-  focus: FocusEventExt
-  blur: FocusEventExt
-
-  keydown: KeyboardEventExt;
-  keyup: KeyboardEventExt;
-
-  dragvalidation: DragEventExt;
-  drag: DragEventExt;
-  afterdrag: DragEventExt;
-  dragstart: DragEventExt;
-  dragenter: DragEventExt;
-  dragover: DragEventExt;
-  dragleave: DragEventExt;
-  dragend: DragEventExt;
-  drop: DragEventExt;
-}
-
-export interface IntersectionExt extends Intersection {
-  object: Object3D;
-  /** The hitbox hit by the raycaster. */
-  hitbox: Object3D;
 }

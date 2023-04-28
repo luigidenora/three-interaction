@@ -1,10 +1,9 @@
 import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, Mesh, MeshPhongMaterial, Scene, SphereGeometry, Vector3 } from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { WebGLRenderer, InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera } from "../src/index";
+import { WebGLRenderer, InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera } from "../../src/index";
 
 class Spheres extends InstancedMesh {
     public activatedSpheres = 0;
-    public tempPosition = new Vector3();
 
     constructor() {
         super(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 5000, Sphere, new Color(0xffffff));
@@ -14,22 +13,21 @@ class Spheres extends InstancedMesh {
 
 class Sphere extends InstancedMeshSingle {
     public override parent: Spheres;
-    public active = false;
+    public actived = false;
 
     constructor(parent: InstancedMesh, index: number, color?: Color) {
         super(parent, index, color);
         const angleX = Math.random() * Math.PI * 2;
         const angleY = Math.random() * Math.PI * 2;
 
-        this.bindEvent("framerendering", (e) => {
-            const now = performance.now() / 10000;
-            this.update(this.parent.tempPosition.setFromSphericalCoords(5, angleX * now, angleY * now));
+        this.bindEvent("animate", (time) => {
+            this.position.setFromSphericalCoords(5, angleX * time / 10000, angleY * time / 10000);
         });
 
         this.bindEvent("pointerintersection", (e) => {
-            if (!this.active) {
+            if (!this.actived) {
                 this.setColor(new Color().setHex(0xff0000));
-                this.active = true;
+                this.actived = true;
                 this.parent.dispatchEvent({ type: "updated", percentage: ++this.parent.activatedSpheres / this.parent.count });
             }
         });

@@ -1,6 +1,6 @@
-import { Camera, Object3D, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderTarget, WebGLRenderer } from "three";
+import { Camera, Object3D, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { object3DList } from "../Patch/Object3D";
-import { DOMEvents, FocusEventExt, IntersectionExt, MouseEventExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
+import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
 import { EventsQueue } from "./EventsQueue";
 
 export class EventsManager {
@@ -26,13 +26,6 @@ export class EventsManager {
     private _queue = new EventsQueue();
     private _raycasted: boolean;
     private _mouseDetected = false;
-    private _pointerDownEvents: (keyof DOMEvents)[] = ["pointerdown", "mousedown", "touchstart"];
-    private _pointerUpEvents: (keyof DOMEvents)[] = ["pointerup", "mouseup", "touchend"];
-    private _pointerOverEvents: (keyof DOMEvents)[] = ["pointerover", "mouseover"];
-    private _pointerEnterEvents: (keyof DOMEvents)[] = ["pointerenter", "mouseenter"];
-    private _pointerMoveEvents: (keyof DOMEvents)[] = ["pointermove", "mousemove", "touchmove"];
-    private _pointerOutEvents: (keyof DOMEvents)[] = ["pointerout", "mouseout"];
-    private _pointerLeaveEvents: (keyof DOMEvents)[] = ["pointerleave", "mouseleave"];
 
     constructor(public renderer: WebGLRenderer, activeScene?: Scene) {
         this.registerRenderer(renderer);
@@ -162,18 +155,6 @@ export class EventsManager {
         }
     }
 
-    private triggerAncestorPointerMulti(types: (keyof DOMEvents)[], event: PointerEvent, target: Object3D, relatedTarget?: Object3D): PointerEventExt {
-        if (target) {
-            const isMouse = event.pointerType === "mouse";
-            const isTouch = event.pointerType === "touch" || event.pointerType === "pen";
-            const pointerEvent = new PointerEventExt(event, this.intersection, this._lastIntersection, relatedTarget);
-            target.triggerEventAncestor(types[0], pointerEvent);
-            types[1] && isMouse && target.triggerEventAncestor(types[1], new MouseEventExt(event, this.intersection, this._lastIntersection, relatedTarget));
-            // types[2] && isTouch && target.triggerEventAncestor(types[2], toucheventext(types[2], event, target, this.intersection));
-            return pointerEvent;
-        }
-    }
-
     private computeQueuedEvent(event: Event, scene: Scene, camera: Camera): void {
         switch (event.type) {
             case "pointermove": return this.pointerMove(event as PointerEvent, scene, camera);
@@ -184,7 +165,7 @@ export class EventsManager {
     }
 
     private pointerDown(event: PointerEvent): void {
-        this._lastPointerDown = this.triggerAncestorPointerMulti(this._pointerDownEvents, event, this.hoveredObj);
+        this._lastPointerDown = this.triggerAncestorPointer("pointerdown", event, this.hoveredObj);
         this.focus();
     }
 
@@ -192,7 +173,7 @@ export class EventsManager {
         this._lastPointerMove = event;
         this.updateCanvasPointerPosition(event);
         this.pointerOutOver(scene, camera, event);
-        this.triggerAncestorPointerMulti(this._pointerMoveEvents, event, this.hoveredObj);
+        this.triggerAncestorPointer("pointermove", event, this.hoveredObj);
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
@@ -213,15 +194,15 @@ export class EventsManager {
         this.hoveredObj && (this.hoveredObj.hovered = true);
 
         if (this._lastHoveredObj !== this.hoveredObj) {
-            this.triggerAncestorPointerMulti(this._pointerOutEvents, event, this._lastHoveredObj, this.hoveredObj);
-            this.triggerAncestorPointerMulti(this._pointerLeaveEvents, event, this._lastHoveredObj, this.hoveredObj);
-            this.triggerAncestorPointerMulti(this._pointerOverEvents, event, this.hoveredObj, this._lastHoveredObj);
-            this.triggerAncestorPointerMulti(this._pointerEnterEvents, event, this.hoveredObj, this._lastHoveredObj);
+            this.triggerAncestorPointer("pointerout", event, this._lastHoveredObj, this.hoveredObj);
+            this.triggerAncestorPointer("pointerleave", event, this._lastHoveredObj, this.hoveredObj);
+            this.triggerAncestorPointer("pointerover", event, this.hoveredObj, this._lastHoveredObj);
+            this.triggerAncestorPointer("pointerenter", event, this.hoveredObj, this._lastHoveredObj);
         }
     }
 
     private pointerUp(event: PointerEvent): void {
-        this.triggerAncestorPointerMulti(this._pointerUpEvents, event, this.hoveredObj, this._lastPointerDown?._target);
+        this.triggerAncestorPointer("pointerup", event, this.hoveredObj, this._lastPointerDown?._target as Object3D); //todo capire cast
         if (this.hoveredObj === (this._lastPointerDown?._target ?? null)) {
             const prevClick = this._lastClick;
             this._lastClick = this.triggerAncestorPointer("click", event, this.hoveredObj);

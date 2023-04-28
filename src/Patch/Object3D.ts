@@ -2,14 +2,6 @@ import { Object3D } from "three";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { bindAutoUpdateMatrix } from "./AutoUpdateMatrix";
-import { applyEulerPatch } from "./Euler";
-import { applyQuaternionPatch } from "./Quaternion";
-import { applyVector3Patch } from "./Vector3";
-
-/** @internal */ export const positionChangedEvent = "positionChanged";
-/** @internal */ export const scaleChangedEvent = "scaleChanged";
-/** @internal */ export const rotationChangedEvent = "rotationChanged";
-/** @internal */ export const quaternionChangedEvent = "quaternionChanged";
 
 export interface InteractionPrototype {
     /** @internal */ _eventsDispatcher: EventsDispatcher;
@@ -21,8 +13,8 @@ export interface InteractionPrototype {
     enabled: boolean; //TODO Handle
     enabledUntilParent: boolean; //TODO Handle
     visibleUntilParent: boolean; //TODO Handle
-    interceptByRaycaster: boolean; // default true
-    objectsToRaycast: Object3D[];
+    interceptByRaycaster?: boolean; // default true
+    objectsToRaycast?: Object3D[];
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
@@ -68,23 +60,19 @@ Object3D.prototype.unbindEvent = function (type: any, listener) {
 }
 
 Object3D.prototype.triggerEvent = function (type: any, args) {
-    this._eventsDispatcher.dispatchEvent(type.toLowerCase(), args);
+    this._eventsDispatcher.dispatchDOMEvent(type.toLowerCase(), args);
 }
 
 Object3D.prototype.triggerEventAncestor = function (type: any, args) {
-    this._eventsDispatcher.dispatchEventAncestor(type.toLowerCase(), args);
+    this._eventsDispatcher.dispatchDOMEventAncestor(type.toLowerCase(), args);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code in constructor
     get: function () { return this._userData },
     set: function (value) {
         if (!this._patched) {
-            object3DList[this.id] = this;
+            object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
             this._eventsDispatcher = new EventsDispatcher(this);
-            applyVector3Patch(this.position, this, positionChangedEvent);
-            applyVector3Patch(this.scale, this, scaleChangedEvent);
-            applyEulerPatch(this.rotation, this, rotationChangedEvent);
-            applyQuaternionPatch(this.quaternion, this, quaternionChangedEvent);
             bindAutoUpdateMatrix(this);
             this._patched = true;
         }

@@ -1,13 +1,12 @@
 import { Object3D } from "three";
 
-/** @internal */
-export function applyEulerPatch(euler: any, parent: Object3D, eventName: string): void {
-    euler._oldValue = euler.clone();
-    const base = parent.rotation._onChangeCallback;
+export const rotationChangedEvent = "rotationChanged";
 
+/** @internal */
+export function applyEulerPatch(parent: Object3D, eventName: string): void {
+    const base = parent.rotation._onChangeCallback;
     parent.rotation._onChange(() => {
         base();
-        parent.dispatchEvent({ type: eventName, oldValue: euler._oldValue });
-        euler._oldValue.copy(euler);
+        parent.dispatchEvent({ type: eventName });
     });
 }
