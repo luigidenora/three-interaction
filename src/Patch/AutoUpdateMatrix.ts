@@ -1,6 +1,7 @@
 import { Object3D } from "three";
-import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
+import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
+import { InstancedMesh } from "../EnhancedObjects/InstancedMesh";
 
 /** @internal */
 export const autoUpdateMatrix = true;
@@ -27,7 +28,7 @@ export function bindAutoUpdateMatrixInstancedMeshSingle(target: InstancedMeshSin
     });
 }
 
-export function updateMatrices(): void {
+export function updateMatrices(): void { //todo solo su scena renderizzata
     if (autoUpdateMatrix) {
         for (const target of object3DMatrixUpdateQueue.data) { //TODO add check profondità
             target.updateMatrix();
@@ -39,6 +40,7 @@ export function updateMatrices(): void {
 
     for (const target of instancedMatrixUpdateQueue.data) { //TODO add check profondità
         target.updateMatrix();
+        (target.parent as InstancedMesh)._needsUpdate = true;
     }
     instancedMatrixUpdateQueue.clear();
 }

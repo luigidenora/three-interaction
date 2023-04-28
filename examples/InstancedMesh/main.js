@@ -20,6 +20,7 @@ for (const sphere of scene.spheres.instances) {
 
     sphere.bindEvent("animate", function (time) {
         this.position.setFromSphericalCoords(5, this.angleX * time / 10000, this.angleY * time / 10000);
+        this.scale.setScalar(Math.sin(time / 10000));
     });
 
     sphere.bindEvent("pointerintersection", function (e) {

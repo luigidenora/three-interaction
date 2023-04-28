@@ -54,7 +54,6 @@ export class InstancedMeshSingle extends EventDispatcher implements InteractionP
         const matrix = this.parent._tempMatrix;
         matrix.compose(this.position, this.quaternion, this.scale);
         this.parent.setMatrixAt(this.instanceId, matrix);
-        this.parent._needsUpdate = true; //todo capire var
     }
 
     public bindEvent<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {

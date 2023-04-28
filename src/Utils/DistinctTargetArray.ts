@@ -6,6 +6,7 @@ export class DistinctTargetArray<T extends Target = Target> {
 
     public push(target: T): void {
         if (!this._set.has(target.id)) {
+            this._set.add(target.id);
             this.data.push(target);
         }
     }
