@@ -18,6 +18,7 @@ export class Scene extends SceneBase  implements InteractionPrototype {
     visibleUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
+    /** @internal */ _threeDepth: number;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

@@ -3,7 +3,7 @@ import { Events } from "../src/Events/Events";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
 
-export class Object3D extends Object3DBase  implements InteractionPrototype {
+export class Object3D extends Object3DBase implements InteractionPrototype {
     override parent: Object3D;
     override children: Object3D[];
     _eventsDispatcher: EventsDispatcher;
@@ -19,6 +19,7 @@ export class Object3D extends Object3DBase  implements InteractionPrototype {
     objectsToRaycast: Object3D[];
     // frustumNeedsUpdate: boolean; //todo REMOVE
     // isInFrustum: boolean; //todo REMOVE
+    /** @internal */ _threeDepth: number;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

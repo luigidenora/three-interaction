@@ -1,9 +1,9 @@
 import { Scene, WebGLRenderer } from "three";
+import { RendererResizeEvent } from "../Events/Events";
 import { EventsCache } from "../Events/EventsCache";
-import { EventExt, RendererResizeEvent } from "../Events/Events";
 import { updateMatrices } from "./AutoUpdateMatrix";
 
-export interface RendererInteractionPrototype {
+export interface WebGLRendererInteractionPrototype {
     scenes: Scene[];
     addScene(...scene: Scene[]): void;
     removeScene(scene: Scene): void;
@@ -15,11 +15,13 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera) {
         //TODO smart rendering
-        EventsCache.dispatchEvent(scene, "animate", performance.now()); //TODO correggere
-        EventsCache.dispatchEvent(scene, "framerendering");
-        updateMatrices();
-        //TODO raycasting e trigger eventi
-        // updateMatrices();
+        if (!this._isGPUPicking) {
+            EventsCache.dispatchEvent(scene, "animate", performance.now()); //TODO correggere
+            EventsCache.dispatchEvent(scene, "framerendering");
+            updateMatrices();
+        } else {
+            this._isGPUPicking = false;
+        }
         baseRender(scene, camera);
     }
 

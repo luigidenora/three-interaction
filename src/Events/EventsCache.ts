@@ -1,8 +1,9 @@
 import { Scene } from "three";
-import { Utils } from "../Utils";
+import { Utils } from "../Utils/Utils";
 import { Events, Target } from "./Events";
+import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
-type SceneEventsCache = { [x: string]: Target[] };
+type SceneEventsCache = { [x: string]: DistinctTargetArray };
 
 export class EventsCache {
    private static _allowedEventsSet = new Set(["rendererresize", "framerendering", "animate"] as (keyof Events)[]);
@@ -26,10 +27,8 @@ export class EventsCache {
 
    private static pushScene(scene: Scene, type: keyof Events, target: Target): void {
       const sceneCache = this._events[scene.id] ?? (this._events[scene.id] = {});
-      const eventCache = sceneCache[type] ?? (sceneCache[type] = []);
-      if (eventCache.indexOf(target) === -1) {
-         eventCache.push(target);
-      }
+      const eventCache = sceneCache[type] ?? (sceneCache[type] = new DistinctTargetArray());
+      eventCache.push(target);
    }
 
    public static remove(): void {
@@ -39,7 +38,7 @@ export class EventsCache {
    public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache && sceneCache[type]) {
-         for (const target of sceneCache[type]) {
+         for (const target of sceneCache[type].data) {
             target._eventsDispatcher.dispatchEvent(type, event);
          }
       }

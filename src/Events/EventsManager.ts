@@ -10,7 +10,6 @@ export class EventsManager {
     public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => { return a.distance === b.distance ? b.object.id - a.object.id : a.distance - b.distance };
     public continousPointerRaycasting = true; //for intersection event
     public disactiveWhenClickOut = false;
-    public activeScene: Scene; //TODO remove?
     private pointer = new Vector2();
     private pointerUv = new Vector2();
     public intersections: IntersectionExt[];
@@ -27,9 +26,8 @@ export class EventsManager {
     private _raycasted: boolean;
     private _mouseDetected = false;
 
-    constructor(public renderer: WebGLRenderer, activeScene?: Scene) {
+    constructor(public renderer: WebGLRenderer) {
         this.registerRenderer(renderer);
-        this.activeScene = activeScene;
     }
 
     public registerRenderer(renderer: WebGLRenderer): void {

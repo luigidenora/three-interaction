@@ -1,5 +1,5 @@
-import { Scene, Vector3 } from "three";
-import { Target } from "./Events/Events";
+import { Object3D, Scene, Vector3 } from "three";
+import { Target } from "../Events/Events";
 
 export class Utils {
     public static eps = 10 ** -8;
@@ -16,7 +16,7 @@ export class Utils {
             if ((obj as Scene).isScene) {
                 return obj as Scene;
             }
-            obj = obj.parent;
+            obj = obj.parent as Object3D;
         }
     }
 }

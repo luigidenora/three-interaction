@@ -2,6 +2,7 @@ import { Color, EventDispatcher, Object3D, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
 import { EventsDispatcher, InteractionPrototype } from "../index";
 import { InstancedMesh } from "./InstancedMesh";
+import { bindAutoUpdateMatrixInstancedMeshSingle } from "../Patch/AutoUpdateMatrix";
 
 let id = 0;
 
@@ -32,14 +33,11 @@ export class InstancedMeshSingle extends EventDispatcher implements InteractionP
         this.parent = parent;
         this.instanceId = index;
         this._eventsDispatcher = new EventsDispatcher(this);
+        bindAutoUpdateMatrixInstancedMeshSingle(this);
 
         if (color) {
             this.setColor(color);
         }
-
-        this.bindEvent(["positionchange", "scalechange", "rotationchange"], () => {
-            this.update(); // TODO opt cache
-        });
     }
 
     public setColor(color: Color): void {
@@ -52,11 +50,11 @@ export class InstancedMeshSingle extends EventDispatcher implements InteractionP
         return color;
     }
 
-    private update(): void {
+    public updateMatrix(): void {
         const matrix = this.parent._tempMatrix;
         matrix.compose(this.position, this.quaternion, this.scale);
         this.parent.setMatrixAt(this.instanceId, matrix);
-        this.parent._needsUpdate = true;
+        this.parent._needsUpdate = true; //todo capire var
     }
 
     public bindEvent<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {

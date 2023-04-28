@@ -1,7 +1,7 @@
 import { Object3D } from "three";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
-import { bindAutoUpdateMatrix } from "./AutoUpdateMatrix";
+import { bindAutoUpdateMatrixObject3D } from "./AutoUpdateMatrix";
 
 export interface InteractionPrototype {
     /** @internal */ _eventsDispatcher: EventsDispatcher;
@@ -73,7 +73,7 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
         if (!this._patched) {
             object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
             this._eventsDispatcher = new EventsDispatcher(this);
-            bindAutoUpdateMatrix(this);
+            bindAutoUpdateMatrixObject3D(this);
             this._patched = true;
         }
         this._userData = value;

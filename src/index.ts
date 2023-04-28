@@ -14,4 +14,5 @@ export * from './Patch/Object3D';
 export * from './Patch/Quaternion';
 export * from './Patch/Vector3';
 export * from './Patch/WebGLRenderer';
-export * from './Utils';
+export * from './Utils/DistinctTargetArray';
+export * from './Utils/Utils';

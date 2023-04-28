@@ -26,7 +26,7 @@ export class WebGLRenderer extends WebGLRendererBase {
         window.addEventListener("resize", () => this.setSizeByCanvas())
         this.setSizeByCanvas();
         this.setPixelRatio(window.devicePixelRatio);
-        this.eventsManager = new EventsManager(this, scenes[0]);
+        this.eventsManager = new EventsManager(this);
         this.setAnimationLoop((time, frame) => {
             this.eventsManager.update(this.activeScene, this.activeCamera);
             animate(time, frame);
