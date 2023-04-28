@@ -38,7 +38,7 @@ export class EventsCache {
 
    public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
-      if (sceneCache) {
+      if (sceneCache && sceneCache[type]) {
          for (const target of sceneCache[type]) {
             target._eventsDispatcher.dispatchEvent(type, event);
          }
