@@ -1,12 +1,12 @@
-import { Target } from "../Events/Events";
+import { Events, Target } from "../Events/Events";
 
 export const quaternionChangedEvent = "quaternionChanged";
 
 /** @internal */
-export function applyQuaternionPatch(parent: Target, eventName: string): void {
+export function applyQuaternionPatch(parent: Target, eventName: keyof Events): void {
     const base = parent.quaternion._onChangeCallback;
     parent.quaternion._onChange(() => {
         base();
-        parent.dispatchEvent({ type: eventName });
+        parent._eventsDispatcher.dispatchEvent(eventName);
     });
 }
