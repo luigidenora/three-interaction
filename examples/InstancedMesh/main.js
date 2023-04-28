@@ -6,7 +6,7 @@ const scene = new Scene();
 scene.add(
     scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
     scene.loadingBar = new Mesh(new BoxGeometry(0.2, 10, 1), new LoadingMaterial(10, 0xff0000, 0x00ff00)).translateX(-10),
-    scene.spheres = new InstancedMesh(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 4000, InstancedMeshSingle, new Color(0xffffff)),
+    scene.spheres = new InstancedMesh(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 5000, InstancedMeshSingle, new Color(0xffffff)),
     new DirectionalLight(0xffffff, 0.9).translateZ(10)
 );
 

@@ -5,7 +5,7 @@ export class DistinctTargetArray<T extends Target = Target> {
     public data: T[] = [];
 
     public push(target: T): void {
-        if (this._set.has(target.id)) {
+        if (!this._set.has(target.id)) {
             this.data.push(target);
         }
     }
