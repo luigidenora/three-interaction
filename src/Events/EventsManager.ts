@@ -1,7 +1,7 @@
 import { Camera, Object3D, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { object3DList } from "../Patch/Object3D";
 import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
-import { EventsQueue } from "./EventsQueue";
+import { PointerEventsQueue } from "./EventsQueue";
 
 export class EventsManager {
     public enabled = true;
@@ -22,7 +22,7 @@ export class EventsManager {
     private _lastClick: PointerEventExt;
     private _lastIntersection: IntersectionExt;
     private _raycaster = new Raycaster();
-    private _queue = new EventsQueue();
+    private _queue = new PointerEventsQueue();
     private _raycasted: boolean;
     private _mouseDetected = false;
 
@@ -164,7 +164,7 @@ export class EventsManager {
 
     private pointerDown(event: PointerEvent): void {
         this._lastPointerDown = this.triggerAncestorPointer("pointerdown", event, this.hoveredObj);
-        this.focus();
+        this.focus(event);
     }
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
@@ -214,8 +214,9 @@ export class EventsManager {
         }
     }
 
-    private focus(): void { //TODO creare possibilità di settare focus manulamente
+    private focus(event: PointerEvent): void { //TODO creare possibilità di settare focus manulamente
         const activableObj = this.hoveredObj?.activableObj;
+        if (!event.isPrimary) return;
         if (this.activeObj !== activableObj) {
 
             if (!this.disactiveWhenClickOut && !activableObj) return;

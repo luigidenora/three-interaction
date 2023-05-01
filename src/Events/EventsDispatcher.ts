@@ -1,7 +1,7 @@
 import { Object3D } from "three";
-import { applyEulerPatch, rotationChangedEvent } from "../Patch/Euler";
-import { applyQuaternionPatch, quaternionChangedEvent } from "../Patch/Quaternion";
-import { applyVector3Patch, positionChangedEvent, scaleChangedEvent } from "../Patch/Vector3";
+import { applyEulerPatch } from "../Patch/Euler";
+import { applyQuaternionPatch } from "../Patch/Quaternion";
+import { applyVector3Patch } from "../Patch/Vector3";
 import { DOMEvents, Events, Target } from "./Events";
 import { EventsCache } from "./EventsCache";
 

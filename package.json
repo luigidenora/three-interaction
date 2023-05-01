@@ -5,7 +5,7 @@
   "author": "agargaro",
   "license": "MIT",
   "main": "bundle.js",
-  "types": "index.d.ts",
+  "types": "src/index.d.ts",
   "repository": "https://github.com/agargaro/three-interaction",
   "scripts": {
     "publish-beta": "npm version prerelease --preid=beta --git-tag-version false && npx webpack && cd dist && npm publish --tag beta --access public",
