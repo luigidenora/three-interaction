@@ -3,6 +3,10 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera, WebGLRenderer } from "../../src/index";
 
 const scene = new Scene();
+const renderer = new WebGLRenderer([scene], animate, true, { antialias: true });
+const stats = Stats();
+document.body.appendChild(stats.dom);
+
 scene.add(
     scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
     scene.loadingBar = new Mesh(new BoxGeometry(0.2, 10, 1), new LoadingMaterial(10, 0xff0000, 0x00ff00)).translateX(-10),
@@ -26,25 +30,13 @@ for (const sphere of scene.spheres.instances) {
         if (!this.activated) {
             this.setColor(new Color().setHex(0xff0000));
             this.activated = true;
-            this.parent.dispatchEvent({ type: "updated", percentage: ++activatedSpheres / this.parent.count });
+            scene.loadingBar.material.setPercentage(++activatedSpheres / this.parent.count);
         }
     });
 }
 
-scene.spheres.addEventListener("updated", (e) => {
-    scene.loadingBar.material.setPercentage(e.percentage);
-});
-
-
-scene.loadingBar.bindEvent("animate", function (time) {
+function animate(time) {
     this.material.uniforms.time.value = time / 1000;
-});
-
-const renderer = new WebGLRenderer([scene], animate, true, { antialias: true });
-const stats = Stats();
-document.body.appendChild(stats.dom);
-
-function animate() {
     renderer.render(scene, scene.camera);
     stats.update();
 }
