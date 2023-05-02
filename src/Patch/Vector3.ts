@@ -1,11 +1,11 @@
-import { Vector3 } from "three";
-import { Events, Target } from "../Events/Events";
+import { Object3D, Vector3 } from "three";
+import { Events } from "../Events/Events";
 
 export const positionChangedEvent = "positionChanged";
 export const scaleChangedEvent = "scaleChanged";
 
 /** @internal */
-export function applyVector3Patch(vec3: any, parent: Target, eventName: keyof Events): void { //todo fix d.ts
+export function applyVector3Patch(vec3: any, parent: Object3D, eventName: keyof Events): void { //todo fix d.ts
     vec3.parent = parent;
     overrideProperty(vec3, "x", parent, eventName);
     overrideProperty(vec3, "y", parent, eventName);
@@ -19,7 +19,7 @@ export function applyVector3Patch(vec3: any, parent: Target, eventName: keyof Ev
     }
 }
 
-function overrideProperty(vec3: any, property: keyof Vector3, parent: Target, eventName: keyof Events): void {
+function overrideProperty(vec3: any, property: keyof Vector3, parent: Object3D, eventName: keyof Events): void {
     const privateProperty = `_${property}`;
     vec3[privateProperty] = vec3[property];
 
@@ -41,7 +41,7 @@ function overrideMethod(vec3: any, method: string, eventName: keyof Events): voi
         const endArgsIndex = functionToOverride.indexOf(")");
         const startFunctionIndex = functionToOverride.indexOf("{");
         const args = functionToOverride.slice(startArgsIndex + 1, endArgsIndex).split(",");
-    
+
         const overridenFunction = functionToOverride
             .slice(startFunctionIndex + 1, functionToOverride.length - 1)
             .replace("this.x", "this._x")

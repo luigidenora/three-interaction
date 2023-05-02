@@ -1,8 +1,6 @@
 import { Intersection, Object3D, Vector3, WebGLRenderer } from "three";
 import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
 
-export type Target = Object3D | InstancedMeshSingle;
-
 export interface Events extends DOMEvents { //todo rimuovere extends
   positionchange: never;
   scalechange: never;
@@ -74,7 +72,7 @@ export class EventExt {
   /** A boolean value indicating whether the event is cancelable. */
   public readonly cancelable;
   /** A reference to the currently registered target for the event. This is the object to which the event is currently slated to be sent. It's possible this has been changed along the way through retargeting. */
-  public currentTarget: Target;
+  public currentTarget: Object3D;
   /** Indicates whether or not the call to event.preventDefault() canceled the event. */
   public get defaultPrevented() { return this._defaultPrevented }
   /** A reference to the object to which the event was originally dispatched. */
@@ -88,7 +86,7 @@ export class EventExt {
     /** @internal */ public _stoppedImmediatePropagation: boolean;
     /** @internal */ public _bubbles: boolean;
     /** @internal */ public _type: keyof Events;
-    /** @internal */ public _target: Target;
+    /** @internal */ public _target: Object3D;
 
   constructor(cancelable = false) {
     this.cancelable = cancelable;
@@ -138,7 +136,7 @@ export class MouseEventExt extends EventExt {
   /** The Y coordinate of the mouse pointer relative to the whole document. */
   public get pageY() { return this._event.pageY }
   /** The secondary target for the event, if there is one. */
-  public readonly relatedTarget: Target;
+  public readonly relatedTarget: Object3D;
   /** The X coordinate of the mouse pointer in global (screen) coordinates. */
   public get screenX() { return this._event.screenX }
   /** The Y coordinate of the mouse pointer in global (screen) coordinates. */
@@ -283,9 +281,9 @@ export class RendererResizeEvent extends EventExt {
 
 export class FocusEventExt extends EventExt {
   /** The secondary target for the event. */
-  public relatedTarget: Target
+  public relatedTarget: Object3D
 
-  constructor(relatedTarget: Target) {
+  constructor(relatedTarget: Object3D) {
     super();
     this.relatedTarget = relatedTarget;
   }

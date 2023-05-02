@@ -43,28 +43,28 @@ Object.defineProperty(Object3D.prototype, "activableObj", {
 
 Object3D.prototype.bindEvent = function (this: Object3D, types: any, listener) {
     if (typeof (types) === "string") {
-        return this.__eventsDispatcher.addEventListener((types as any).toLowerCase(), listener);
+        return this.__eventsDispatcher.addEventListener(types as any, listener);
     }
     for (const type of types) {
-        this.__eventsDispatcher.addEventListener(type.toLowerCase(), listener);
+        this.__eventsDispatcher.addEventListener(type, listener);
     }
     return listener;
 };
 
 Object3D.prototype.hasBoundEvent = function (type: any, listener) {
-    return this.__eventsDispatcher.hasEventListener(type.toLowerCase(), listener);
+    return this.__eventsDispatcher.hasEventListener(type, listener);
 }
 
 Object3D.prototype.unbindEvent = function (type: any, listener) {
-    this.__eventsDispatcher.removeEventListener(type.toLowerCase(), listener);
+    this.__eventsDispatcher.removeEventListener(type, listener);
 }
 
 Object3D.prototype.triggerEvent = function (type: any, args) {
-    this.__eventsDispatcher.dispatchDOMEvent(type.toLowerCase(), args);
+    this.__eventsDispatcher.dispatchDOMEvent(type, args);
 }
 
 Object3D.prototype.triggerEventAncestor = function (type: any, args) {
-    this.__eventsDispatcher.dispatchDOMEventAncestor(type.toLowerCase(), args);
+    this.__eventsDispatcher.dispatchDOMEventAncestor(type, args);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code in constructor

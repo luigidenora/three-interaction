@@ -24,12 +24,8 @@ export class InstancedMesh extends InstancedMeshBase {
             this.instances[e.intersection.instanceId].triggerEvent("pointerintersection", e);
         });
 
-        this.bindEvent("framerendering", (e) => { //todo after animate
-            if (this._needsUpdate) {
-                this.instanceMatrix.needsUpdate = true;
-                (this as any).computeBoundingSphere(); //TODO fix ref
-                this._needsUpdate = false;
-            }
+        this.bindEvent("animate", (e) => {
+            // this.instances[e.intersection.instanceId].triggerEvent("pointerintersection", e);
         });
     }
 }

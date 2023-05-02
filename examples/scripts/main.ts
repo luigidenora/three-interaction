@@ -8,6 +8,10 @@ class Spheres extends InstancedMesh {
     constructor() {
         super(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 5000, Sphere, new Color(0xffffff));
         this.instanceMatrix.setUsage(DynamicDrawUsage);
+
+        this.bindEvent("animate", () => {
+            (this as any).computeBoundingSphere(); //TODO fix ref 
+        });
     }
 }
 
@@ -20,8 +24,9 @@ class Sphere extends InstancedMeshSingle {
         const angleX = Math.random() * Math.PI * 2;
         const angleY = Math.random() * Math.PI * 2;
 
-        this.bindEvent("animate", (time) => {
-            this.position.setFromSphericalCoords(5, angleX * time / 10000, angleY * time / 10000);
+        this.bindEvent("animate", (e) => {
+            this.position.setFromSphericalCoords(5, angleX * e.total / 10, angleY * e.total / 10);
+            this.updateMatrix();
         });
 
         this.bindEvent("pointerintersection", (e) => {

@@ -1,6 +1,6 @@
-import { Scene } from "three";
+import { Object3D, Scene } from "three";
 import { Utils } from "../Utils/Utils";
-import { Events, Target } from "./Events";
+import { Events } from "./Events";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
 type SceneEventsCache = { [x: string]: DistinctTargetArray };
@@ -9,7 +9,7 @@ export class EventsCache {
    private static _allowedEventsSet = new Set(["rendererresize", "framerendering", "animate"] as (keyof Events)[]);
    private static _events: { [x: number]: SceneEventsCache } = {};
 
-   public static push(type: keyof Events, target: Target): void {
+   public static push(type: keyof Events, target: Object3D): void {
       if (this._allowedEventsSet.has(type)) {
          let scene = Utils.getSceneFromObj(target);
          if (scene) {
@@ -25,7 +25,7 @@ export class EventsCache {
       }
    }
 
-   private static pushScene(scene: Scene, type: keyof Events, target: Target): void {
+   private static pushScene(scene: Scene, type: keyof Events, target: Object3D): void {
       const sceneCache = this._events[scene.id] ?? (this._events[scene.id] = {});
       const eventCache = sceneCache[type] ?? (sceneCache[type] = new DistinctTargetArray());
       eventCache.push(target);

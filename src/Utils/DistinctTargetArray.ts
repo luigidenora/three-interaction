@@ -1,6 +1,6 @@
-import { Target } from "../Events/Events";
+import { Object3D } from "three";
 
-export class DistinctTargetArray<T extends Target = Target> {
+export class DistinctTargetArray<T extends Object3D = Object3D> {
     private _set = new Set();
     public data: T[] = [];
 
