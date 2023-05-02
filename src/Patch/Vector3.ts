@@ -32,19 +32,26 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Target, ev
     });
 }
 
+const cachedMethods: { [x: string]: Function } = {};
+
 function overrideMethod(vec3: any, method: string, eventName: keyof Events): void {
-    const functionToOverride = vec3[method].toString();
-    const startArgsIndex = functionToOverride.indexOf("(");
-    const endArgsIndex = functionToOverride.indexOf(")");
-    const startFunctionIndex = functionToOverride.indexOf("{");
-    const args = functionToOverride.slice(startArgsIndex + 1, endArgsIndex).split(",");
+    if (!cachedMethods[method]) {
+        const functionToOverride = vec3[method].toString();
+        const startArgsIndex = functionToOverride.indexOf("(");
+        const endArgsIndex = functionToOverride.indexOf(")");
+        const startFunctionIndex = functionToOverride.indexOf("{");
+        const args = functionToOverride.slice(startArgsIndex + 1, endArgsIndex).split(",");
+    
+        const overridenFunction = functionToOverride
+            .slice(startFunctionIndex + 1, functionToOverride.length - 1)
+            .replace("this.x", "this._x")
+            .replace("this.y", "this._y")
+            .replace("this.z", "this._z")
+            .replace("return this", `this.parent.__eventsDispatcher.dispatchEvent("${eventName}"); return this`);
 
-    const overridenFunction = functionToOverride
-        .slice(startFunctionIndex + 1, functionToOverride.length - 1)
-        .replace("this.x", "this._x")
-        .replace("this.y", "this._y")
-        .replace("this.z", "this._z")
-        .replace("return this", `this.parent.__eventsDispatcher.dispatchEvent("${eventName}"); return this`);
+        cachedMethods[method] = new Function(...args, overridenFunction);
+        console.log("calcolo " + method);
+    }
 
-    vec3[method] = new Function(...args, overridenFunction).bind(vec3);
+    vec3[method] = cachedMethods[method].bind(vec3)
 }
