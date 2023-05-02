@@ -145,9 +145,9 @@ export class EventsManager {
         this.pointer.set(event.offsetX, event.offsetY);
     }
 
-    private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D): PointerEventExt {
+    private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
         if (target) {
-            const pointerEvent = new PointerEventExt(event, this.intersection, this._lastIntersection, relatedTarget);
+            const pointerEvent = new PointerEventExt(event, this.intersection, this._lastIntersection, relatedTarget, cancelable);
             target.triggerEventAncestor(type, pointerEvent);
             return pointerEvent;
         }
@@ -155,7 +155,7 @@ export class EventsManager {
 
     private triggerAncestorWheel(event: WheelEvent, target: Object3D): void {
         if (target) {
-            const wheelEvent = new WheelEventExt(event, this.intersection, );
+            const wheelEvent = new WheelEventExt(event, this.intersection,);
             target.triggerEventAncestor("wheel", wheelEvent);
         }
     }
@@ -171,8 +171,10 @@ export class EventsManager {
     }
 
     private pointerDown(event: PointerEvent): void {
-        this._lastPointerDown = this.triggerAncestorPointer("pointerdown", event, this.hoveredObj);
-        this.focus(event);
+        this._lastPointerDown = this.triggerAncestorPointer("pointerdown", event, this.hoveredObj, undefined, true);
+        if (!this._lastPointerDown?._defaultPrevented) {
+            this.focus(event);
+        }
     }
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
@@ -187,7 +189,7 @@ export class EventsManager {
         if (this._mouseDetected && !this._raycasted) {
             this.pointerOutOver(scene, camera, this._lastPointerMove); //TODO bug se cambio 
         }
-        if (this.hoveredObj /* && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point) */) {
+        if (this.hoveredObj) {
             this.hoveredObj.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(this.intersection, this._lastIntersection));
         }
     }

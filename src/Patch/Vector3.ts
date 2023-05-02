@@ -50,7 +50,6 @@ function overrideMethod(vec3: any, method: string, eventName: keyof Events): voi
             .replace("return this", `this.parent.__eventsDispatcher.dispatchEvent("${eventName}"); return this`);
 
         cachedMethods[method] = new Function(...args, overridenFunction);
-        console.log("calcolo " + method);
     }
 
     vec3[method] = cachedMethods[method].bind(vec3)

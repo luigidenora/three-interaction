@@ -72,7 +72,7 @@ export class EventExt {
   /** A boolean value indicating whether or not the event bubbles up through the DOM. */
   public get bubbles() { return this._bubbles }
   /** A boolean value indicating whether the event is cancelable. */
-  public readonly cancelable = false;
+  public readonly cancelable;
   /** A reference to the currently registered target for the event. This is the object to which the event is currently slated to be sent. It's possible this has been changed along the way through retargeting. */
   public currentTarget: Target;
   /** Indicates whether or not the call to event.preventDefault() canceled the event. */
@@ -89,6 +89,10 @@ export class EventExt {
     /** @internal */ public _bubbles: boolean;
     /** @internal */ public _type: keyof Events;
     /** @internal */ public _target: Target;
+
+  constructor(cancelable = false) {
+    this.cancelable = cancelable;
+  }
 
   /** Cancels the event. */
   public preventDefault(): void {
@@ -148,8 +152,8 @@ export class MouseEventExt extends EventExt {
   /** TODO. */
   public readonly movement: Vector3;
 
-  constructor(event: MouseEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
-    super();
+  constructor(event: MouseEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
+    super(cancelable);
     this._event = event;
     this.intersection = intersection;
     this.relatedTarget = relatedTarget;
@@ -187,8 +191,8 @@ export class PointerEventExt extends MouseEventExt {
   public get isPrimary() { return this._event.isPrimary }
   public override _event: PointerEvent;
 
-  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
-    super(event, intersection, lastIntersection, relatedTarget);
+  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
+    super(event, intersection, lastIntersection, relatedTarget, cancelable);
   }
 
   /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */

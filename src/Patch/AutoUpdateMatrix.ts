@@ -4,7 +4,7 @@ import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 import { InstancedMesh } from "../EnhancedObjects/InstancedMesh";
 
 /** @internal */
-export const autoUpdateMatrix = true;
+export const autoUpdateMatrix = false;
 
 Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !autoUpdateMatrix;
 Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !autoUpdateMatrix;
@@ -23,7 +23,7 @@ export function bindAutoUpdateMatrixObject3D(target: Object3D): void {
 
 /** @internal */
 export function bindAutoUpdateMatrixInstancedMeshSingle(target: InstancedMeshSingle): void {
-    target.bindEvent(["positionchange", "scalechange", "quaternionchange", "rotationchange"], () => {
+    autoUpdateMatrix && target.bindEvent(["positionchange", "scalechange", "quaternionchange", "rotationchange"], () => {
         instancedMatrixUpdateQueue.push(target);
     });
 }
@@ -36,11 +36,11 @@ export function updateMatrices(): void { //todo solo su scena renderizzata
             // target.frustumNeedsUpdate = true; //TODO anche i child
         }
         object3DMatrixUpdateQueue.clear();
-    }
 
-    for (const target of instancedMatrixUpdateQueue.data) { //TODO add check profondità
-        target.updateMatrix();
-        (target.parent as InstancedMesh)._needsUpdate = true;
+        for (const target of instancedMatrixUpdateQueue.data) { //TODO add check profondità
+            target.updateMatrix();
+            (target.parent as InstancedMesh)._needsUpdate = true;
+        }
+        instancedMatrixUpdateQueue.clear();
     }
-    instancedMatrixUpdateQueue.clear();
 }

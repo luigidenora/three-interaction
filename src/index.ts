@@ -1,6 +1,7 @@
 export * from './EnhancedObjects/InstancedMesh';
 export * from './EnhancedObjects/InstancedMeshSingle';
 export * from './EnhancedObjects/LoadingMaterial';
+export * from './EnhancedObjects/Main';
 export * from './EnhancedObjects/PerspectiveCamera';
 export * from './EnhancedObjects/WebGLRenderer';
 export * from './Events/Events';
