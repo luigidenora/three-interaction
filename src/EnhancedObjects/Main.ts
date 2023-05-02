@@ -1,10 +1,10 @@
 import { Scene, WebGLRendererParameters } from "three";
-import Stats from "three/examples/jsm/libs/stats.module";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 import { WebGLRenderer } from "./WebGLRenderer";
 
 export class Main {
     public renderer: WebGLRenderer;
-    public stats = Stats();
+    public stats = new Stats();
 
     constructor(public scenes: Scene[], public animate?: XRFrameRequestCallback, fullscreen = true, parameters: WebGLRendererParameters = {}) {
         this.renderer = new WebGLRenderer(scenes, this.animateBase.bind(this), fullscreen, parameters);

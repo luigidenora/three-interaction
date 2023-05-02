@@ -8,7 +8,7 @@
 		"strictNullChecks": false,
 		"stripInternal": true,
 		"outDir": "dist",
-		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
 		"paths": {
 			"three": [
 				"./types/three.d.ts"

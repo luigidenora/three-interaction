@@ -25,7 +25,9 @@ export class InstancedMesh extends InstancedMeshBase {
         });
 
         this.bindEvent("animate", (e) => {
-            // this.instances[e.intersection.instanceId].triggerEvent("pointerintersection", e);
+            for (let i = 0; i < this.count; i++) { //opt with array sorted and don't include id > count
+                this.instances[i].triggerEvent("animate", e);
+            }
         });
     }
 }
