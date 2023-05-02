@@ -10,7 +10,8 @@ module.exports = {
     outputModule: true
   },
   externals: [
-    'three'
+    'three',
+    'three/examples/jsm/libs/stats.module'
   ],
   module: {
     rules: [
