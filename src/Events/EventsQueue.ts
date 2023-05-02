@@ -1,11 +1,11 @@
 export class PointerEventsQueue {
-   private _items: PointerEvent[] = [];
+   private _items: Event[] = [];
 
-   public enqueue(event: PointerEvent): void {
+   public enqueue(event: Event): void {
       if (event.type === "pointermove") {
          for (let i = this._items.length - 1; i >= 0; i--) {
-            const item = this._items[i];
-            if (item.pointerId === event.pointerId) {
+            const item = this._items[i] as PointerEvent;
+            if (item.pointerId === (event as PointerEvent).pointerId) {
                const type = item.type;
                if (type === "pointermove") {
                   this._items[i] = event;

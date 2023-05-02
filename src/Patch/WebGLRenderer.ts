@@ -1,4 +1,4 @@
-import { Scene, WebGLRenderer } from "three";
+import { Clock, Scene, WebGLRenderer } from "three";
 import { RendererResizeEvent } from "../Events/Events";
 import { EventsCache } from "../Events/EventsCache";
 import { updateMatrices } from "./AutoUpdateMatrix";
@@ -12,11 +12,12 @@ export interface WebGLRendererInteractionPrototype {
 export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     renderer.scenes = [];
 
+    const clock = new Clock();
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera) {
         //TODO smart rendering
         if (!this._isGPUPicking) {
-            EventsCache.dispatchEvent(scene, "animate", performance.now()); //TODO correggere
+            EventsCache.dispatchEvent(scene, "animate", clock.getDelta()); //TODO correggere
             EventsCache.dispatchEvent(scene, "framerendering");
             updateMatrices();
         } else {

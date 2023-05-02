@@ -25,7 +25,7 @@ class CustomScene extends Scene {
         }
 
         this.bindEvent(["focus", "blur"], function (e) {
-            (e.target as Box).material.emissive.set(e.type == "focus" ? 0xaaaa00 : 0);
+            (e.target as unknown as Box).material.emissive.set(e.type == "focus" ? 0xaaaa00 : 0);
 
             if (e.type == "focus") {
                 document.getElementById("menu").innerText += "focus target: " + e.target.id + " / focus relatedTarget: " + e.relatedTarget?.id + "\n";

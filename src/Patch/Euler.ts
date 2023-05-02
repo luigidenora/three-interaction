@@ -8,6 +8,6 @@ export function applyEulerPatch(parent: Object3D, eventName: keyof Events): void
     const base = parent.rotation._onChangeCallback;
     parent.rotation._onChange(() => {
         base();
-        parent._eventsDispatcher.dispatchEvent(eventName);
+        parent.__eventsDispatcher.dispatchEvent(eventName);
     });
 }

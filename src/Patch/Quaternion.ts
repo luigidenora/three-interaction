@@ -7,6 +7,6 @@ export function applyQuaternionPatch(parent: Target, eventName: keyof Events): v
     const base = parent.quaternion._onChangeCallback;
     parent.quaternion._onChange(() => {
         base();
-        parent._eventsDispatcher.dispatchEvent(eventName);
+        parent.__eventsDispatcher.dispatchEvent(eventName);
     });
 }

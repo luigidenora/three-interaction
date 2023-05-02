@@ -53,7 +53,7 @@
 //             if (this[privateProperty] !== value) {
 //                 this[privateProperty] = value;
 //                 if (this._triggerInSetter) {
-//                     parent._eventsDispatcher.dispatchEvent(eventName);
+//                     parent.__eventsDispatcher.dispatchEvent(eventName);
 //                 } else {
 //                     this._changed = true;
 //                 }
@@ -75,7 +75,7 @@
 
 //         if (this._rootEventName === method) {
 //             if (this._changed) {
-//                 parent._eventsDispatcher.dispatchEvent(eventName);
+//                 parent.__eventsDispatcher.dispatchEvent(eventName);
 //                 this._changed = false;
 //             }
 //             this._triggerInSetter = true;

@@ -26,11 +26,9 @@ function overrideProperty(vec3: any, property: keyof Vector3, parent: Target, ev
     Object.defineProperty(vec3, property, {
         get: function () { return this[privateProperty] },
         set: function (value) {
-            // if (this[privateProperty] !== value) {
             this[privateProperty] = value;
-            parent._eventsDispatcher.dispatchEvent(eventName);
+            parent.__eventsDispatcher.dispatchEvent(eventName);
         }
-        // }
     });
 }
 
@@ -46,7 +44,7 @@ function overrideMethod(vec3: any, method: string, eventName: keyof Events): voi
         .replace("this.x", "this._x")
         .replace("this.y", "this._y")
         .replace("this.z", "this._z")
-        .replace("return this", `this.parent._eventsDispatcher.dispatchEvent("${eventName}"); return this`);
+        .replace("return this", `this.parent.__eventsDispatcher.dispatchEvent("${eventName}"); return this`);
 
     vec3[method] = new Function(...args, overridenFunction).bind(vec3);
 }

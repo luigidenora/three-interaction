@@ -39,7 +39,7 @@ export class EventsCache {
       const sceneCache = this._events[scene?.id];
       if (sceneCache && sceneCache[type]) {
          for (const target of sceneCache[type].data) {
-            target._eventsDispatcher.dispatchEvent(type, event);
+            target.__eventsDispatcher.dispatchEvent(type, event);
          }
       }
    }

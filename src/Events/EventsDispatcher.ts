@@ -66,7 +66,7 @@ export class EventsDispatcher {
         event._type = type;
         event._target = target;
         while (target && event._bubbles) {
-            target._eventsDispatcher._dispatchDOMEvent(type, event);
+            target.__eventsDispatcher._dispatchDOMEvent(type, event);
             target = target.parent as Object3D;
         }
     }

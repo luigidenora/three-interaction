@@ -5,7 +5,7 @@ import { EventsDispatcher } from "../src/index";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 
 export class Mesh extends MeshBase  implements InteractionPrototype {
-    _eventsDispatcher: EventsDispatcher;
+    __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];
     activable: boolean;

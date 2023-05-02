@@ -106,27 +106,7 @@ export class EventExt {
   }
 }
 
-export class PointerEventExt extends EventExt {
-  /** A unique identifier for the pointer causing the event. */
-  public get pointerId() { return this._event.pointerId }
-  /** The width (magnitude on the X axis), in CSS pixels, of the contact geometry of the pointer. */
-  public get width() { return this._event.width }
-  /** The height (magnitude on the Y axis), in CSS pixels, of the contact geometry of the pointer. */
-  public get height() { return this._event.height }
-  /** The normalized pressure of the pointer input in the range 0 to 1, where 0 and 1 represent the minimum and maximum pressure the hardware is capable of detecting, respectively. */
-  public get pressure() { return this._event.pressure }
-  /** The normalized tangential pressure of the pointer input (also known as barrel pressure or cylinder stress) in the range -1 to 1, where 0 is the neutral position of the control. */
-  public get tangentialPressure() { return this._event.tangentialPressure }
-  /** The plane angle (in degrees, in the range of -90 to 90) between the Y–Z plane and the plane containing both the pointer (e.g. pen stylus) axis and the Y axis. */
-  public get tiltX() { return this._event.tiltX }
-  /** The plane angle (in degrees, in the range of -90 to 90) between the X–Z plane and the plane containing both the pointer (e.g. pen stylus) axis and the X axis. */
-  public get tiltY() { return this._event.tiltY }
-  /** The clockwise rotation of the pointer (e.g. pen stylus) around its major axis in degrees, with a value in the range 0 to 359. */
-  public get twist() { return this._event.twist }
-  /** Indicates the device type that caused the event (mouse, pen, touch, etc.). */
-  public get pointerType() { return this._event.pointerType }
-  /** Indicates if the pointer represents the primary pointer of this pointer type. */
-  public get isPrimary() { return this._event.isPrimary }
+export class MouseEventExt extends EventExt {
   /** Returns true if the alt key was down when the mouse event was fired. */
   public get altKey() { return this._event.altKey }
   /** The button number that was pressed (if applicable) when the mouse event was fired. */
@@ -162,13 +142,13 @@ export class PointerEventExt extends EventExt {
   /** Returns true if the shift key was down when the mouse event was fired. */
   public get shiftKey() { return this._event.shiftKey }
   /** Original dom event */
-  public _event: PointerEvent;
+  public _event: MouseEvent;
   /** TODO. */
   public readonly intersection: IntersectionExt;
   /** TODO. */
   public readonly movement: Vector3;
 
-  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Target) {
+  constructor(event: MouseEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
     super();
     this._event = event;
     this.intersection = intersection;
@@ -176,6 +156,39 @@ export class PointerEventExt extends EventExt {
     if (intersection?.object === lastIntersection?.object) {
       this.movement = intersection.point.clone().sub(lastIntersection.point); //TODO cache vec
     }
+  }
+
+  /** Returns the current state of the specified modifier key. See KeyboardEvent.getModifierState() for details. */
+  public getModifierState(keyArg: string): boolean {
+    return this._event.getModifierState(keyArg);
+  }
+}
+
+export class PointerEventExt extends MouseEventExt {
+  /** A unique identifier for the pointer causing the event. */
+  public get pointerId() { return this._event.pointerId }
+  /** The width (magnitude on the X axis), in CSS pixels, of the contact geometry of the pointer. */
+  public get width() { return this._event.width }
+  /** The height (magnitude on the Y axis), in CSS pixels, of the contact geometry of the pointer. */
+  public get height() { return this._event.height }
+  /** The normalized pressure of the pointer input in the range 0 to 1, where 0 and 1 represent the minimum and maximum pressure the hardware is capable of detecting, respectively. */
+  public get pressure() { return this._event.pressure }
+  /** The normalized tangential pressure of the pointer input (also known as barrel pressure or cylinder stress) in the range -1 to 1, where 0 is the neutral position of the control. */
+  public get tangentialPressure() { return this._event.tangentialPressure }
+  /** The plane angle (in degrees, in the range of -90 to 90) between the Y–Z plane and the plane containing both the pointer (e.g. pen stylus) axis and the Y axis. */
+  public get tiltX() { return this._event.tiltX }
+  /** The plane angle (in degrees, in the range of -90 to 90) between the X–Z plane and the plane containing both the pointer (e.g. pen stylus) axis and the X axis. */
+  public get tiltY() { return this._event.tiltY }
+  /** The clockwise rotation of the pointer (e.g. pen stylus) around its major axis in degrees, with a value in the range 0 to 359. */
+  public get twist() { return this._event.twist }
+  /** Indicates the device type that caused the event (mouse, pen, touch, etc.). */
+  public get pointerType() { return this._event.pointerType }
+  /** Indicates if the pointer represents the primary pointer of this pointer type. */
+  public get isPrimary() { return this._event.isPrimary }
+  public override _event: PointerEvent;
+
+  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D) {
+    super(event, intersection, lastIntersection, relatedTarget);
   }
 
   /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */
@@ -186,11 +199,6 @@ export class PointerEventExt extends EventExt {
   /** Returns a sequence of PointerEvent instances that the browser predicts will follow the dispatched pointermove event's coalesced events. */
   public getPredictedEvents(): PointerEventExt {
     return undefined; // TODO
-  }
-
-  /** Returns the current state of the specified modifier key. See KeyboardEvent.getModifierState() for details. */
-  public getModifierState(keyArg: string): boolean {
-    return this._event.getModifierState(keyArg);
   }
 }
 
@@ -209,15 +217,20 @@ export class PointerIntersectionEvent extends EventExt {
   }
 }
 
-export interface WheelEventExt extends PointerEventExt {
+export class WheelEventExt extends MouseEventExt {
   /*  Returns an unsigned long representing the unit of the delta* values' scroll amount. Permitted values are: 0 = pixels, 1 = lines, 2 = pages. */
-  deltaMode: number;
+  public readonly deltaMode: number;
   /** Returns a double representing the horizontal scroll amount. */
-  deltaX: number;
+  public readonly deltaX: number;
   /** Returns a double representing the vertical scroll amount. */
-  deltaY: number;
+  public readonly deltaY: number;
   /** Returns a double representing the scroll amount for the z-axis. */
-  deltaZ: number;
+  public readonly deltaZ: number;
+  public override _event: WheelEvent;
+
+  constructor(event: WheelEvent, intersection: IntersectionExt) {
+    super(event, intersection, undefined);
+  }
 }
 
 export interface DragEventExt extends PointerEventExt {

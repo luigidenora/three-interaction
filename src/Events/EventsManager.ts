@@ -1,6 +1,6 @@
 import { Camera, Object3D, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { object3DList } from "../Patch/Object3D";
-import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent } from "./Events";
+import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { PointerEventsQueue } from "./EventsQueue";
 
 export class EventsManager {
@@ -153,11 +153,19 @@ export class EventsManager {
         }
     }
 
+    private triggerAncestorWheel(event: WheelEvent, target: Object3D): void {
+        if (target) {
+            const wheelEvent = new WheelEventExt(event, this.intersection, );
+            target.triggerEventAncestor("wheel", wheelEvent);
+        }
+    }
+
     private computeQueuedEvent(event: Event, scene: Scene, camera: Camera): void {
         switch (event.type) {
             case "pointermove": return this.pointerMove(event as PointerEvent, scene, camera);
             case "pointerdown": return this.pointerDown(event as PointerEvent);
             case "pointerup": return this.pointerUp(event as PointerEvent);
+            case "wheel": return this.wheel(event as WheelEvent);
             default: console.error("Error: computeEvent failed.");
         }
     }
@@ -182,6 +190,10 @@ export class EventsManager {
         if (this.hoveredObj /* && !Utils.areVector3Equals(this.intersection.point, this._lastIntersection?.point) */) {
             this.hoveredObj.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(this.intersection, this._lastIntersection));
         }
+    }
+
+    private wheel(event: WheelEvent): void {
+        this.triggerAncestorWheel(event, this.hoveredObj);
     }
 
     private pointerOutOver(scene: Scene, camera: Camera, event: PointerEvent): void {

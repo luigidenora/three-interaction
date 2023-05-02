@@ -21,7 +21,7 @@ export class InstancedMeshSingle extends EventDispatcher implements InteractionP
     public enabledUntilParent: boolean; // TODO
     public visibleUntilParent: boolean; // TODO
     /** @internal */
-    public _eventsDispatcher: EventsDispatcher;
+    public __eventsDispatcher: EventsDispatcher;
 
     public get activableObj(): Object3D {
         return this.activable ? this as unknown as Object3D : this.parent.activableObj;
@@ -32,7 +32,7 @@ export class InstancedMeshSingle extends EventDispatcher implements InteractionP
         this.id = `_${id++}`;
         this.parent = parent;
         this.instanceId = index;
-        this._eventsDispatcher = new EventsDispatcher(this);
+        this.__eventsDispatcher = new EventsDispatcher(this);
         bindAutoUpdateMatrixInstancedMeshSingle(this);
 
         if (color) {
@@ -58,24 +58,24 @@ export class InstancedMeshSingle extends EventDispatcher implements InteractionP
 
     public bindEvent<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (typeof (types) === "string") {
-            return this._eventsDispatcher.addEventListener((types as any).toLowerCase(), listener);
+            return this.__eventsDispatcher.addEventListener((types as any).toLowerCase(), listener);
         }
         for (const type of types) {
-            this._eventsDispatcher.addEventListener((type as any).toLowerCase(), listener);
+            this.__eventsDispatcher.addEventListener((type as any).toLowerCase(), listener);
         }
         return listener;
     }
 
     public hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
-        return this._eventsDispatcher.hasEventListener((type as any).toLowerCase(), listener);
+        return this.__eventsDispatcher.hasEventListener((type as any).toLowerCase(), listener);
     }
 
     public unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
-        this._eventsDispatcher.removeEventListener((type as any).toLowerCase(), listener);
+        this.__eventsDispatcher.removeEventListener((type as any).toLowerCase(), listener);
     }
 
     public triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void {
-        this._eventsDispatcher.dispatchDOMEvent((type as any).toLowerCase(), args);
+        this.__eventsDispatcher.dispatchDOMEvent((type as any).toLowerCase(), args);
     }
 
     public triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void {

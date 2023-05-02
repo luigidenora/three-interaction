@@ -4,7 +4,7 @@ import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { bindAutoUpdateMatrixObject3D } from "./AutoUpdateMatrix";
 
 export interface InteractionPrototype {
-    /** @internal */ _eventsDispatcher: EventsDispatcher;
+    /** @internal */ __eventsDispatcher: EventsDispatcher;
     activable: boolean; // default false
     get activableObj(): Object3D; //TODO cache
     active: boolean;
@@ -43,39 +43,40 @@ Object.defineProperty(Object3D.prototype, "activableObj", {
 
 Object3D.prototype.bindEvent = function (this: Object3D, types: any, listener) {
     if (typeof (types) === "string") {
-        return this._eventsDispatcher.addEventListener((types as any).toLowerCase(), listener);
+        return this.__eventsDispatcher.addEventListener((types as any).toLowerCase(), listener);
     }
     for (const type of types) {
-        this._eventsDispatcher.addEventListener(type.toLowerCase(), listener);
+        this.__eventsDispatcher.addEventListener(type.toLowerCase(), listener);
     }
     return listener;
 };
 
 Object3D.prototype.hasBoundEvent = function (type: any, listener) {
-    return this._eventsDispatcher.hasEventListener(type.toLowerCase(), listener);
+    return this.__eventsDispatcher.hasEventListener(type.toLowerCase(), listener);
 }
 
 Object3D.prototype.unbindEvent = function (type: any, listener) {
-    this._eventsDispatcher.removeEventListener(type.toLowerCase(), listener);
+    this.__eventsDispatcher.removeEventListener(type.toLowerCase(), listener);
 }
 
 Object3D.prototype.triggerEvent = function (type: any, args) {
-    this._eventsDispatcher.dispatchDOMEvent(type.toLowerCase(), args);
+    this.__eventsDispatcher.dispatchDOMEvent(type.toLowerCase(), args);
 }
 
 Object3D.prototype.triggerEventAncestor = function (type: any, args) {
-    this._eventsDispatcher.dispatchDOMEventAncestor(type.toLowerCase(), args);
+    this.__eventsDispatcher.dispatchDOMEventAncestor(type.toLowerCase(), args);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code in constructor
-    get: function () { return this._userData },
     set: function (value) {
         if (!this._patched) {
             object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
-            this._eventsDispatcher = new EventsDispatcher(this);
+            this.__eventsDispatcher = new EventsDispatcher(this);
             bindAutoUpdateMatrixObject3D(this);
             this._patched = true;
         }
-        this._userData = value;
+        Object.defineProperty(this, "userData", { // hack to inject code in constructor
+            value, writable: true
+        });
     }
 });

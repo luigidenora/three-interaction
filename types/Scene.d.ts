@@ -5,7 +5,8 @@ import { InteractionPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
 
 export class Scene extends SceneBase  implements InteractionPrototype {
-    _eventsDispatcher: EventsDispatcher;
+    __eventsDispatcher: EventsDispatcher;
+    __patched: boolean;
     override parent: Object3D;
     override children: Object3D[];
     activable: boolean;

@@ -6,7 +6,8 @@ import { EventsDispatcher } from "../src/index";
 export class Object3D extends Object3DBase implements InteractionPrototype {
     override parent: Object3D;
     override children: Object3D[];
-    _eventsDispatcher: EventsDispatcher;
+    __eventsDispatcher: EventsDispatcher;
+    __patched: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;
