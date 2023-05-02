@@ -17,7 +17,7 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     renderer.render = function (scene: Scene, camera) {
         //TODO smart rendering
         if (!this._isGPUPicking) {
-            EventsCache.dispatchEvent(scene, "animate", clock.getDelta()); //TODO correggere
+            EventsCache.dispatchEvent(scene, "animate", { delta: clock.getDelta(), total: clock.getElapsedTime() }); //TODO correggere
             EventsCache.dispatchEvent(scene, "framerendering");
             updateMatrices();
         } else {

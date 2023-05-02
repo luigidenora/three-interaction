@@ -10,7 +10,7 @@ export interface Events extends DOMEvents { //todo rimuovere extends
   quaternionchange: never;
   rendererresize: RendererResizeEvent;
   framerendering: never;
-  animate: DOMHighResTimeStamp;
+  animate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
   // childadd
   // childremove 
   // parentdadd // This event propagation Up to down.

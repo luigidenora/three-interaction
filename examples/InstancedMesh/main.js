@@ -3,9 +3,6 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera, WebGLRenderer } from "../../src/index";
 
 const scene = new Scene();
-const renderer = new WebGLRenderer([scene], animate, true, { antialias: true });
-const stats = Stats();
-document.body.appendChild(stats.dom);
 
 scene.add(
     scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
@@ -22,8 +19,8 @@ for (const sphere of scene.spheres.instances) {
     sphere.angleX = Math.random() * Math.PI * 2;
     sphere.angleY = Math.random() * Math.PI * 2;
 
-    sphere.bindEvent("animate", function (time) {
-        this.position.setFromSphericalCoords(5, this.angleX * time / 10000, this.angleY * time / 10000);
+    sphere.bindEvent("animate", function (e) {
+        this.position.setFromSphericalCoords(5, this.angleX * e.total / 10, this.angleY * e.total / 10);
     });
 
     sphere.bindEvent("pointerintersection", function (e) {
@@ -35,8 +32,12 @@ for (const sphere of scene.spheres.instances) {
     });
 }
 
+const renderer = new WebGLRenderer([scene], animate, true, { antialias: true });
+const stats = Stats();
+document.body.appendChild(stats.dom);
+
 function animate(time) {
-    this.material.uniforms.time.value = time / 1000;
+    scene.loadingBar.material.uniforms.time.value = time / 1000;
     renderer.render(scene, scene.camera);
     stats.update();
 }
