@@ -1,20 +1,13 @@
 import { Object3D } from "three";
-import { applyEulerPatch } from "../Patch/Euler";
-import { applyQuaternionPatch } from "../Patch/Quaternion";
-import { applyVector3Patch } from "../Patch/Vector3";
 import { DOMEvents, Events } from "./Events";
 import { EventsCache } from "./EventsCache";
-import { InstancedMeshSingle } from "../index";
+import { applyObject3DPatch } from "../Patch/Object3D";
+import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args?: any) => void)[] } = {};
 
     constructor(public parent: Object3D | InstancedMeshSingle) {
-        if (parent instanceof Object3D) { //todo remove
-            applyVector3Patch(parent);
-            applyQuaternionPatch(parent);
-            applyEulerPatch(parent as Object3D);
-        }
     }
 
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
@@ -22,6 +15,9 @@ export class EventsDispatcher {
             this._listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
                 EventsCache.push(type, this.parent as Object3D);
+                if (type === "positionchange" || type === "scalechange" || type === "rotationchange" || type === "quaternionchange") { //todo move
+                    applyObject3DPatch(this.parent as Object3D);
+                }
             }
         }
         if (this._listeners[type].indexOf(listener) === -1) {

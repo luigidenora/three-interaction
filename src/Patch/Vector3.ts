@@ -36,7 +36,7 @@ function patchVector(vec3: any): void {
     });
 }
 
-/** updated to r152 */
+/** Updated to r152 */
 class Vector3Ext {
     public _x: number;
     public _y: number;

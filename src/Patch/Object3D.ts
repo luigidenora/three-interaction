@@ -2,6 +2,10 @@ import { Object3D } from "three";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { bindAutoUpdateMatrixObject3D } from "./AutoUpdateMatrix";
+import { applyVector3Patch } from "./Vector3";
+import { applyQuaternionPatch } from "./Quaternion";
+import { applyEulerPatch } from "./Euler";
+import { applyMatrix4Patch } from "./Matrix4";
 
 export interface InteractionPrototype {
     /** @internal */ __eventsDispatcher: EventsDispatcher;
@@ -80,3 +84,14 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
         });
     }
 });
+
+/** @Internal */
+export function applyObject3DPatch(target: Object3D): void {
+    if (!target.__patched) { //todo opt
+        applyVector3Patch(target);
+        applyQuaternionPatch(target);
+        applyEulerPatch(target);
+        applyMatrix4Patch(target);
+        target.__patched = true;
+    }
+} 
