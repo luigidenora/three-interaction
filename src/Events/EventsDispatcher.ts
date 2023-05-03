@@ -11,10 +11,9 @@ export class EventsDispatcher {
 
     constructor(public parent: Object3D | InstancedMeshSingle) {
         if (parent instanceof Object3D) { //todo remove
-            parent.position && applyVector3Patch(parent.position, parent, "positionchange");
-            parent.scale && applyVector3Patch(parent.scale, parent, "scalechange");
-            parent.quaternion && applyQuaternionPatch(parent, "quaternionchange");
-            (parent as Object3D).rotation && applyEulerPatch(parent as Object3D, "rotationchange");
+            applyVector3Patch(parent);
+            applyQuaternionPatch(parent);
+            applyEulerPatch(parent as Object3D);
         }
     }
 

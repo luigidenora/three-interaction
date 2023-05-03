@@ -1,13 +1,10 @@
 import { Object3D } from "three";
-import { Events } from "../Events/Events";
-
-export const quaternionChangedEvent = "quaternionChanged";
 
 /** @internal */
-export function applyQuaternionPatch(parent: Object3D, eventName: keyof Events): void {
+export function applyQuaternionPatch(parent: Object3D): void {
     const base = parent.quaternion._onChangeCallback;
     parent.quaternion._onChange(() => {
         base();
-        parent.__eventsDispatcher.dispatchEvent(eventName);
+        parent.__eventsDispatcher.dispatchEvent("quaternionchange");
     });
 }

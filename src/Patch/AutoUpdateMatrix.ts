@@ -1,5 +1,4 @@
 import { Object3D } from "three";
-import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
 /** @internal */

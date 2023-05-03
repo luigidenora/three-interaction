@@ -40,6 +40,10 @@
             scene.add(box);
         }
 
+        scene.bindEvent("pointerdown", function (e) {
+            if (e.button !== 0) e.preventDefault(); // prevent focus if you don't left click
+        });
+
         scene.bindEvent(["focus", "blur"], function (e) {
             e.target.material.emissive.set(e.type == "focus" ? 0xaaaa00 : 0);
             if (e.type == "focus") {
