@@ -1,4 +1,4 @@
-import { MathUtils, Object3D, Quaternion, Vector3 } from "three";
+import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3, Matrix4, Object3D, Quaternion, Spherical, Vector3 } from "three";
 
 /** @internal */
 export function applyVector3Patch(parent: Object3D): void {
@@ -17,6 +17,7 @@ function patchVector(vec3: any): void {
     vec3._x = vec3.x;
     vec3._y = vec3.x;
     vec3._z = vec3.x;
+    vec3.isVector3 = true;
     Object.setPrototypeOf(vec3, Vector3Ext.prototype);
 
     Object.defineProperties(vec3, {
@@ -35,17 +36,11 @@ function patchVector(vec3: any): void {
     });
 }
 
+/** updated to r152 */
 class Vector3Ext {
-    public isVector3 = true;
-    public _x = 0;
-    public _y = 0;
-    public _z = 0;
-
-    constructor(x = 0, y = 0, z = 0) {
-        this._x = x;
-        this._y = y;
-        this._z = z;
-    }
+    public _x: number;
+    public _y: number;
+    public _z: number;
 
     set(x: number, y: number, z: number) {
 
@@ -139,7 +134,7 @@ class Vector3Ext {
 
     }
 
-    copy(v: Vector3, update: boolean) {
+    copy(v: Vector3, update?: boolean) {
 
         this._x = v.x;
         this._y = v.y;
@@ -152,7 +147,7 @@ class Vector3Ext {
     }
 
     add(v: Vector3) {
-        debugger;
+
         this._x += v.x;
         this._y += v.y;
         this._z += v.z;
@@ -187,7 +182,7 @@ class Vector3Ext {
 
     }
 
-    addScaledVector(v, s) {
+    addScaledVector(v: Vector3, s: number) {
 
         this._x += v.x * s;
         this._y += v.y * s;
@@ -199,7 +194,7 @@ class Vector3Ext {
 
     }
 
-    sub(v) {
+    sub(v: Vector3) {
 
         this._x -= v.x;
         this._y -= v.y;
@@ -211,7 +206,7 @@ class Vector3Ext {
 
     }
 
-    subScalar(s) {
+    subScalar(s: number) {
 
         this._x -= s;
         this._y -= s;
@@ -223,7 +218,7 @@ class Vector3Ext {
 
     }
 
-    subVectors(a, b) {
+    subVectors(a: Vector3, b: Vector3) {
 
         this._x = a.x - b.x;
         this._y = a.y - b.y;
@@ -235,7 +230,7 @@ class Vector3Ext {
 
     }
 
-    multiply(v) {
+    multiply(v: Vector3) {
 
         this._x *= v.x;
         this._y *= v.y;
@@ -247,7 +242,7 @@ class Vector3Ext {
 
     }
 
-    multiplyScalar(scalar, update?) {
+    multiplyScalar(scalar: number, update?: boolean) {
 
         this._x *= scalar;
         this._y *= scalar;
@@ -259,7 +254,7 @@ class Vector3Ext {
 
     }
 
-    multiplyVectors(a, b) {
+    multiplyVectors(a: Vector3, b: Vector3) {
 
         this._x = a.x * b.x;
         this._y = a.y * b.y;
@@ -271,19 +266,19 @@ class Vector3Ext {
 
     }
 
-    applyEuler(euler) {
+    applyEuler(euler: Euler) {
 
         return this.applyQuaternion(_quaternion.setFromEuler(euler));
 
     }
 
-    applyAxisAngle(axis, angle) {
+    applyAxisAngle(axis: Vector3, angle: number) {
 
         return this.applyQuaternion(_quaternion.setFromAxisAngle(axis, angle));
 
     }
 
-    applyMatrix3(m, update) {
+    applyMatrix3(m: Matrix3, update?: boolean) {
 
         const x = this._x, y = this._y, z = this._z;
         const e = m.elements;
@@ -298,13 +293,13 @@ class Vector3Ext {
 
     }
 
-    applyNormalMatrix(m) {
+    applyNormalMatrix(m: Matrix3) {
 
         return this.applyMatrix3(m, false).normalize();
 
     }
 
-    applyMatrix4(m, update?) {
+    applyMatrix4(m: Matrix4, update?: boolean) {
 
         const x = this._x, y = this._y, z = this._z;
         const e = m.elements;
@@ -321,7 +316,7 @@ class Vector3Ext {
 
     }
 
-    applyQuaternion(q) {
+    applyQuaternion(q: Quaternion) {
 
         const x = this._x, y = this._y, z = this._z;
         const qx = q.x, qy = q.y, qz = q.z, qw = q.w;
@@ -345,19 +340,19 @@ class Vector3Ext {
 
     }
 
-    project(camera) {
+    project(camera: Camera) {
 
         return this.applyMatrix4(camera.matrixWorldInverse, false).applyMatrix4(camera.projectionMatrix);
 
     }
 
-    unproject(camera) {
+    unproject(camera: Camera) {
 
         return this.applyMatrix4(camera.projectionMatrixInverse, false).applyMatrix4(camera.matrixWorld);
 
     }
 
-    transformDirection(m) {
+    transformDirection(m: Matrix4) {
 
         // input: THREE.Matrix4 affine matrix
         // vector interpreted as a direction
@@ -373,7 +368,7 @@ class Vector3Ext {
 
     }
 
-    divide(v) {
+    divide(v: Vector3) {
 
         this._x /= v.x;
         this._y /= v.y;
@@ -385,13 +380,13 @@ class Vector3Ext {
 
     }
 
-    divideScalar(scalar, update) {
+    divideScalar(scalar: number, update?: boolean) {
 
         return this.multiplyScalar(1 / scalar, update);
 
     }
 
-    min(v) {
+    min(v: Vector3) {
 
         this._x = Math.min(this._x, v.x);
         this._y = Math.min(this._y, v.y);
@@ -403,7 +398,7 @@ class Vector3Ext {
 
     }
 
-    max(v) {
+    max(v: Vector3) {
 
         this._x = Math.max(this._x, v.x);
         this._y = Math.max(this._y, v.y);
@@ -415,7 +410,7 @@ class Vector3Ext {
 
     }
 
-    clamp(min, max) {
+    clamp(min: Vector3, max: Vector3) {
 
         // assumes min < max, componentwise
 
@@ -429,7 +424,7 @@ class Vector3Ext {
 
     }
 
-    clampScalar(minVal, maxVal) {
+    clampScalar(minVal: number, maxVal: number) {
 
         this._x = Math.max(minVal, Math.min(maxVal, this._x));
         this._y = Math.max(minVal, Math.min(maxVal, this._y));
@@ -441,7 +436,7 @@ class Vector3Ext {
 
     }
 
-    clampLength(min, max) {
+    clampLength(min: number, max: number) {
 
         const length = this.length();
 
@@ -509,7 +504,7 @@ class Vector3Ext {
 
     }
 
-    dot(v) {
+    dot(v: Vector3) {
 
         return this._x * v.x + this._y * v.y + this._z * v.z;
 
@@ -535,19 +530,19 @@ class Vector3Ext {
 
     }
 
-    normalize(update?) {
+    normalize(update?: boolean) {
 
         return this.divideScalar(this.length() || 1, update);
 
     }
 
-    setLength(length) {
+    setLength(length: number) {
 
         return this.normalize(false).multiplyScalar(length);
 
     }
 
-    lerp(v, alpha) {
+    lerp(v: Vector3, alpha: number) {
 
         this._x += (v.x - this._x) * alpha;
         this._y += (v.y - this._y) * alpha;
@@ -559,7 +554,7 @@ class Vector3Ext {
 
     }
 
-    lerpVectors(v1, v2, alpha) {
+    lerpVectors(v1: Vector3, v2: Vector3, alpha: number) {
 
         this._x = v1.x + (v2.x - v1.x) * alpha;
         this._y = v1.y + (v2.y - v1.y) * alpha;
@@ -571,13 +566,13 @@ class Vector3Ext {
 
     }
 
-    cross(v) {
+    cross(v: Vector3) {
 
-        return this.crossVectors(this, v);
+        return this.crossVectors(this as any, v); // TODO avoid to user getter
 
     }
 
-    crossVectors(a, b) {
+    crossVectors(a: Vector3, b: Vector3) {
 
         const ax = a.x, ay = a.y, az = a.z;
         const bx = b.x, by = b.y, bz = b.z;
@@ -592,19 +587,19 @@ class Vector3Ext {
 
     }
 
-    projectOnVector(v) {
+    projectOnVector(v: Vector3) {
 
         const denominator = v.lengthSq();
 
         if (denominator === 0) return this.set(0, 0, 0);
 
-        const scalar = v.dot(this) / denominator;
+        const scalar = v.dot(this as any) / denominator;
 
         return this.copy(v, false).multiplyScalar(scalar);
 
     }
 
-    projectOnPlane(planeNormal) {
+    projectOnPlane(planeNormal: Vector3) {
 
         _vector.copy(this as unknown as Vector3).projectOnVector(planeNormal);
 
@@ -612,7 +607,7 @@ class Vector3Ext {
 
     }
 
-    reflect(normal) {
+    reflect(normal: Vector3) {
 
         // reflect incident vector off plane orthogonal to normal
         // normal is assumed to have unit length
@@ -621,7 +616,7 @@ class Vector3Ext {
 
     }
 
-    angleTo(v) {
+    angleTo(v: Vector3) {
 
         const denominator = Math.sqrt(this.lengthSq() * v.lengthSq());
 
@@ -635,13 +630,13 @@ class Vector3Ext {
 
     }
 
-    distanceTo(v) {
+    distanceTo(v: Vector3) {
 
         return Math.sqrt(this.distanceToSquared(v));
 
     }
 
-    distanceToSquared(v) {
+    distanceToSquared(v: Vector3) {
 
         const dx = this._x - v.x, dy = this._y - v.y, dz = this._z - v.z;
 
@@ -649,19 +644,19 @@ class Vector3Ext {
 
     }
 
-    manhattanDistanceTo(v) {
+    manhattanDistanceTo(v: Vector3) {
 
         return Math.abs(this._x - v.x) + Math.abs(this._y - v.y) + Math.abs(this._z - v.z);
 
     }
 
-    setFromSpherical(s) {
+    setFromSpherical(s: Spherical) {
 
         return this.setFromSphericalCoords(s.radius, s.phi, s.theta);
 
     }
 
-    setFromSphericalCoords(radius, phi, theta) {
+    setFromSphericalCoords(radius: number, phi: number, theta: number) {
 
         const sinPhiRadius = Math.sin(phi) * radius;
 
@@ -675,13 +670,13 @@ class Vector3Ext {
 
     }
 
-    setFromCylindrical(c) {
+    setFromCylindrical(c: Cylindrical) {
 
         return this.setFromCylindricalCoords(c.radius, c.theta, c.y);
 
     }
 
-    setFromCylindricalCoords(radius, theta, y) {
+    setFromCylindricalCoords(radius: number, theta: number, y: number) {
 
         this._x = radius * Math.sin(theta);
         this._y = y;
@@ -693,7 +688,7 @@ class Vector3Ext {
 
     }
 
-    setFromMatrixPosition(m) {
+    setFromMatrixPosition(m: Matrix4) {
 
         const e = m.elements;
 
@@ -707,7 +702,7 @@ class Vector3Ext {
 
     }
 
-    setFromMatrixScale(m) {
+    setFromMatrixScale(m: Matrix4) {
 
         const sx = this.setFromMatrixColumn(m, 0).length();
         const sy = this.setFromMatrixColumn(m, 1).length();
@@ -723,19 +718,19 @@ class Vector3Ext {
 
     }
 
-    setFromMatrixColumn(m, index) {
+    setFromMatrixColumn(m: Matrix4, index: number) {
 
         return this.fromArray(m.elements, index * 4);
 
     }
 
-    setFromMatrix3Column(m, index) {
+    setFromMatrix3Column(m: Matrix3, index: number) {
 
         return this.fromArray(m.elements, index * 3);
 
     }
 
-    setFromEuler(e) {
+    setFromEuler(e: any) {
 
         this._x = e._x;
         this._y = e._y;
@@ -747,7 +742,7 @@ class Vector3Ext {
 
     }
 
-    setFromColor(c) {
+    setFromColor(c: Color) {
 
         this._x = c.r;
         this._y = c.g;
@@ -759,13 +754,13 @@ class Vector3Ext {
 
     }
 
-    equals(v) {
+    equals(v: Vector3) {
 
         return ((v.x === this._x) && (v.y === this._y) && (v.z === this._z));
 
     }
 
-    fromArray(array, offset = 0) {
+    fromArray(array: number[], offset = 0) {
 
         this._x = array[offset];
         this._y = array[offset + 1];
@@ -777,7 +772,7 @@ class Vector3Ext {
 
     }
 
-    toArray(array = [], offset = 0) {
+    toArray(array: number[] = [], offset = 0) {
 
         array[offset] = this._x;
         array[offset + 1] = this._y;
@@ -787,7 +782,7 @@ class Vector3Ext {
 
     }
 
-    fromBufferAttribute(attribute, index) {
+    fromBufferAttribute(attribute: BufferAttribute, index: number) {
 
         this._x = attribute.getX(index);
         this._y = attribute.getY(index);
