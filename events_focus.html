@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three-ag example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="files/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="files/main.css">
+</head>
+
+<body>
+    <div id="info"><a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - focus</div>
+    <div id="logs"></div>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.152.0/build/three.module.min.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, SphereGeometry, PointLight } from "three";
+        import { PerspectiveCamera, Main, Line2 } from "./bundle.js";
+
+        const scene = new Scene();
+        scene.add(
+            scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
+            scene.line = new Line2(),
+            new DirectionalLight(0xffffff, 0.2).translateZ(10),
+            scene.light1 = new PointLight(0x000000, 2, 30),
+            scene.light2 = new PointLight(0x000000, 2, 30)
+        );
+
+        scene.line.interceptByRaycaster = false;
+        scene.line.material.linewidth = 2;
+
+        const geometry = [new BoxGeometry(1, 1, 1), new SphereGeometry(0.5)];
+        for (let i = 0; i < 300; i++) {
+            const mesh = new Mesh(geometry[i % 2], new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
+            scene.add(mesh);
+            const isBox = i % 2 === 0;
+            mesh.activable = isBox;
+            mesh.radius = Math.random() * 10 + 10;
+            mesh.angleX = Math.random() * 2 * Math.PI - Math.PI;
+            mesh.angleY = Math.random() * 2 * Math.PI - Math.PI;
+
+            mesh.bindEvent("animate", function (e) {
+                this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 10, this.angleY + e.total / 10);
+            });
+
+            isBox && mesh.bindEvent("animate", function (e) {
+                this.rotation.x += e.delta * this.angleX;
+                this.rotation.y += e.delta * this.angleY;
+                this.rotation.z += e.delta * (this.angleY + this.angleX) % 2;
+            });
+        }
+
+        let active, lastActive;
+
+        scene.bindEvent("pointerdown", function (e) {
+            if (e.button !== 0) e.preventDefault(); // prevent focus if you don't left click
+        });
+
+        scene.bindEvent("focus", function (e) {
+            active = e.target;
+            lastActive = e.relatedTarget;
+            active.material.emissive.set(0xaaaa00);
+            lastActive?.material.emissive.set(0);
+            scene.light1.color.copy(active.material.color);
+            lastActive && scene.light2.color.copy(lastActive.material.color);
+        });
+
+        scene.bindEvent("animate", function (e) {
+            if (active) {
+                scene.light1.position.copy(active.position);
+                if (lastActive) {
+                    this.line.setGeoPoints([active.position, lastActive.position]);
+                    const distance = active.position.distanceTo(lastActive.position);
+                    this.line.material.color.setHSL(Math.abs(Math.sin(distance)), 0.5, 0.5);
+                    scene.light2.position.copy(lastActive.position);
+                }
+            }
+        });
+
+        const main = new Main([scene], undefined, true, { antialias: true });
+
+    </script>
+</body>
+
+</html>
