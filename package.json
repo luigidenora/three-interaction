@@ -5,16 +5,17 @@
   "author": "agargaro",
   "license": "MIT",
   "main": "bundle.js",
-  "types": "src/index.d.ts",
+  "types": "index.d.ts",
   "repository": "https://github.com/agargaro/three-interaction",
   "scripts": {
-    "publish-beta": "npm version prerelease --preid=beta --git-tag-version false && npx webpack && cd dist && npm publish --tag beta --access public",
-    "publish-patch": "npm version patch --git-tag-version false && npx webpack && cd dist && npm publish --access public",
-    "publish-minor": "npm version minor --git-tag-version false && npx webpack && cd dist && npm publish --access public",
-    "publish-major": "npm version major --git-tag-version false && npx webpack && cd dist && npm publish --access public"
+    "publish-beta": "npm version prerelease --preid=beta --git-tag-version false && npx webpack && cd build && npm publish --tag beta --access public",
+    "publish-patch": "npm version patch --git-tag-version false && npx webpack && cd build && npm publish --access public",
+    "publish-minor": "npm version minor --git-tag-version false && npx webpack && cd build && npm publish --access public",
+    "publish-major": "npm version major --git-tag-version false && npx webpack && cd build && npm publish --access public",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
-    "@types/three": "^0.150.2",
+    "@types/three": "^0.151.0",
     "copy-pkg-json-webpack-plugin": "^0.0.40",
     "copy-webpack-plugin": "^11.0.0",
     "remove-files-webpack-plugin": "^1.5.0",
@@ -22,7 +23,8 @@
     "typescript": "^4.9.5",
     "vite": "^4.3.0",
     "webpack": "^5.80.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "gh-pages": "^5.0.0"
   },
   "peerDependencies": {
     "three": "*"

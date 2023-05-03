@@ -11,7 +11,10 @@ module.exports = {
   },
   externals: [
     'three',
-    'three/examples/jsm/libs/stats.module'
+    'three/examples/jsm/libs/stats.module',
+    'three/examples/jsm/lines/LineMaterial',
+    'three/examples/jsm/lines/Line2',
+    'three/examples/jsm/lines/LineGeometry'
   ],
   module: {
     rules: [
@@ -25,7 +28,7 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'build'),
     library: {
       type: 'module'
     },
@@ -39,13 +42,6 @@ module.exports = {
       patterns: [
         { from: "README.md", to: "README.md" },
       ]
-    }),
-    new RemovePlugin({
-      after: {
-        include: [
-          'dist/examples'
-        ]
-      }
     })
   ]
 };

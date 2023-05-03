@@ -7,7 +7,7 @@
 		"declaration": true,
 		"strictNullChecks": false,
 		"stripInternal": true,
-		"outDir": "dist",
+		"outDir": "build",
 		"esModuleInterop": true,
 		"paths": {
 			"three": [
@@ -16,7 +16,6 @@
 		}
 	},
 	"include": [
-		"src/**/*.ts",
-		"examples/**/*.ts"
+		"src/**/*.ts"
 	],
 }
