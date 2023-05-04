@@ -3,6 +3,10 @@ import { object3DList } from "../Patch/Object3D";
 import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { PointerEventsQueue } from "./EventsQueue";
 
+export interface EventsManagerConfig {
+    //
+}
+
 export class EventsManager {
     public enabled = true;
     public raycastGPU = false; //todo capire se ha senso
@@ -35,20 +39,20 @@ export class EventsManager {
             console.error("Renderer not supported.");
             return;
         }
-        renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
-        renderer.domElement.addEventListener("mousemove", () => this._mouseDetected = true); //TODO togliere l'evento dopo il primo trigger e aggiungere touch to fix surface
+        // renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
+        renderer.domElement.addEventListener("pointermove", (e) => this._mouseDetected = e.pointerType === "mouse");
         this.bindEvents();
     }
 
     private bindEvents(): void {
-        const cavas = this.renderer.domElement;
-        cavas.addEventListener("pointercancel", this.enqueue.bind(this));
-        cavas.addEventListener("pointerdown", this.enqueue.bind(this));
-        cavas.addEventListener("pointermove", this.enqueue.bind(this));
-        cavas.addEventListener("pointerup", this.enqueue.bind(this));
-        cavas.addEventListener("wheel", this.enqueue.bind(this));
-        cavas.addEventListener("keydown", this.enqueue.bind(this));
-        cavas.addEventListener("keyup", this.enqueue.bind(this));
+        const canvas = this.renderer.domElement;
+        canvas.addEventListener("pointercancel", this.enqueue.bind(this));
+        canvas.addEventListener("pointerdown", this.enqueue.bind(this));
+        canvas.addEventListener("pointermove", this.enqueue.bind(this));
+        canvas.addEventListener("pointerup", this.enqueue.bind(this));
+        canvas.addEventListener("wheel", this.enqueue.bind(this));
+        canvas.addEventListener("keydown", this.enqueue.bind(this));
+        canvas.addEventListener("keyup", this.enqueue.bind(this));
     }
 
     private enqueue(event: Event): void {
@@ -89,8 +93,6 @@ export class EventsManager {
             }
 
             let previousCount = target.length;
-
-            //TODO apply check on frustum se sono visibili
 
             if (object.objectsToRaycast) {
                 this._raycaster.intersectObjects(object.objectsToRaycast, false, target);
@@ -139,7 +141,7 @@ export class EventsManager {
         return target;
     }
 
-    private updateCanvasPointerPosition(event: MouseEvent): void {
+    private updateCanvasPointerPosition(event: PointerEvent): void {
         this.pointerUv.x = event.offsetX / this.renderer.domElement.clientWidth * 2 - 1;
         this.pointerUv.y = event.offsetY / this.renderer.domElement.clientHeight * -2 + 1;
         this.pointer.set(event.offsetX, event.offsetY);
@@ -155,7 +157,7 @@ export class EventsManager {
 
     private triggerAncestorWheel(event: WheelEvent, target: Object3D): void {
         if (target) {
-            const wheelEvent = new WheelEventExt(event, this.intersection,);
+            const wheelEvent = new WheelEventExt(event, this.intersection);
             target.triggerEventAncestor("wheel", wheelEvent);
         }
     }
@@ -186,7 +188,7 @@ export class EventsManager {
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
         if (!this.continousPointerRaycasting) return;
-        if (this._mouseDetected && !this._raycasted) {
+        if ((this._mouseDetected /* || this._isTapping */) && !this._raycasted) {
             this.pointerOutOver(scene, camera, this._lastPointerMove); //TODO bug se cambio 
         }
         if (this.hoveredObj) {
