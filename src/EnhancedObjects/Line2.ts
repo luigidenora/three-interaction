@@ -8,7 +8,7 @@ export class Line2 extends Line2Base {
     constructor(material = new LineMaterial()) {
         super(new LineGeometry(), material);
 
-        (this as any).bindEvent("rendererresize", (e: any) =>  {
+        (this as any).bindEvent("rendererresize", (e: any) => {
             this.material.resolution.set(e.width, e.height);
         });
     }
@@ -26,20 +26,28 @@ export class Line2 extends Line2Base {
                 array[arrayIndex + 5] = positions[index].z;
             }
             this.geometry.attributes.instanceStart.needsUpdate = true;
+            this.geometry.attributes.instanceEnd.needsUpdate = true;
             // this.needsRender = true;
         }
+        this.geometry.computeBoundingBox();
+		this.geometry.computeBoundingSphere();
+        this.computeLineDistances();
     }
 
     protected setGeoPoints(positions: Vector3[]): void {
         if (!this.createAttributes(positions)) {
             this.fillPositionsArray(positions, (this.geometry.attributes.instanceStart as any).array as Float32Array); //TODO CAPIRE
             this.geometry.attributes.instanceStart.needsUpdate = true;
+            this.geometry.attributes.instanceEnd.needsUpdate = true;
             // this.needsRender = true;
         }
+        this.geometry.computeBoundingBox();
+		this.geometry.computeBoundingSphere();
+        this.computeLineDistances();
     }
 
     protected createAttributes(positions: Vector3[]): boolean {
-        if (!(this.geometry.getAttribute("instanceStart")?.count == positions.length - 1)) {
+        if (this.geometry.getAttribute("instanceStart")?.count !== positions.length - 1) {
             if (positions.length > 1) {
                 const array = this.fillPositionsArray(positions);
                 const instanceBuffer = new InstancedInterleavedBuffer(array, 6, 1);
@@ -58,10 +66,10 @@ export class Line2 extends Line2Base {
             const index = i * 6;
             target[index] = positions[i].x;
             target[index + 1] = positions[i].y;
-            target[index + 2] = positions[i].z ?? 0;
+            target[index + 2] = positions[i].z;
             target[index + 3] = positions[i + 1].x;
             target[index + 4] = positions[i + 1].y;
-            target[index + 5] = positions[i + 1].z ?? 0;
+            target[index + 5] = positions[i + 1].z;
         }
         return target;
     }
