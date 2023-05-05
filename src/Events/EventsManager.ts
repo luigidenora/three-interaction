@@ -206,10 +206,13 @@ export class EventsManager {
 
     private pointerOutOver(scene: Scene, camera: Camera, event: PointerEvent): void {
         this.raycastScene(scene, camera, event);
-        const hoveredObj = this.intersection[this._primaryIdentifier]?.object;
-        const lastHoveredObj = this._lastIntersection[this._primaryIdentifier]?.object;
-        lastHoveredObj && (lastHoveredObj.hovered = false);
-        hoveredObj && (hoveredObj.hovered = true);
+        const hoveredObj = this.intersection[event.pointerId]?.object;
+        const lastHoveredObj = this._lastIntersection[event.pointerId]?.object;
+        
+        if (event.isPrimary) {
+            lastHoveredObj && (lastHoveredObj.hovered = false);
+            hoveredObj && (hoveredObj.hovered = true);
+        }
 
         if (hoveredObj !== lastHoveredObj) {
             this.triggerAncestorPointer("pointerout", event, lastHoveredObj, hoveredObj);
@@ -220,7 +223,7 @@ export class EventsManager {
     }
 
     private pointerUp(event: PointerEvent): void {
-        const hoveredObj = this.intersection[this._primaryIdentifier]?.object;
+        const hoveredObj = this.intersection[event.pointerId]?.object;
         const lastPointerDown = this._lastPointerDownExt[event.pointerId]
 
         this.triggerAncestorPointer("pointerup", event, hoveredObj, lastPointerDown?._target as Object3D); //todo capire cast
