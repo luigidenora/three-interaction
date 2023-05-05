@@ -17,6 +17,7 @@ export declare class EventsManager {
     };
     activeObj: Object3D;
     private _primaryIdentifier;
+    private _lastPointerDownExt;
     private _lastPointerDown;
     private _lastPointerMove;
     private _lastClick;

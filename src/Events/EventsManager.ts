@@ -18,7 +18,7 @@ export class EventsManager {
     public pointerUv = new Vector2();
     public intersection: { [x: string]: IntersectionExt } = {};
     public activeObj: Object3D;
-    private _primaryIdentifier = 1;
+    private _primaryIdentifier: number;
     private _lastPointerDownExt: { [x: string]: PointerEventExt } = {};
     private _lastPointerDown: { [x: string]: PointerEvent } = {};
     private _lastPointerMove: { [x: string]: PointerEvent } = {};
@@ -74,7 +74,10 @@ export class EventsManager {
     }
 
     private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {
-        event.isPrimary && (this._primaryRaycasted = true);
+        if (event.isPrimary) {
+            this._primaryRaycasted = true;
+            this._primaryIdentifier = event.pointerId;
+        }
         this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
         this.updateCanvasPointerPosition(event);
         this._raycaster.setFromCamera(this.pointerUv, camera);
@@ -163,15 +166,17 @@ export class EventsManager {
     private computeQueuedEvent(event: Event, scene: Scene, camera: Camera): void {
         switch (event.type) {
             case "pointermove": return this.pointerMove(event as PointerEvent, scene, camera);
-            case "pointerdown": return this.pointerDown(event as PointerEvent);
+            case "pointerdown": return this.pointerDown(event as PointerEvent, scene, camera);
             case "pointerup": return this.pointerUp(event as PointerEvent);
             case "wheel": return this.wheel(event as WheelEvent);
             default: console.error("Error: computeEvent failed.");
         }
     }
 
-    private pointerDown(event: PointerEvent): void {
-        event.isPrimary && (this._primaryIdentifier = event.pointerId);
+    private pointerDown(event: PointerEvent, scene: Scene, camera: Camera): void {
+        if (event.pointerType !== "mouse") { //todo controllare che non ci sia in queue anche
+            this.raycastScene(scene, camera, event);
+        }
         const pointerDownEvent = this.triggerAncestorPointer("pointerdown", event, this.intersection[event.pointerId]?.object, undefined, true);
         this._lastPointerDown[event.pointerId] = event;
         this._lastPointerDownExt[event.pointerId] = pointerDownEvent;
