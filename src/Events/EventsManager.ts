@@ -1,4 +1,4 @@
-import { Camera, Object3D, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { object3DList } from "../Patch/Object3D";
 import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { PointerEventsQueue } from "./EventsQueue";
@@ -14,21 +14,21 @@ export class EventsManager {
     public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => { return a.distance === b.distance ? b.object.id - a.object.id : a.distance - b.distance };
     public continousPointerRaycasting = true; //for intersection event
     public disactiveWhenClickOut = false;
-    private pointer = new Vector2();
-    private pointerUv = new Vector2();
-    public intersections: IntersectionExt[];
-    public intersection: IntersectionExt;
+    public pointer = new Vector2();
+    public pointerUv = new Vector2();
+    public intersection: { [x: string]: IntersectionExt } = {};
     public activeObj: Object3D;
-    public hoveredObj: Object3D;
-    private _lastHoveredObj: Object3D;
-    private _lastPointerDown: PointerEventExt;
-    private _lastPointerMove: PointerEvent;
-    private _lastClick: PointerEventExt;
-    private _lastIntersection: IntersectionExt;
+    private _primaryIdentifier = 1;
+    private _lastPointerDownExt: { [x: string]: PointerEventExt } = {};
+    private _lastPointerDown: { [x: string]: PointerEvent } = {};
+    private _lastPointerMove: { [x: string]: PointerEvent } = {};
+    private _lastClick: { [x: string]: PointerEventExt } = {};
+    private _lastIntersection: { [x: string]: IntersectionExt } = {};
     private _raycaster = new Raycaster();
     private _queue = new PointerEventsQueue();
-    private _raycasted: boolean;
+    private _primaryRaycasted: boolean;
     private _mouseDetected = false;
+    private _isTapping = false;
 
     constructor(public renderer: WebGLRenderer) {
         this.registerRenderer(renderer);
@@ -41,6 +41,9 @@ export class EventsManager {
         }
         // renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
         renderer.domElement.addEventListener("pointermove", (e) => this._mouseDetected = e.pointerType === "mouse");
+        renderer.domElement.addEventListener("pointerdown", (e) => this._isTapping = e.pointerType !== "mouse" && e.isPrimary);
+        renderer.domElement.addEventListener("pointerup", (e) => this._isTapping &&= !e.isPrimary);
+        //todo pointercancel or leave?
         this.bindEvents();
     }
 
@@ -62,7 +65,7 @@ export class EventsManager {
     public update(scene: Scene, camera: Camera): void { //todo user active scene?
         //TODO check se canvas ha perso focus
         if (!this.enabled) return;
-        this._raycasted = false;
+        this._primaryRaycasted = false;
         for (const event of this._queue.dequeue()) {
             this.computeQueuedEvent(event, scene, camera);
         }
@@ -70,19 +73,14 @@ export class EventsManager {
         // this._cursorHandler.update(this.objectDragging, this.mainObjIntercepted);
     }
 
-    private raycastScene(scene: Scene, camera: Camera): void {
-        this._raycasted = true;
-        this._lastIntersection = this.intersection;
+    private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {
+        event.isPrimary && (this._primaryRaycasted = true);
+        this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
+        this.updateCanvasPointerPosition(event);
         this._raycaster.setFromCamera(this.pointerUv, camera);
-
-        if (this.raycastGPU) {
-            this.intersections = this.raycastObjectsGPU(scene, camera as PerspectiveCamera); //todo remove cast
-        } else {
-            this.intersections = this.raycastObjects(scene, []);
-        }
-
-        this.intersections.sort(this.intersectionSortComparer);
-        this.intersection = this.intersections[0];
+        const intersections = this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any) : this.raycastObjects(scene, []);
+        intersections.sort(this.intersectionSortComparer);
+        this.intersection[event.pointerId] = intersections[0];
     }
 
     private raycastObjects(object: Object3D, target: IntersectionExt[]): IntersectionExt[] {
@@ -111,7 +109,7 @@ export class EventsManager {
         return target;
     }
 
-    private raycastObjectsGPU(scene: Scene, camera: PerspectiveCamera): IntersectionExt[] {
+    private raycastObjectsGPU(scene: Scene, camera: PerspectiveCamera | OrthographicCamera): IntersectionExt[] {
         const width = this.renderer.domElement.width;
         const height = this.renderer.domElement.height;
         camera.setViewOffset(width, height, this.pointer.x * devicePixelRatio, this.pointer.y * devicePixelRatio, 1, 1);
@@ -149,7 +147,7 @@ export class EventsManager {
 
     private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
         if (target) {
-            const pointerEvent = new PointerEventExt(event, this.intersection, this._lastIntersection, relatedTarget, cancelable);
+            const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], this._lastIntersection[event.pointerId], relatedTarget, cancelable);
             target.triggerEventAncestor(type, pointerEvent);
             return pointerEvent;
         }
@@ -157,7 +155,7 @@ export class EventsManager {
 
     private triggerAncestorWheel(event: WheelEvent, target: Object3D): void {
         if (target) {
-            const wheelEvent = new WheelEventExt(event, this.intersection);
+            const wheelEvent = new WheelEventExt(event, this.intersection[this._primaryIdentifier]);
             target.triggerEventAncestor("wheel", wheelEvent);
         }
     }
@@ -173,66 +171,70 @@ export class EventsManager {
     }
 
     private pointerDown(event: PointerEvent): void {
-        this._lastPointerDown = this.triggerAncestorPointer("pointerdown", event, this.hoveredObj, undefined, true);
-        if (!this._lastPointerDown?._defaultPrevented) {
+        event.isPrimary && (this._primaryIdentifier = event.pointerId);
+        const pointerDownEvent = this.triggerAncestorPointer("pointerdown", event, this.intersection[event.pointerId]?.object, undefined, true);
+        this._lastPointerDown[event.pointerId] = event;
+        this._lastPointerDownExt[event.pointerId] = pointerDownEvent;
+        if (!pointerDownEvent?._defaultPrevented) {
             this.focus(event);
         }
     }
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
-        this._lastPointerMove = event;
-        this.updateCanvasPointerPosition(event);
+        this._lastPointerMove[event.pointerId] = event;
         this.pointerOutOver(scene, camera, event);
-        this.triggerAncestorPointer("pointermove", event, this.hoveredObj);
+        this.triggerAncestorPointer("pointermove", event, this.intersection[event.pointerId]?.object);
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
         if (!this.continousPointerRaycasting) return;
-        if ((this._mouseDetected /* || this._isTapping */) && !this._raycasted) {
-            this.pointerOutOver(scene, camera, this._lastPointerMove); //TODO bug se cambio 
+        if ((this._mouseDetected || this._isTapping) && !this._primaryRaycasted) {
+            this.pointerOutOver(scene, camera, this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier]);
         }
-        if (this.hoveredObj) {
-            this.hoveredObj.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(this.intersection, this._lastIntersection));
-        }
+        const intersection = this.intersection[this._primaryIdentifier];
+        intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
     }
 
     private wheel(event: WheelEvent): void {
-        this.triggerAncestorWheel(event, this.hoveredObj);
+        this.triggerAncestorWheel(event, this.intersection[this._primaryIdentifier].object);
     }
 
     private pointerOutOver(scene: Scene, camera: Camera, event: PointerEvent): void {
-        this._lastHoveredObj = this.hoveredObj;
-        this.raycastScene(scene, camera);
-        this.hoveredObj && (this.hoveredObj.hovered = false);
-        this.hoveredObj = this.intersection?.object;
-        this.hoveredObj && (this.hoveredObj.hovered = true);
+        this.raycastScene(scene, camera, event);
+        const hoveredObj = this.intersection[this._primaryIdentifier]?.object;
+        const lastHoveredObj = this._lastIntersection[this._primaryIdentifier]?.object;
+        lastHoveredObj && (lastHoveredObj.hovered = false);
+        hoveredObj && (hoveredObj.hovered = true);
 
-        if (this._lastHoveredObj !== this.hoveredObj) {
-            this.triggerAncestorPointer("pointerout", event, this._lastHoveredObj, this.hoveredObj);
-            this.triggerAncestorPointer("pointerleave", event, this._lastHoveredObj, this.hoveredObj);
-            this.triggerAncestorPointer("pointerover", event, this.hoveredObj, this._lastHoveredObj);
-            this.triggerAncestorPointer("pointerenter", event, this.hoveredObj, this._lastHoveredObj);
+        if (hoveredObj !== lastHoveredObj) {
+            this.triggerAncestorPointer("pointerout", event, lastHoveredObj, hoveredObj);
+            this.triggerAncestorPointer("pointerleave", event, lastHoveredObj, hoveredObj);
+            this.triggerAncestorPointer("pointerover", event, hoveredObj, lastHoveredObj);
+            this.triggerAncestorPointer("pointerenter", event, hoveredObj, lastHoveredObj);
         }
     }
 
     private pointerUp(event: PointerEvent): void {
-        this.triggerAncestorPointer("pointerup", event, this.hoveredObj, this._lastPointerDown?._target as Object3D); //todo capire cast
-        if (this.hoveredObj === (this._lastPointerDown?._target ?? null)) {
-            const prevClick = this._lastClick;
-            this._lastClick = this.triggerAncestorPointer("click", event, this.hoveredObj);
+        const hoveredObj = this.intersection[this._primaryIdentifier]?.object;
+        const lastPointerDown = this._lastPointerDownExt[event.pointerId]
 
-            if (this.hoveredObj === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
-                this.triggerAncestorPointer("dblclick", event, this.hoveredObj);
-                this._lastClick = undefined;
+        this.triggerAncestorPointer("pointerup", event, hoveredObj, lastPointerDown?._target as Object3D); //todo capire cast
+        if (hoveredObj === (lastPointerDown?._target ?? null)) {
+            const prevClick = this._lastClick[event.pointerId];
+            this._lastClick[event.pointerId] = this.triggerAncestorPointer("click", event, hoveredObj);
+
+            if (hoveredObj === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
+                this.triggerAncestorPointer("dblclick", event, hoveredObj);
+                this._lastClick[event.pointerId] = undefined;
             }
         } else {
-            this._lastClick = undefined;
+            this._lastClick[event.pointerId] = undefined;
         }
     }
 
     private focus(event: PointerEvent): void { //TODO creare possibilità di settare focus manulamente
-        const activableObj = this.hoveredObj?.activableObj;
         if (!event.isPrimary) return;
+        const activableObj = this.intersection[event.pointerId]?.object.activableObj;
         if (this.activeObj !== activableObj) {
 
             if (!this.disactiveWhenClickOut && !activableObj) return;

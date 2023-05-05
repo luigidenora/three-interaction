@@ -1,5 +1,7 @@
-import { Camera, Object3D, Scene, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Camera, Object3D, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { IntersectionExt } from "./Events";
+export interface EventsManagerConfig {
+}
 export declare class EventsManager {
     renderer: WebGLRenderer;
     enabled: boolean;
@@ -8,21 +10,22 @@ export declare class EventsManager {
     intersectionSortComparer: (a: IntersectionExt, b: IntersectionExt) => number;
     continousPointerRaycasting: boolean;
     disactiveWhenClickOut: boolean;
-    private pointer;
-    private pointerUv;
-    intersections: IntersectionExt[];
-    intersection: IntersectionExt;
+    pointer: Vector2;
+    pointerUv: Vector2;
+    intersection: {
+        [x: string]: IntersectionExt;
+    };
     activeObj: Object3D;
-    hoveredObj: Object3D;
-    private _lastHoveredObj;
+    private _primaryIdentifier;
     private _lastPointerDown;
     private _lastPointerMove;
     private _lastClick;
     private _lastIntersection;
     private _raycaster;
     private _queue;
-    private _raycasted;
+    private _primaryRaycasted;
     private _mouseDetected;
+    private _isTapping;
     constructor(renderer: WebGLRenderer);
     registerRenderer(renderer: WebGLRenderer): void;
     private bindEvents;
