@@ -73,14 +73,13 @@
             lastActive?.material.emissive.set(0);
             scene.light1.color.copy(active.material.color);
             lastActive && scene.light2.color.copy(lastActive.material.color);
-            active && lastActive && this.line.setGeoPoints([active.position, lastActive.position]);
         });
 
         scene.bindEvent("animate", function (e) {
             if (active) {
                 scene.light1.position.copy(active.position);
                 if (lastActive) {
-                    // this.line.setGeoPoints([active.position, lastActive.position]);
+                    this.line.setGeoPoints([active.position, lastActive.position]);
                     const distance = active.position.distanceTo(lastActive.position);
                     this.line.material.color.setHSL(Math.abs(Math.sin(distance)), 0.5, 0.5);
                     scene.light2.position.copy(lastActive.position);
