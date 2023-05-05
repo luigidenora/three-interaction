@@ -1,5 +1,6 @@
 import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { object3DList } from "../Patch/Object3D";
+import { CursorHandler } from "./CursorHandler";
 import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { PointerEventsQueue } from "./EventsQueue";
 
@@ -26,12 +27,14 @@ export class EventsManager {
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
     private _raycaster = new Raycaster();
     private _queue = new PointerEventsQueue();
+    private _cursorHandler: CursorHandler;
     private _primaryRaycasted: boolean;
     private _mouseDetected = false;
     private _isTapping = false;
 
     constructor(public renderer: WebGLRenderer) {
         this.registerRenderer(renderer);
+        this._cursorHandler = new CursorHandler(renderer.domElement);
     }
 
     public registerRenderer(renderer: WebGLRenderer): void {
@@ -70,7 +73,7 @@ export class EventsManager {
             this.computeQueuedEvent(event, scene, camera);
         }
         this.pointerIntersection(scene, camera);
-        // this._cursorHandler.update(this.objectDragging, this.mainObjIntercepted);
+        this._cursorHandler.update(this.intersection[this._primaryIdentifier]?.object);
     }
 
     private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {
@@ -208,7 +211,7 @@ export class EventsManager {
         this.raycastScene(scene, camera, event);
         const hoveredObj = this.intersection[event.pointerId]?.object;
         const lastHoveredObj = this._lastIntersection[event.pointerId]?.object;
-        
+
         if (event.isPrimary) {
             lastHoveredObj && (lastHoveredObj.hovered = false);
             hoveredObj && (hoveredObj.hovered = true);
