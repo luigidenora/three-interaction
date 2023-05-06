@@ -33,6 +33,22 @@ export interface InteractionEvents {
   pointerup: PointerEventExt;
   pointercancel: PointerEventExt;
   pointerintersection: PointerIntersectionEvent;
+  click: PointerEventExt;
+  dblclick: PointerEventExt;
+  wheel: WheelEventExt;
+  focusin: FocusEventExt
+  focusout: FocusEventExt
+  focus: FocusEventExt
+  blur: FocusEventExt
+  keydown: KeyboardEventExt;
+  keyup: KeyboardEventExt;
+  drag: DragEventExt;
+  dragstart: DragEventExt;
+  dragend: DragEventExt;
+  // dragenter: DragEventExt;
+  // dragover: DragEventExt;
+  // dragleave: DragEventExt;
+  // drop: DragEventExt;
   // mouseover: PointerEventExt;
   // mouseenter: PointerEventExt;
   // mouseout: PointerEventExt;
@@ -44,24 +60,6 @@ export interface InteractionEvents {
   // touchmove: TouchEventExt;
   // touchend: TouchEventExt;
   // touchcancel: TouchEventExt;
-  click: PointerEventExt;
-  dblclick: PointerEventExt;
-  wheel: WheelEventExt;
-  focusin: FocusEventExt
-  focusout: FocusEventExt
-  focus: FocusEventExt
-  blur: FocusEventExt
-  keydown: KeyboardEventExt;
-  keyup: KeyboardEventExt;
-  dragvalidation: DragEventExt;
-  drag: DragEventExt;
-  afterdrag: DragEventExt;
-  dragstart: DragEventExt;
-  dragenter: DragEventExt;
-  dragover: DragEventExt;
-  dragleave: DragEventExt;
-  dragend: DragEventExt;
-  drop: DragEventExt;
 }
 
 export interface IntersectionExt extends Intersection {

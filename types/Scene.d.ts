@@ -1,9 +1,9 @@
 import { Object3D } from "three";
 import { Scene as SceneBase } from "three/index";
-import { Events } from "../src/Interaction/Events";
+import { Events } from "../src/Events/Events";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
-import { Cursor } from "../src/Interaction/CursorManager";
+import { Cursor } from "../src/Events/CursorManager";
 
 export class Scene extends SceneBase  implements InteractionPrototype {
     __eventsDispatcher: EventsDispatcher;

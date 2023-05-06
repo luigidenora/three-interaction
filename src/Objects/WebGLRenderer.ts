@@ -1,6 +1,6 @@
 import { Camera, Scene, WebGLRenderer as WebGLRendererBase, WebGLRendererParameters } from "three";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
-import { EventsManager } from "../Interaction/InteractionEventsManager";
+import { EventsManager } from "../Events/InteractionEventsManager";
 
 export class WebGLRenderer extends WebGLRendererBase {
     public eventsManager: EventsManager;

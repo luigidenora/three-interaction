@@ -1,12 +1,12 @@
 import { Object3D } from "three";
-import { Events } from "../Interaction/Events";
-import { EventsDispatcher } from "../Interaction/EventsDispatcher";
+import { Events } from "../Events/Events";
+import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { bindAutoUpdateMatrixObject3D } from "./AutoUpdateMatrix";
 import { applyVector3Patch } from "./Vector3";
 import { applyQuaternionPatch } from "./Quaternion";
 import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
-import { Cursor } from "../Interaction/CursorManager";
+import { Cursor } from "../Events/CursorManager";
 
 export interface InteractionPrototype {
     /** @internal */ __eventsDispatcher: EventsDispatcher;

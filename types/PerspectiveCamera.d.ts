@@ -1,7 +1,7 @@
 import { Object3D } from "three";
 import { PerspectiveCamera as PerspectiveCameraBase } from "three/index";
-import { Cursor } from "../src/Interaction/CursorManager";
-import { Events } from "../src/Interaction/Events";
+import { Cursor } from "../src/Events/CursorManager";
+import { Events } from "../src/Events/Events";
 import { EventsDispatcher } from "../src/index";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 
