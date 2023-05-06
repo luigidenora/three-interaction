@@ -1,4 +1,5 @@
 import { Plane, Matrix4, Vector3, Raycaster, Camera, Object3D } from "three";
+import { DragEventExt, InteractionEvents } from "./Events";
 
 export class DragManager {
     private _plane = new Plane();
@@ -16,8 +17,8 @@ export class DragManager {
                 return true;
             } else if (target && target.draggable && target.clicked) {
                 this._target = target;
-                this.startDragging(raycaster, camera); //todo check multitouch
                 target.dragging = true;
+                this.startDragging(raycaster, camera); //todo check multitouch
                 return true;
             }
         }
@@ -28,9 +29,11 @@ export class DragManager {
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
         if (raycaster.ray.intersectPlane(this._plane, this._intersection)) {
             this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
-            // if (!args.preventDefault) {
-            this._target.position.copy(this._intersection);
-            this._target.updateMatrixWorld(true);
+            const event = this.triggerEvent("drag", true, this._intersection);
+            if (!event._defaultPrevented) {
+                this._target.position.copy(this._intersection);
+                this._target.updateMatrixWorld(true);
+            }
         }
     }
 
@@ -39,13 +42,21 @@ export class DragManager {
         if (raycaster.ray.intersectPlane(this._plane, this._intersection)) {
             this._inverseMatrix.copy(this._target.parent.matrixWorld).invert();
             this._offset.copy(this._intersection).sub(this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
+            this.triggerEvent("dragstart");
         }
     }
 
     public stopDragging(event: PointerEvent): boolean {
         if (!this._target || !event.isPrimary) return false;
         this._target.dragging = false;
+        this.triggerEvent("dragend");
         this._target = undefined;
         return true;
+    }
+
+    private triggerEvent(type: keyof InteractionEvents, cancelable = false, position?: Vector3): DragEventExt {
+        const dragEvent = new DragEventExt(cancelable, position);
+        this._target.triggerEventAncestor(type, dragEvent);
+        return dragEvent;
     }
 }

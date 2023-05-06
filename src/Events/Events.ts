@@ -152,13 +152,13 @@ export class MouseEventExt extends EventExt {
   /** TODO. */
   public readonly movement: Vector3;
 
-  constructor(event: MouseEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
+  constructor(event: MouseEvent, intersection: IntersectionExt, lastIntersection?: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
     super(cancelable);
     this._event = event;
     this.intersection = intersection;
     this.relatedTarget = relatedTarget;
     if (intersection?.object === lastIntersection?.object) {
-      this.movement = intersection.point.clone().sub(lastIntersection.point); //TODO cache vec
+      this.movement = intersection.point.clone().sub(lastIntersection.point); //TODO cache vec and do it like getter
     }
   }
 
@@ -197,12 +197,26 @@ export class PointerEventExt extends MouseEventExt {
 
   /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */
   public getCoalescedEvents(): PointerEventExt {
+    console.error("getCoalescedEvents not implemented yet.");
     return undefined; // TODO
   }
 
   /** Returns a sequence of PointerEvent instances that the browser predicts will follow the dispatched pointermove event's coalesced events. */
   public getPredictedEvents(): PointerEventExt {
+    console.error("getPredictedEvents not implemented yet.");
     return undefined; // TODO
+  }
+}
+
+export class DragEventExt extends MouseEventExt {
+  // /** TODO */
+  // dataTransfer: Object3D;
+  /** TODO */
+  position: Vector3;
+
+  constructor(cancelable: boolean, position?: Vector3) {
+    super(undefined, undefined, undefined, undefined, cancelable);
+    this.position = position;
   }
 }
 
@@ -233,15 +247,8 @@ export class WheelEventExt extends MouseEventExt {
   public override _event: WheelEvent;
 
   constructor(event: WheelEvent, intersection: IntersectionExt) {
-    super(event, intersection, undefined);
+    super(event, intersection);
   }
-}
-
-export interface DragEventExt extends PointerEventExt {
-  /** The coordinates of the pointer in local (scene) coordinates. */
-  positionToApply: Vector3;
-  /** The coordinates of the pointer in local (scene) coordinates. */
-  originalPosition: Vector3;
 }
 
 export interface KeyboardEventExt extends EventExt {
@@ -265,6 +272,16 @@ export interface KeyboardEventExt extends EventExt {
   getModifierState(keyArg: string): boolean;
 }
 
+export class FocusEventExt extends EventExt {
+  /** The secondary target for the event. */
+  public relatedTarget: Object3D
+
+  constructor(relatedTarget: Object3D) {
+    super();
+    this.relatedTarget = relatedTarget;
+  }
+}
+
 export class RendererResizeEvent extends EventExt {
   /** Returns the new renderer width. TODO */
   public readonly width: number;
@@ -278,15 +295,5 @@ export class RendererResizeEvent extends EventExt {
     this.renderer = renderer;
     this.width = width;
     this.height = height;
-  }
-}
-
-export class FocusEventExt extends EventExt {
-  /** The secondary target for the event. */
-  public relatedTarget: Object3D
-
-  constructor(relatedTarget: Object3D) {
-    super();
-    this.relatedTarget = relatedTarget;
   }
 }

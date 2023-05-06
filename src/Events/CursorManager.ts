@@ -78,6 +78,8 @@ export class CursorHandler {
         } else if (objHovered) {
             //TODO drop target
             cursor = objHovered.cursorOnHover ?? (objHovered.enabled ? (objHovered.draggable ? "grab" : "pointer") : "default");
+        } else {
+            cursor = "default";
         }
 
         if (cursor !== this._cursor) {
