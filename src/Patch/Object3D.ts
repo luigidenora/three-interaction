@@ -11,6 +11,8 @@ import { Cursor } from "../Events/CursorManager";
 export interface InteractionPrototype {
     /** @internal */ __eventsDispatcher: EventsDispatcher;
     draggable: boolean;
+    dragging: boolean;
+    clicked: boolean;
     activable: boolean; // default false
     get activableObj(): Object3D; //TODO cache
     active: boolean;
@@ -34,10 +36,12 @@ export const object3DList: { [x: number]: Object3D } = {};
 
 Object3D.prototype.activable = false;
 Object3D.prototype.active = false;
+Object3D.prototype.clicked = false;
+Object3D.prototype.dragging = false;
+Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;
 Object3D.prototype.enabled = true;
 Object3D.prototype.interceptByRaycaster = true;
-// Object3D.prototype.frustumNeedsUpdate = true; //Todo
 
 Object.defineProperty(Object3D.prototype, "activableObj", {
     get: function (this: Object3D) {

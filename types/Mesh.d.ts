@@ -10,6 +10,8 @@ export class Mesh extends MeshBase  implements InteractionPrototype {
     override parent: Object3D;
     override children: Object3D[];
     draggable: boolean;
+    dragging: boolean;
+    clicked: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;
