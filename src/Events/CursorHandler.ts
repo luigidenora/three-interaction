@@ -51,71 +51,42 @@ export interface Cursors {
     "zoom-out": never;
 }
 
-const CursorSet = new Set(
-    "auto", "default","none",
+const cursorSet = new Set([
+    "auto", "default", "none",
+    "context-menu", "help", "pointer", "progress", "wait",
+    "cell", "crosshair", "text", "vertical-text",
+    "alias", "copy", "move", "no-drop", "not-allowed", "grab", "grabbing",
+    "all-scroll", "col-resize", "row-resize", "n-resize", "e-resize", "s-resize", "w-resize",
+    "ne-resize", "nw-resize", "se-resize", "sw-resize", "ew-resize", "ns-resize", "nesw-resize", "nwse-resize",
+    "zoom-in", "zoom-out"
+]);
 
-    // Links & status
-    "context-menu",
-    "help",
-    "pointer",
-    "progress",
-    "wait",
-
-    // Selection
-    "cell",
-    "crosshair",
-    "text",
-    "vertical-text",
-
-    // Drag & drop
-    "alias",
-    "copy",
-    "move",
-    "no-drop",
-    "not-allowed",
-    "grab",
-    "grabbing",
-
-    // Resizing & scrolling
-    "all-scroll",
-    "col-resize",
-    "row-resize",
-    "n-resize",
-    "e-resize",
-    "s-resize",
-    "w-resize",
-    "ne-resize",
-    "nw-resize",
-    "se-resize",
-    "sw-resize",
-    "ew-resize",
-    "ns-resize",
-    "nesw-resize",
-    "nwse-resize",
-
-    // Zooming
-    "zoom-in",
-    "zoom-out",
-}
+export type Cursor = keyof Cursors | String;
 
 export class CursorHandler {
     public enabled = true;
-    private _cursor: string;
+    private _cursor: Cursor;
     private _domElement: HTMLCanvasElement;
 
     constructor(domElement: HTMLCanvasElement) {
         this._domElement = domElement;
     }
 
-    // Consts.canvasContainer.style.cursor = `url(${cursor}), default`; TODO
     public update(objHovered: Object3D): void {
         if (!this.enabled) return;
 
-        let cursor = objHovered ? "pointer" : "default"; //todo implement drag
+        let cursor: Cursor;
+        if (objHovered) {
+            cursor = objHovered.cursorOnHover ?? (objHovered.enabled ? "pointer" : "default");
+        }
 
         if (cursor !== this._cursor) {
             this._cursor = cursor;
-            this._domElement.style.cursor = cursor;
+            if (cursorSet.has(cursor as string)) {
+                this._domElement.style.cursor = cursor as string;
+            } else {
+                this._domElement.style.cursor = `url(${cursor}), default`;
+            }
         }
     }
 }

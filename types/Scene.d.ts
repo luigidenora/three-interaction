@@ -3,7 +3,7 @@ import { Scene as SceneBase } from "three/index";
 import { Events } from "../src/Events/Events";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
-import { Cursors } from "../src/Events/CursorHandler";
+import { Cursor } from "../src/Events/CursorHandler";
 
 export class Scene extends SceneBase  implements InteractionPrototype {
     __eventsDispatcher: EventsDispatcher;
@@ -20,8 +20,8 @@ export class Scene extends SceneBase  implements InteractionPrototype {
     visibleUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
-    cursorOnHover: keyof Cursors;
-    cursorOnDrag: keyof Cursors;
+    cursorOnHover: Cursor;
+    cursorOnDrag: Cursor;
     /** @internal */ _threeDepth: number;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;

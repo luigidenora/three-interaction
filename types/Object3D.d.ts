@@ -2,7 +2,7 @@ import { Object3D as Object3DBase } from "three/index";
 import { Events } from "../src/Events/Events";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
-import { Cursors } from "../src/Events/CursorHandler";
+import { Cursor } from "../src/Events/CursorHandler";
 
 export class Object3D extends Object3DBase implements InteractionPrototype {
     override parent: Object3D;
@@ -19,8 +19,8 @@ export class Object3D extends Object3DBase implements InteractionPrototype {
     visibleUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
-    cursorOnHover: String | keyof Cursors;
-    cursorOnDrag: String | keyof Cursors;
+    cursorOnHover: Cursor;
+    cursorOnDrag: Cursor;
     // frustumNeedsUpdate: boolean; //todo REMOVE
     // isInFrustum: boolean; //todo REMOVE
     /** @internal */ _threeDepth: number;

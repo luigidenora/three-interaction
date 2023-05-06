@@ -6,7 +6,7 @@ import { applyVector3Patch } from "./Vector3";
 import { applyQuaternionPatch } from "./Quaternion";
 import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
-import { Cursors } from "../Events/CursorHandler";
+import { Cursor } from "../Events/CursorHandler";
 
 export interface InteractionPrototype {
     /** @internal */ __eventsDispatcher: EventsDispatcher;
@@ -18,8 +18,8 @@ export interface InteractionPrototype {
     enabled: boolean; //TODO Handle
     enabledUntilParent: boolean; //TODO Handle
     visibleUntilParent: boolean; //TODO Handle
-    cursorOnHover: String | keyof Cursors;
-    cursorOnDrag: String | keyof Cursors;
+    cursorOnHover: Cursor;
+    cursorOnDrag: Cursor;
     interceptByRaycaster?: boolean; // default true
     objectsToRaycast?: Object3D[];
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
