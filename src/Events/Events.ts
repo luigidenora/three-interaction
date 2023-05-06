@@ -157,8 +157,8 @@ export class MouseEventExt extends EventExt {
     this._event = event;
     this.intersection = intersection;
     this.relatedTarget = relatedTarget;
-    if (intersection?.object === lastIntersection?.object) {
-      this.movement = intersection.point.clone().sub(lastIntersection.point); //TODO cache vec and do it like getter
+    if (intersection && intersection?.object === lastIntersection?.object) {
+      this.movement = intersection.point.clone().sub(lastIntersection.point); // todo getter and cache
     }
   }
 
@@ -229,8 +229,8 @@ export class PointerIntersectionEvent extends EventExt {
   constructor(intersection: IntersectionExt, lastIntersection: IntersectionExt) {
     super();
     this.intersection = intersection;
-    if (intersection.object === lastIntersection?.object) {
-      this.movement = intersection.point.clone().sub(lastIntersection.point);
+    if (lastIntersection && intersection.object === lastIntersection?.object) {
+      this.movement = intersection.point.clone().sub(lastIntersection.point); // todo getter and cache
     }
   }
 }
