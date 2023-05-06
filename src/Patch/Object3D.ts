@@ -10,6 +10,7 @@ import { Cursor } from "../Interaction/CursorManager";
 
 export interface InteractionPrototype {
     /** @internal */ __eventsDispatcher: EventsDispatcher;
+    draggable: boolean;
     activable: boolean; // default false
     get activableObj(): Object3D; //TODO cache
     active: boolean;

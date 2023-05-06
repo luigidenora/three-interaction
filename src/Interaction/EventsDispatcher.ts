@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { InteractionEvents, Events } from "./Events";
-import { EventsCache } from "./MiscEventsCache";
+import { EventsCache } from "./MiscEventsManager";
 import { applyObject3DPatch } from "../Patch/Object3D";
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 

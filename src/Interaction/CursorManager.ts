@@ -69,12 +69,15 @@ export class CursorHandler {
         this._domElement = domElement;
     }
 
-    public update(objHovered: Object3D): void {
+    public update(objDragged: Object3D, objHovered: Object3D): void {
         if (!this.enabled) return;
 
         let cursor: Cursor;
-        if (objHovered) {
-            cursor = objHovered.cursorOnHover ?? (objHovered.enabled ? "pointer" : "default");
+        if (objDragged) {
+            cursor = objHovered.cursorOnDrag ?? "grabbing";
+        } else if (objHovered) {
+            //TODO drop target
+            cursor = objHovered.cursorOnHover ?? (objHovered.enabled ? (objHovered.draggable ? "grab" : "pointer") : "default");
         }
 
         if (cursor !== this._cursor) {

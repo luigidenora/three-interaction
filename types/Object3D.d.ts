@@ -9,6 +9,7 @@ export class Object3D extends Object3DBase implements InteractionPrototype {
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;
     __patched: boolean;
+    draggable: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;

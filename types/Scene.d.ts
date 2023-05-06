@@ -10,6 +10,7 @@ export class Scene extends SceneBase  implements InteractionPrototype {
     __patched: boolean;
     override parent: Object3D;
     override children: Object3D[];
+    draggable: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;

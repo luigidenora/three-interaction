@@ -3,6 +3,7 @@ import { object3DList } from "../Patch/Object3D";
 import { CursorHandler } from "./CursorManager";
 import { InteractionEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { PointerEventsQueue } from "./InteractionEventsQueue";
+import { DragManager } from "./DragManager";
 
 export interface EventsManagerConfig {
     //
@@ -28,6 +29,7 @@ export class EventsManager {
     private _raycaster = new Raycaster();
     private _queue = new PointerEventsQueue();
     private _cursorHandler: CursorHandler;
+    private _dragManager = new DragManager();
     private _primaryRaycasted: boolean;
     private _mouseDetected = false;
     private _isTapping = false;
@@ -73,7 +75,7 @@ export class EventsManager {
             this.computeQueuedEvent(event, scene, camera);
         }
         this.pointerIntersection(scene, camera);
-        this._cursorHandler.update(this.intersection[this._primaryIdentifier]?.object);
+        this._cursorHandler.update(undefined, this.intersection[this._primaryIdentifier]?.object);
     }
 
     private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {

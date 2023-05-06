@@ -9,6 +9,7 @@ export class Mesh extends MeshBase  implements InteractionPrototype {
     __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];
+    draggable: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;
