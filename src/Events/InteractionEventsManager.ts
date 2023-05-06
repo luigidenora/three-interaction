@@ -5,10 +5,6 @@ import { FocusEventExt, InteractionEvents, IntersectionExt, PointerEventExt, Poi
 import { PointerEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
 
-export interface EventsManagerConfig {
-    //
-}
-
 export class EventsManager {
     public enabled = true;
     public continousPointerRaycasting = true; //for intersection event
@@ -113,18 +109,28 @@ export class EventsManager {
         if (event.pointerType !== "mouse") { //todo controllare che non ci sia in queue anche
             this.raycastScene(scene, camera, event);
         }
-        const pointerDownEvent = this.triggerAncestorPointer("pointerdown", event, this.intersection[event.pointerId]?.object, undefined, true);
+        const target = this.intersection[event.pointerId]?.object;
+        const pointerDownEvent = this.triggerAncestorPointer("pointerdown", event, target, undefined, true);
         this._lastPointerDown[event.pointerId] = event;
         this._lastPointerDownExt[event.pointerId] = pointerDownEvent;
+
+        if (target) {
+            //todo handle if pointer cancel
+            target.clicked = event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse");
+        }
+
         if (!pointerDownEvent?._defaultPrevented) {
-            this.focus(event);
+            this.focus(event, target);
         }
     }
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
         this._lastPointerMove[event.pointerId] = event;
         this.pointerOutOver(scene, camera, event);
-        this.triggerAncestorPointer("pointermove", event, this.intersection[event.pointerId]?.object);
+        const target = this.intersection[event.pointerId]?.object;
+        if (!this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera, target)) {
+            this.triggerAncestorPointer("pointermove", event, target);
+        }
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
@@ -159,26 +165,34 @@ export class EventsManager {
     }
 
     private pointerUp(event: PointerEvent): void {
-        const hoveredObj = this.intersection[event.pointerId]?.object;
+        const target = this.intersection[event.pointerId]?.object;
         const lastPointerDown = this._lastPointerDownExt[event.pointerId]
 
-        this.triggerAncestorPointer("pointerup", event, hoveredObj, lastPointerDown?._target as Object3D); //todo capire cast
-        if (hoveredObj === (lastPointerDown?._target ?? null)) {
-            const prevClick = this._lastClick[event.pointerId];
-            this._lastClick[event.pointerId] = this.triggerAncestorPointer("click", event, hoveredObj);
+        if (!this._dragManager.stopDragging(event)) {
+            this.triggerAncestorPointer("pointerup", event, target, lastPointerDown?._target as Object3D); //todo capire cast
+            if (target === (lastPointerDown?._target ?? null)) {
+                const prevClick = this._lastClick[event.pointerId];
+                this._lastClick[event.pointerId] = this.triggerAncestorPointer("click", event, target);
 
-            if (hoveredObj === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
-                this.triggerAncestorPointer("dblclick", event, hoveredObj);
+                if (target === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
+                    this.triggerAncestorPointer("dblclick", event, target);
+                    this._lastClick[event.pointerId] = undefined;
+                }
+            } else {
                 this._lastClick[event.pointerId] = undefined;
             }
         } else {
             this._lastClick[event.pointerId] = undefined;
         }
+
+        if (target && event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse")) {
+            target.clicked = false;
+        }
     }
 
-    private focus(event: PointerEvent): void { //TODO creare possibilità di settare focus manulamente
+    private focus(event: PointerEvent, target: Object3D): void { //TODO creare possibilità di settare focus manulamente
         if (!event.isPrimary) return;
-        const activableObj = this.intersection[event.pointerId]?.object.activableObj;
+        const activableObj = target?.activableObj;
         if (this.activeObj !== activableObj) {
 
             if (!this.disactiveWhenClickOut && !activableObj) return;

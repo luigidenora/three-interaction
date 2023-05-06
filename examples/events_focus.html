@@ -47,15 +47,15 @@
             scene.add(mesh);
             const isBox = i % 2 === 0;
             mesh.activable = isBox;
+            mesh.draggable = !isBox;
             mesh.radius = Math.random() * 10 + 10;
             mesh.angleX = Math.random() * 2 * Math.PI - Math.PI;
             mesh.angleY = Math.random() * 2 * Math.PI - Math.PI;
 
-            mesh.bindEvent("animate", function (e) {
-                this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 10, this.angleY + e.total / 10);
-            });
+            !isBox && mesh.position.setFromSphericalCoords(mesh.radius, mesh.angleX * 100, mesh.angleY * 100);
 
             isBox && mesh.bindEvent("animate", function (e) {
+                this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 10, this.angleY + e.total / 10);
                 this.rotation.x += e.delta * this.angleX;
                 this.rotation.y += e.delta * this.angleY;
                 this.rotation.z += e.delta * (this.angleY + this.angleX) % 2;
