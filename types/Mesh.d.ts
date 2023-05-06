@@ -1,7 +1,7 @@
 import { Object3D } from "three";
 import { Mesh as MeshBase } from "three/index";
-import { Cursor } from "../src/Events/CursorHandler";
-import { Events } from "../src/Events/Events";
+import { Cursor } from "../src/Interaction/CursorManager";
+import { Events } from "../src/Interaction/Events";
 import { EventsDispatcher } from "../src/index";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 

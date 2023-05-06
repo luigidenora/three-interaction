@@ -1,8 +1,8 @@
 import { Object3D as Object3DBase } from "three/index";
-import { Events } from "../src/Events/Events";
+import { Events } from "../src/Interaction/Events";
 import { InteractionPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
-import { Cursor } from "../src/Events/CursorHandler";
+import { Cursor } from "../src/Interaction/CursorManager";
 
 export class Object3D extends Object3DBase implements InteractionPrototype {
     override parent: Object3D;

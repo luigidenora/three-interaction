@@ -1,8 +1,8 @@
 import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { object3DList } from "../Patch/Object3D";
-import { CursorHandler } from "./CursorHandler";
-import { DOMEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
-import { PointerEventsQueue } from "./EventsQueue";
+import { CursorHandler } from "./CursorManager";
+import { InteractionEvents, FocusEventExt, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
+import { PointerEventsQueue } from "./InteractionEventsQueue";
 
 export interface EventsManagerConfig {
     //
@@ -151,7 +151,7 @@ export class EventsManager {
         this.pointer.set(event.offsetX, event.offsetY);
     }
 
-    private triggerAncestorPointer(type: keyof DOMEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
+    private triggerAncestorPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
         if (target) {
             const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], this._lastIntersection[event.pointerId], relatedTarget, cancelable);
             target.triggerEventAncestor(type, pointerEvent);

@@ -1,14 +1,12 @@
 import { Intersection, Object3D, Vector3, WebGLRenderer } from "three";
-import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
 
-export interface Events extends DOMEvents { //todo rimuovere extends
+export interface Events extends InteractionEvents, MiscEvents, UpdateEvents { };
+
+export interface UpdateEvents {
   positionchange: never;
   scalechange: never;
   rotationchange: never;
   quaternionchange: never;
-  rendererresize: RendererResizeEvent;
-  framerendering: never;
-  animate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
   // childadd
   // childremove 
   // parentdadd // This event propagation Up to down.
@@ -19,7 +17,13 @@ export interface Events extends DOMEvents { //todo rimuovere extends
   // ownvisiblechange // This event propagation Up to down.
 }
 
-export interface DOMEvents {
+export interface MiscEvents {
+  rendererresize: RendererResizeEvent;
+  animate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
+  framerendering: never;
+}
+
+export interface InteractionEvents {
   pointerover: PointerEventExt;
   pointerenter: PointerEventExt;
   pointerout: PointerEventExt;

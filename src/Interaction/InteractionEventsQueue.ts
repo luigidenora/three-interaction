@@ -1,3 +1,6 @@
+/**
+ * Syncronize DOM events with the frame generation, discarding ripetitive pointermove event.
+ */
 export class PointerEventsQueue {
    private _items: Event[] = [];
 

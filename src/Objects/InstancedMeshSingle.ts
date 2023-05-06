@@ -1,7 +1,7 @@
 import { Color, EventDispatcher, Object3D, Quaternion, Vector3 } from "three";
-import { Events } from "../Events/Events";
+import { Events } from "../Interaction/Events";
 import { InstancedMesh } from "./InstancedMesh";
-import { EventsDispatcher } from "../Events/EventsDispatcher";
+import { EventsDispatcher } from "../Interaction/EventsDispatcher";
 
 let id = 1;
 

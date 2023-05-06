@@ -1,6 +1,6 @@
 import { Clock, Scene, WebGLRenderer } from "three";
-import { RendererResizeEvent } from "../Events/Events";
-import { EventsCache } from "../Events/EventsCache";
+import { RendererResizeEvent } from "../Interaction/Events";
+import { EventsCache } from "../Interaction/MiscEventsCache";
 import { updateMatrices } from "./AutoUpdateMatrix";
 
 export interface WebGLRendererInteractionPrototype {

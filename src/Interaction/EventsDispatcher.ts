@@ -1,8 +1,8 @@
 import { Object3D } from "three";
-import { DOMEvents, Events } from "./Events";
-import { EventsCache } from "./EventsCache";
+import { InteractionEvents, Events } from "./Events";
+import { EventsCache } from "./MiscEventsCache";
 import { applyObject3DPatch } from "../Patch/Object3D";
-import { InstancedMeshSingle } from "../EnhancedObjects/InstancedMeshSingle";
+import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args?: any) => void)[] } = {};
@@ -40,7 +40,7 @@ export class EventsDispatcher {
         }
     }
 
-    public dispatchDOMEvent<K extends keyof DOMEvents>(type: K, event: DOMEvents[K]): void {
+    public dispatchDOMEvent<K extends keyof InteractionEvents>(type: K, event: InteractionEvents[K]): void {
         event._bubbles = false;
         event._stoppedImmediatePropagation = false;
         event._defaultPrevented = false;
@@ -49,7 +49,7 @@ export class EventsDispatcher {
         this._dispatchDOMEvent(type, event);
     }
 
-    private _dispatchDOMEvent<K extends keyof DOMEvents>(type: K, event: DOMEvents[K]): void {
+    private _dispatchDOMEvent<K extends keyof InteractionEvents>(type: K, event: InteractionEvents[K]): void {
         if (!this._listeners[type]) return;
         const target = event.currentTarget = this.parent as Object3D;
         // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
@@ -59,7 +59,7 @@ export class EventsDispatcher {
         }
     }
 
-    public dispatchDOMEventAncestor<K extends keyof DOMEvents>(type: K, event: DOMEvents[K]): void {
+    public dispatchDOMEventAncestor<K extends keyof InteractionEvents>(type: K, event: InteractionEvents[K]): void {
         let target = this.parent;
         event._bubbles = true;
         event._stoppedImmediatePropagation = false;
