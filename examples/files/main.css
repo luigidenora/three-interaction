@@ -1,17 +1,3 @@
-.info-left {
-	width: 50% !important;
-}
-
-#logs {
-	color: #fff;
-	background-color: #000;
-	position: absolute;
-	left: 50%;
-	width: 50%;
-	height: 100%;
-	overflow: auto;
-}
-
 canvas {
 	position: absolute;
 	width: 50%;
@@ -56,19 +42,24 @@ button {
 	-ms-user-select: none;
 	user-select: none;
 	pointer-events: none;
-	z-index: 1; /* TODO Solve this in HTML */
+	z-index: 1;
+	/* TODO Solve this in HTML */
 }
 
-a, button, input, select {
+a,
+button,
+input,
+select {
 	pointer-events: auto;
 }
 
 .lil-gui {
-	z-index: 2 !important; /* TODO Solve this in HTML */
+	z-index: 2 !important;
+	/* TODO Solve this in HTML */
 }
 
-@media all and ( max-width: 640px ) {
-	.lil-gui.root { 
+@media all and (max-width: 640px) {
+	.lil-gui.root {
 		right: auto;
 		top: auto;
 		max-height: 50%;
@@ -76,4 +67,22 @@ a, button, input, select {
 		bottom: 0;
 		left: 0;
 	}
+}
+
+.blink {
+	display: inline-block;
+	height: 30px;
+	margin: 5px 10px;
+	padding: 0 10px;
+	line-height: 28px;
+	color: #41b882;
+	font-weight: 400;
+	border: 1px solid #41b882;
+	border-radius: 15px;
+	transition: 0.2s all ease;
+}
+
+.blink.active {
+	background: #41b882;
+	color: #ffffff;
 }

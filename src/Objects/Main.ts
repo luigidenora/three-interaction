@@ -6,7 +6,7 @@ export class Main {
     public renderer: WebGLRenderer;
     public stats = new Stats();
 
-    constructor(public scenes: Scene[], public animate?: XRFrameRequestCallback, fullscreen = true, parameters: WebGLRendererParameters = {}) {
+    constructor(public scenes: Scene[], fullscreen = true, parameters: WebGLRendererParameters = {}, public animate?: XRFrameRequestCallback) {
         this.renderer = new WebGLRenderer(scenes, this.animateBase.bind(this), fullscreen, parameters);
         document.body.appendChild(this.stats.dom);
     }
