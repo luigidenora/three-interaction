@@ -1,9 +1,11 @@
 {
 	"Events": [
 		"events_focus",
-		"events_instancedMesh"
+		"events_instancedMesh",
+		"events_general"
 	],
 	"Objects": [
-		"objects_instancedMeshSingle"
+		"objects_instancedMeshSingle",
+		"objects_linkedLine"
 	]
 }
