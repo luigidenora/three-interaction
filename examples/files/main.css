@@ -43,7 +43,7 @@ button {
 	user-select: none;
 	pointer-events: none;
 	z-index: 1;
-	/* TODO Solve this in HTML */
+	line-height: 30px;
 }
 
 a,
@@ -55,7 +55,6 @@ select {
 
 .lil-gui {
 	z-index: 2 !important;
-	/* TODO Solve this in HTML */
 }
 
 @media all and (max-width: 640px) {
@@ -70,19 +69,17 @@ select {
 }
 
 .blink {
-	display: inline-block;
-	height: 30px;
-	margin: 5px 10px;
-	padding: 0 10px;
-	line-height: 28px;
-	color: #41b882;
-	font-weight: 400;
-	border: 1px solid #41b882;
-	border-radius: 15px;
-	transition: 0.2s all ease;
+	padding: 5px 10px;
+	color: #fff;
+	border: 1px solid #fff;
+	border-radius: 20px;
+	transition: 0.2s;
 }
 
-.blink.active {
-	background: #41b882;
-	color: #ffffff;
+.blink.active-sphere {
+	background: #6c6ad3;
+}
+
+.blink.active-box {
+	background: #c45e5e;
 }

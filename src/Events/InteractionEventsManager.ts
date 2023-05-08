@@ -80,6 +80,13 @@ export class EventsManager {
         this.intersection[event.pointerId] = intersections[0];
     }
 
+    private triggerPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D): void {
+        if (target) {
+            const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], this._lastIntersection[event.pointerId], relatedTarget);
+            target.triggerEvent(type, pointerEvent);
+        }
+    }
+
     private triggerAncestorPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
         if (target) {
             const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], this._lastIntersection[event.pointerId], relatedTarget, cancelable);
@@ -88,10 +95,10 @@ export class EventsManager {
         }
     }
 
-    private triggerAncestorWheel(event: WheelEvent, target: Object3D): void {
-        if (target) {
-            const wheelEvent = new WheelEventExt(event, this.intersection[this._primaryIdentifier]);
-            target.triggerEventAncestor("wheel", wheelEvent);
+    private triggerAncestorWheel(event: WheelEvent, intersection: IntersectionExt): void {
+        if (intersection) {
+            const wheelEvent = new WheelEventExt(event, intersection);
+            intersection.object.triggerEventAncestor("wheel", wheelEvent);
         }
     }
 
@@ -143,7 +150,7 @@ export class EventsManager {
     }
 
     private wheel(event: WheelEvent): void {
-        this.triggerAncestorWheel(event, this.intersection[this._primaryIdentifier].object);
+        this.triggerAncestorWheel(event, this.intersection[this._primaryIdentifier]);
     }
 
     private pointerOutOver(scene: Scene, camera: Camera, event: PointerEvent): void {
@@ -158,9 +165,9 @@ export class EventsManager {
 
         if (hoveredObj !== lastHoveredObj) {
             this.triggerAncestorPointer("pointerout", event, lastHoveredObj, hoveredObj);
-            this.triggerAncestorPointer("pointerleave", event, lastHoveredObj, hoveredObj);
+            this.triggerPointer("pointerleave", event, lastHoveredObj, hoveredObj);
             this.triggerAncestorPointer("pointerover", event, hoveredObj, lastHoveredObj);
-            this.triggerAncestorPointer("pointerenter", event, hoveredObj, lastHoveredObj);
+            this.triggerPointer("pointerenter", event, hoveredObj, lastHoveredObj);
         }
     }
 

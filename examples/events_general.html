@@ -10,29 +10,26 @@
 </head>
 
 <body>
-    <div id="info"><a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> -
-        events</div>
-    <div>
-        <span class="blink" id="pointerover">pointerover</span>
-        <span class="blink" id="pointerenter">pointerenter</span>
-        <span class="blink" id="pointerout">pointerout</span>
-        <span class="blink" id="pointerleave">pointerleave</span>
-        <span class="blink" id="pointermove">pointermove</span>
-        <span class="blink" id="pointerdown">pointerdown</span>
-        <span class="blink" id="pointerup">pointerup</span>
-        <span class="blink" id="pointercancel">pointercancel</span>
-        <span class="blink" id="click">click</span>
-        <span class="blink" id="dblclick">dblclick</span>
-        <span class="blink" id="wheel">wheel</span>
-        <span class="blink" id="focusin">focusin</span>
-        <span class="blink" id="focusout">focusout</span>
-        <span class="blink" id="focus">focus</span>
-        <span class="blink" id="blur">blur</span>
-        <span class="blink" id="keydown">keydown</span>
-        <span class="blink" id="keyup">keyup</span>
-        <span class="blink" id="drag">drag</span>
-        <span class="blink" id="dragstart">dragstart</span>
-        <span class="blink" id="dragend">dragend</span>
+    <div id="info">
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - events
+        <div>
+            <span class="blink" id="pointerover">pointerover</span>
+            <span class="blink" id="pointerout">pointerout</span>
+            <span class="blink" id="pointermove">pointermove</span>
+            <span class="blink" id="pointerdown">pointerdown</span>
+            <span class="blink" id="pointerup">pointerup</span>
+            <span class="blink" id="pointerintersection">pointerintersection</span>
+            <span class="blink" id="click">click</span>
+            <span class="blink" id="dblclick">dblclick</span>
+            <span class="blink" id="wheel">wheel</span>
+            <span class="blink" id="focus">focus</span>
+            <span class="blink" id="blur">blur</span>
+            <span class="blink" id="keydown">keydown</span>
+            <span class="blink" id="keyup">keyup</span>
+            <span class="blink" id="drag">drag</span>
+            <span class="blink" id="dragstart">dragstart</span>
+            <span class="blink" id="dragend">dragend</span>
+        </div>
     </div>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
@@ -52,38 +49,37 @@
         const scene = new Scene();
         scene.add(
             scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
-            new DirectionalLight(0xffffff, 0.2).translateZ(10),
-            scene.box = new Mesh(new BoxGeometry(5, 5, 5), new MeshLambertMaterial({ color: 0xff0000 })).translateX(-3).translateZ(-10),
-            scene.sphere = new Mesh(new SphereGeometry(1.5), new MeshLambertMaterial({ color: 0x00ff00 })).translateX(3)
+            new DirectionalLight(0xffffff, 0.7).translateZ(10),
+            scene.box = new Mesh(new BoxGeometry(5, 5, 5), new MeshLambertMaterial({ color: 0xff6666 })).translateX(-3).translateZ(-10),
+            scene.sphere = new Mesh(new SphereGeometry(1.5), new MeshLambertMaterial({ color: 0x6666ff })).translateX(3)
         );
 
         scene.sphere.draggable = true;
         scene.sphere.activable = scene.box.activable = true; //todo default true
+
+        scene.box.bindEvent("animate", function(e) { 
+            this.rotation.y += e.delta; 
+            this.rotation.x += e.delta * 1.5; 
+        });
 
         scene.bindEvent(["focus", "blur"], (e) => {
             e.target.material.emissive.set(0xaaaa00);
             e.relatedTarget?.material.emissive.set(0);
         });
 
-        scene.box.name = "Box";
-        scene.sphere.name = "Sphere";
-
-        // not present : pointerintersection;
-
-        const events = ["pointerover", "pointerenter", "pointerout", "pointerleave", "pointermove", "pointerdown", "pointerup", "pointercancel",
-            "click", "dblclick", "wheel", "focusin", "focusout", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend"];
-
-        scene.bindEvent(events, (event) => {
-            blink(document.getElementById(event.type));
-        });
+        scene.bindEvent(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection",
+            "click", "dblclick", "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend"],
+            (event) => blink(document.getElementById(event.type), event.target === scene.box));
 
         window.main = new Main([scene], true, { antialias: true });
 
-        function blink(element) {
+        function blink(element, isBox) {
             clearTimeout(element.timer);
-            element.className = 'blink active';
-            element.timer = setTimeout(() => element.className = 'blink', 500);
+            element.className = isBox ? "blink active-box" : "blink active-sphere";
+            element.timer = setTimeout(() => element.className = "blink", 200);
         }
+
+        // missing : focusin, focusout, pointercancel, pointerenter, pointerleave
 
     </script>
 </body>
