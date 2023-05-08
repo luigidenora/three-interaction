@@ -52,14 +52,14 @@
 
             sphere.bindEvent("pointerintersection", function (e) {
                 if (!this.activated) {
-                    this.setColor(new Color().setHex(0xff0000));
+                    this.setColor(0xff0000);
                     this.activated = true;
                     scene.loadingBar.material.setPercentage(++activatedSpheres / this.parent.count);
                 }
             });
         }
 
-        const main = new Main([scene], undefined, true, { antialias: true });
+        const main = new Main([scene], true, { antialias: true });
 
     </script>
 </body>
