@@ -27,22 +27,15 @@
         import { BoxGeometry, Mesh, MeshBasicMaterial, Scene, SphereGeometry } from "three";
         import { PerspectiveCamera, Main, LinkedLine } from "../src/index";
 
-        const scene = new Scene();
+        const scene = new Scene().add(new PerspectiveCamera(70, 1, 10000).translateZ(10));
         scene.interceptByRaycaster = false;
-        scene.add(
-            scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
-        );
 
-        const radius = 5;
         const points = [];
         for (let i = 0; i < 20; i++) {
             const point = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 0xffffff * Math.random() }));
             points.push(point);
             scene.add(point);
-
-            point.bindEvent("animate", function (e) {
-                this.position.set(-Math.cos(e.total / 10 * (i + 1)) * radius, Math.sin(e.total / 10 * (i + 1)) * radius);
-            });
+            point.bindEvent("animate", (e) => point.position.set(-Math.cos(e.total / 10 * (i + 1)) * 5, Math.sin(e.total / 10 * (i + 1)) * 5));
         }
 
         for (let i = 0; i < points.length - 1; i++) {
