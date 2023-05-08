@@ -16,7 +16,7 @@ export class EventsManager {
     private _lastPointerDownExt: { [x: string]: PointerEventExt } = {};
     private _lastPointerDown: { [x: string]: PointerEvent } = {};
     private _lastPointerMove: { [x: string]: PointerEvent } = {};
-    private _lastClick: { [x: string]: PointerEventExt } = {};
+    private _lastClick: PointerEventExt;
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
     private _queue = new PointerEventsQueue();
     private _cursorManager: CursorHandler;
@@ -112,6 +112,10 @@ export class EventsManager {
         }
     }
 
+    public isMainClick(event: PointerEvent): boolean {
+        return event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse");
+    }
+
     private pointerDown(event: PointerEvent, scene: Scene, camera: Camera): void {
         if (event.pointerType !== "mouse") { //todo controllare che non ci sia in queue anche
             this.raycastScene(scene, camera, event);
@@ -123,7 +127,7 @@ export class EventsManager {
 
         if (target) {
             //todo handle if pointer cancel
-            target.clicked = event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse");
+            target.clicked = this.isMainClick(event);
         }
 
         if (!pointerDownEvent?._defaultPrevented) {
@@ -175,28 +179,31 @@ export class EventsManager {
 
     private pointerUp(event: PointerEvent): void {
         const target = this.intersection[event.pointerId]?.object;
-        const lastPointerDown = this._lastPointerDownExt[event.pointerId]
-        const lastPointerDownTarget = lastPointerDown?._target;
+        const lastPointerDownTarget = this._lastPointerDownExt[event.pointerId]?._target;
+        let lastClick: PointerEventExt;
 
         if (!this._dragManager.stopDragging(event)) {
             this.triggerAncestorPointer("pointerup", event, target, lastPointerDownTarget);
             if (target && target === lastPointerDownTarget) {
-                const prevClick = this._lastClick[event.pointerId];
-                this._lastClick[event.pointerId] = this.triggerAncestorPointer("click", event, target);
-
-                if (target === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
-                    this.triggerAncestorPointer("dblclick", event, target);
-                    this._lastClick[event.pointerId] = undefined;
-                }
-            } else {
-                this._lastClick[event.pointerId] = undefined;
+                lastClick = this.triggerAncestorPointer("click", event, target);
             }
-        } else {
-            this._lastClick[event.pointerId] = undefined;
         }
 
-        if (lastPointerDownTarget && event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse")) {
+        this._lastClick = this.dblClick(event, lastClick, target);
+
+        if (lastPointerDownTarget && this.isMainClick(event)) {
             lastPointerDownTarget.clicked = false;
+        }
+    }
+
+    private dblClick(event: PointerEvent, lastClick: PointerEventExt, target: Object3D): PointerEventExt {
+        if (this.isMainClick(event) && lastClick) {
+            const prevClick = this._lastClick;
+            if (target === prevClick?._target && event.timeStamp - prevClick.timeStamp <= 300) {
+                this.triggerAncestorPointer("dblclick", event, target);
+                return undefined;
+            }
+            return lastClick;
         }
     }
 
