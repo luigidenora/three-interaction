@@ -54,7 +54,7 @@
             scene.sphere = new Mesh(new SphereGeometry(1.5), new MeshLambertMaterial({ color: 0x6666ff })).translateX(3)
         );
 
-        scene.sphere.draggable = true;
+        scene.sphere.draggable = scene.box.draggable = true;
         scene.sphere.activable = scene.box.activable = true; //todo default true
 
         scene.box.bindEvent("animate", function(e) { 

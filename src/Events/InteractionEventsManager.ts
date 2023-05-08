@@ -142,11 +142,13 @@ export class EventsManager {
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
         if (!this.continousPointerRaycasting) return;
-        if ((this._mouseDetected || this._isTapping) && !this._primaryRaycasted) {
-            this.pointerOutOver(scene, camera, this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier]);
+        if (this._mouseDetected || this._isTapping) {
+            if (!this._primaryRaycasted) {
+                this.pointerOutOver(scene, camera, this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier]);
+            }
+            const intersection = this.intersection[this._primaryIdentifier];
+            intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
         }
-        const intersection = this.intersection[this._primaryIdentifier];
-        intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
     }
 
     private wheel(event: WheelEvent): void {
@@ -174,10 +176,11 @@ export class EventsManager {
     private pointerUp(event: PointerEvent): void {
         const target = this.intersection[event.pointerId]?.object;
         const lastPointerDown = this._lastPointerDownExt[event.pointerId]
+        const lastPointerDownTarget = lastPointerDown?._target;
 
         if (!this._dragManager.stopDragging(event)) {
-            this.triggerAncestorPointer("pointerup", event, target, lastPointerDown?._target as Object3D); //todo capire cast
-            if (target === (lastPointerDown?._target ?? null)) {
+            this.triggerAncestorPointer("pointerup", event, target, lastPointerDownTarget);
+            if (target && target === lastPointerDownTarget) {
                 const prevClick = this._lastClick[event.pointerId];
                 this._lastClick[event.pointerId] = this.triggerAncestorPointer("click", event, target);
 
@@ -192,8 +195,8 @@ export class EventsManager {
             this._lastClick[event.pointerId] = undefined;
         }
 
-        if (target && event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse")) {
-            target.clicked = false;
+        if (lastPointerDownTarget && event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse")) {
+            lastPointerDownTarget.clicked = false;
         }
     }
 
