@@ -10,6 +10,7 @@ export * from './Events/RaycasterManager';
 export * from './Objects/InstancedMesh';
 export * from './Objects/InstancedMeshSingle';
 export * from './Objects/Line2';
+export * from './Objects/LinkedLine';
 export * from './Objects/LoadingMaterial';
 export * from './Objects/Main';
 export * from './Objects/PerspectiveCamera';
