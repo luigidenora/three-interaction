@@ -221,7 +221,7 @@ export class EventsManager {
 
     private keyDown(event: KeyboardEvent): void {
         const keyDownEvent = this.triggerAncestorKeyboard("keydown", event, true);
-        if (!keyDownEvent._defaultPrevented) {
+        if (!keyDownEvent?._defaultPrevented) {
             if (event.key === "Escape" || event.key === "Esc") {
                 this._dragManager.cancelDragging();
             }

@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>ag-three events</title>
+    <title>ag-three DOM events</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="files/favicon.ico" />
@@ -11,7 +11,7 @@
 
 <body>
     <div id="info">
-        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - events
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - DOM events
         <div>
             <span class="blink" id="pointerover">pointerover</span>
             <span class="blink" id="pointerout">pointerout</span>
@@ -35,8 +35,8 @@
     <script type="importmap">
         {
             "imports": {
-                "three": "https://unpkg.com/three@0.152.0/build/three.module.min.js",
-                "three/examples/": "https://unpkg.com/three@0.152.0/examples/"
+                "three": "https://unpkg.com/three/build/three.module.min.js",
+                "three/examples/": "https://unpkg.com/three/examples/"
             }
         }
     </script>
@@ -57,9 +57,9 @@
         scene.sphere.draggable = true;
         scene.sphere.activable = scene.box.activable = true; //todo default true
 
-        scene.box.bindEvent("animate", function(e) { 
-            this.rotation.y += e.delta; 
-            this.rotation.x += e.delta * 1.5; 
+        scene.box.bindEvent("animate", function (e) {
+            this.rotation.y += e.delta;
+            this.rotation.x += e.delta * 1.5;
         });
 
         scene.bindEvent(["focus", "blur"], (e) => {

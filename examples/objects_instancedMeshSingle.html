@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>three-ag example</title>
+    <title>three-ag InstancedMeshSingle</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel="shortcut icon" href="files/favicon.ico" />
@@ -10,14 +10,16 @@
 </head>
 
 <body>
-    <div id="info"><a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - instanced mesh single</div>
-    <div id="logs"></div>
+    <div id="info">
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - InstancedMeshSingle<br>
+        InstancedMeshSingle allows to manipulate every InstancedMesh object easier.
+    </div>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
         {
             "imports": {
-                "three": "https://unpkg.com/three@0.152.0/build/three.module.min.js",
-                "three/examples/": "https://unpkg.com/three@0.152.0/examples/"
+                "three": "https://unpkg.com/three/build/three.module.min.js",
+                "three/examples/": "https://unpkg.com/three/examples/"
             }
         }
     </script>
@@ -59,7 +61,7 @@
             });
         }
 
-        const main = new Main([scene], true, { antialias: true });
+        window.main = new Main([scene], true, { antialias: true });
 
     </script>
 </body>
