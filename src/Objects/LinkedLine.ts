@@ -15,7 +15,7 @@ export class LinkedLine extends Line2 {
             this._needsUpdate = true;
         });
 
-        (this as any).bindEvent("animate", () => {  // todo framerendering when smart rendering?
+        this.bindEvent("animate", () => {  // todo framerendering when smart rendering?
             if (this._needsUpdate) {
                 this.setPoints([targetA.position, targetB.position]); // todo could  be opt
                 this._needsUpdate = false;

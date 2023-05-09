@@ -1,5 +1,5 @@
 import { Object3D } from "three";
-import { Line2 as Line2Base } from "three/examples/jsm/lines/Line2";
+import { Line2 as Line2Base } from "../node_modules/@types/three/examples/jsm/lines/Line2";
 import { Cursor } from "../src/Events/CursorManager";
 import { Events } from "../src/Events/Events";
 import { EventsDispatcher } from "../src/index";

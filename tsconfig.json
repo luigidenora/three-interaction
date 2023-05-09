@@ -12,6 +12,9 @@
 		"paths": {
 			"three": [
 				"./types/three.d.ts"
+			],
+			"three/examples/jsm/lines/Line2": [
+				"./types/Line2.d.ts"
 			]
 		}
 	},

@@ -150,8 +150,10 @@ export class EventsManager {
             if (!this._primaryRaycasted) {
                 this.pointerOutOver(scene, camera, this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier]);
             }
-            const intersection = this.intersection[this._primaryIdentifier];
-            intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
+            if (!this._dragManager.isDragging) { //todo decidere se triggerarlo sul droptarget
+                const intersection = this.intersection[this._primaryIdentifier];
+                intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
+            }
         }
     }
 
