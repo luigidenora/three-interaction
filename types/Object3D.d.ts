@@ -8,7 +8,8 @@ export class Object3D extends Object3DBase implements InteractionPrototype {
     override parent: Object3D;
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;
-    __patched: boolean;
+    __vec3Patched: boolean;
+    __rotationPatched: boolean;
     draggable: boolean;
     dragging: boolean;
     clicked: boolean;

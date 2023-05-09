@@ -1,7 +1,6 @@
 import { Object3D } from "three";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
-import { bindAutoUpdateMatrixObject3D } from "./AutoUpdateMatrix";
 import { applyVector3Patch } from "./Vector3";
 import { applyQuaternionPatch } from "./Quaternion";
 import { applyEulerPatch } from "./Euler";
@@ -84,7 +83,7 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
         if (!this._patched) {
             object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
             this.__eventsDispatcher = new EventsDispatcher(this);
-            bindAutoUpdateMatrixObject3D(this);
+            // bindAutoUpdateMatrixObject3D(this);
             this._patched = true;
         }
         Object.defineProperty(this, "userData", { // hack to inject code in constructor
@@ -94,12 +93,19 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
 });
 
 /** @Internal */
-export function applyObject3DPatch(target: Object3D): void {
-    if (!target.__patched) { //todo opt
+export function applyObject3DVector3Patch(target: Object3D): void {
+    if (!target.__vec3Patched) {
         applyVector3Patch(target);
+        applyMatrix4Patch(target);
+        target.__vec3Patched = true;
+    }
+}
+
+/** @Internal */
+export function applyObject3DRotationPatch(target: Object3D): void {
+    if (!target.__rotationPatched) {
         applyQuaternionPatch(target);
         applyEulerPatch(target);
-        applyMatrix4Patch(target);
-        target.__patched = true;
+        target.__rotationPatched = true;
     }
 } 

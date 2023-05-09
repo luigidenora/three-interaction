@@ -6,7 +6,6 @@ export interface UpdateEvents {
   positionchange: never;
   scalechange: never;
   rotationchange: never;
-  quaternionchange: never; //todo remove
   // childadd
   // childremove 
   // parentdadd // This event propagation Up to down.

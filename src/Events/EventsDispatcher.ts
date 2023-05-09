@@ -1,7 +1,7 @@
 import { Object3D } from "three";
 import { InteractionEvents, Events } from "./Events";
 import { EventsCache } from "./MiscEventsManager";
-import { applyObject3DPatch } from "../Patch/Object3D";
+import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/Object3D";
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 
 export class EventsDispatcher {
@@ -15,8 +15,10 @@ export class EventsDispatcher {
             this._listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
                 EventsCache.push(type, this.parent as Object3D);
-                if (type === "positionchange" || type === "scalechange" || type === "rotationchange" || type === "quaternionchange") { //todo move
-                    applyObject3DPatch(this.parent as Object3D);
+                if (type === "positionchange" || type === "scalechange") { //todo move
+                    applyObject3DVector3Patch(this.parent as Object3D);
+                } else if (type === "rotationchange") {
+                    applyObject3DRotationPatch(this.parent as Object3D);
                 }
             }
         }
