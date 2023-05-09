@@ -7,7 +7,8 @@ import { Cursor } from "../src/Events/CursorManager";
 
 export class Scene extends SceneBase  implements InteractionPrototype {
     __eventsDispatcher: EventsDispatcher;
-    __patched: boolean;
+    __vec3Patched: boolean;
+    __rotationPatched: boolean;
     override parent: Object3D;
     override children: Object3D[];
     draggable: boolean;
