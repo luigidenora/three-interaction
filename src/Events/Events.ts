@@ -6,7 +6,7 @@ export interface UpdateEvents {
   positionchange: never;
   scalechange: never;
   rotationchange: never;
-  quaternionchange: never;
+  quaternionchange: never; //todo remove
   // childadd
   // childremove 
   // parentdadd // This event propagation Up to down.
@@ -45,10 +45,12 @@ export interface InteractionEvents {
   drag: DragEventExt;
   dragstart: DragEventExt;
   dragend: DragEventExt;
+
   // dragenter: DragEventExt;
   // dragover: DragEventExt;
   // dragleave: DragEventExt;
   // drop: DragEventExt;
+
   // mouseover: PointerEventExt;
   // mouseenter: PointerEventExt;
   // mouseout: PointerEventExt;
@@ -212,9 +214,9 @@ export class DragEventExt extends MouseEventExt {
   // /** TODO */
   // dataTransfer: Object3D;
   /** TODO */
-  position: Vector3;
+  public readonly position: Vector3;
 
-  constructor(cancelable: boolean, position?: Vector3) {
+  constructor(cancelable: boolean, position?: Vector3) { //TODO capire questi undefined
     super(undefined, undefined, undefined, undefined, cancelable);
     this.position = position;
   }
@@ -237,13 +239,13 @@ export class PointerIntersectionEvent extends EventExt {
 
 export class WheelEventExt extends MouseEventExt {
   /*  Returns an unsigned long representing the unit of the delta* values' scroll amount. Permitted values are: 0 = pixels, 1 = lines, 2 = pages. */
-  public readonly deltaMode: number;
+  public get deltaMode() { return this._event.deltaMode }
   /** Returns a double representing the horizontal scroll amount. */
-  public readonly deltaX: number;
+  public get deltaX() { return this._event.deltaX }
   /** Returns a double representing the vertical scroll amount. */
-  public readonly deltaY: number;
+  public get deltaY() { return this._event.deltaY }
   /** Returns a double representing the scroll amount for the z-axis. */
-  public readonly deltaZ: number;
+  public get deltaZ() { return this._event.deltaZ }
   public override _event: WheelEvent;
 
   constructor(event: WheelEvent, intersection: IntersectionExt) {
@@ -251,25 +253,35 @@ export class WheelEventExt extends MouseEventExt {
   }
 }
 
-export interface KeyboardEventExt extends EventExt {
+export class KeyboardEventExt extends EventExt {
+  /** Original dom event. */
+  public readonly domEvent: KeyboardEvent;
   /** Returns a boolean value that is true if the Alt (Option or ⌥ on macOS) key was active when the key event was generated. */
-  altKey: boolean;
+  public get altKey() { return this.domEvent.altKey }
   /** Returns a string with the code value of the physical key represented by the event. */
-  code: string;
+  public get code() { return this.domEvent.code }
   /** Returns a boolean value that is true if the Ctrl key was active when the key event was generated. */
-  ctrlKey: boolean;
+  public get ctrlKey() { return this.domEvent.ctrlKey }
   /** Returns a string representing the key value of the key represented by the event. */
-  key: string;
+  public get key() { return this.domEvent.key }
   /** Returns a number representing the location of the key on the keyboard or other input device. Visit https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location for more info. */
-  location: number;
+  public get location() { return this.domEvent.location }
   /** Returns a boolean value that is true if the Meta key (on Mac keyboards, the ⌘ Command key; on Windows keyboards, the Windows key (⊞)) was active when the key event was generated. */
-  metaKey: boolean;
+  public get metaKey() { return this.domEvent.metaKey }
   /** Returns a boolean value that is true if the key is being held down such that it is automatically repeating. */
-  repeat: boolean;
+  public get repeat() { return this.domEvent.repeat }
   /** Returns a boolean value that is true if the Shift key was active when the key event was generated. */
-  shiftKey: boolean;
+  public get shiftKey() { return this.domEvent.shiftKey }
+ 
+  constructor(event: KeyboardEvent, cancelable: boolean) {
+    super(cancelable);
+    this.domEvent = event;
+  }
+
   /** Returns a boolean value indicating if a modifier key such as Alt, Shift, Ctrl, or Meta, was pressed when the event was created. */
-  getModifierState(keyArg: string): boolean;
+  public getModifierState(keyArg: string): boolean {
+    return this.domEvent.getModifierState(keyArg);
+  }
 }
 
 export class FocusEventExt extends EventExt {

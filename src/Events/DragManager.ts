@@ -8,11 +8,12 @@ export class DragManager {
     private _intersection = new Vector3();
     private _worldPosition = new Vector3();
     private _inverseMatrix = new Matrix4();
+    private _startPosition = new Vector3();
     private _target: Object3D;
 
     public get isDragging(): boolean { return !!this._target }
 
-    //todo handle esc and drop and raycasting only su droptarget
+    //todo handle drop and raycasting only su droptarget
     public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, target: Object3D): boolean {
         if (event.isPrimary) {
             if (this._target) {
@@ -20,6 +21,7 @@ export class DragManager {
                 return true;
             } else if (target && target.draggable && target.clicked) {
                 this._target = target;
+                this._startPosition.copy(target.position);
                 target.dragging = true;
                 this.startDragging(raycaster, camera);
                 return true;
@@ -49,9 +51,10 @@ export class DragManager {
         }
     }
 
-    public cancelDraggin(): void {
+    public cancelDragging(): void {
         if (this._target) {
             this._target.dragging = false;
+            this._target.position.copy(this._startPosition);
             this.triggerEvent("dragend");
             this._target = undefined;
         }

@@ -1,7 +1,7 @@
 /**
  * Syncronize DOM events with the frame generation, discarding ripetitive pointermove event.
  */
-export class PointerEventsQueue {
+export class InteractionEventsQueue {
    private _items: Event[] = [];
 
    public enqueue(event: Event): void {

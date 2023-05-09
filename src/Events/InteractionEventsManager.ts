@@ -1,8 +1,8 @@
 import { Camera, Object3D, Scene, WebGLRenderer } from "three";
 import { CursorHandler } from "./CursorManager";
 import { DragManager } from "./DragManager";
-import { FocusEventExt, InteractionEvents, IntersectionExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
-import { PointerEventsQueue } from "./InteractionEventsQueue";
+import { FocusEventExt, InteractionEvents, IntersectionExt, KeyboardEventExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
+import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
 
 export class EventsManager {
@@ -18,7 +18,7 @@ export class EventsManager {
     private _lastPointerMove: { [x: string]: PointerEvent } = {};
     private _lastClick: PointerEventExt;
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
-    private _queue = new PointerEventsQueue();
+    private _queue = new InteractionEventsQueue();
     private _cursorManager: CursorHandler;
     private _dragManager = new DragManager();
     private _primaryRaycasted: boolean;
@@ -51,8 +51,8 @@ export class EventsManager {
         domElement.addEventListener("pointermove", this.enqueue.bind(this));
         domElement.addEventListener("pointerup", this.enqueue.bind(this));
         domElement.addEventListener("wheel", this.enqueue.bind(this));
-        domElement.addEventListener("keydown", this.enqueue.bind(this));
-        domElement.addEventListener("keyup", this.enqueue.bind(this));
+        document.addEventListener("keydown", this.enqueue.bind(this));
+        document.addEventListener("keyup", this.enqueue.bind(this));
     }
 
     private enqueue(event: Event): void {
@@ -102,12 +102,22 @@ export class EventsManager {
         }
     }
 
+    private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
+        if (this.activeObj) {
+            const keyboardEvent = new KeyboardEventExt(event, cancelable);
+            this.activeObj.triggerEventAncestor(type, keyboardEvent);
+            return keyboardEvent;
+        }
+    }
+
     private computeQueuedEvent(event: Event, scene: Scene, camera: Camera): void {
         switch (event.type) {
             case "pointermove": return this.pointerMove(event as PointerEvent, scene, camera);
             case "pointerdown": return this.pointerDown(event as PointerEvent, scene, camera);
             case "pointerup": return this.pointerUp(event as PointerEvent);
             case "wheel": return this.wheel(event as WheelEvent);
+            case "keydown": return this.keyDown(event as KeyboardEvent);
+            case "keyup": return this.keyUp(event as KeyboardEvent);
             default: console.error("Error: computeEvent failed.");
         }
     }
@@ -207,6 +217,19 @@ export class EventsManager {
             }
             return lastClick;
         }
+    }
+
+    private keyDown(event: KeyboardEvent): void {
+        const keyDownEvent = this.triggerAncestorKeyboard("keydown", event, true);
+        if (!keyDownEvent._defaultPrevented) {
+            if (event.key === "Escape" || event.key === "Esc") {
+                this._dragManager.cancelDragging();
+            }
+        }
+    }
+
+    private keyUp(event: KeyboardEvent): void {
+        this.triggerAncestorKeyboard("keyup", event, false);
     }
 
     private focus(event: PointerEvent, target: Object3D): void { //TODO creare possibilità di settare focus manulamente
