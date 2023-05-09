@@ -1,7 +1,6 @@
 import { Clock, Scene, WebGLRenderer } from "three";
 import { RendererResizeEvent } from "../Events/Events";
 import { EventsCache } from "../Events/MiscEventsManager";
-import { updateMatrices } from "./AutoUpdateMatrix";
 
 export interface WebGLRendererInteractionPrototype {
     scenes: Scene[];
@@ -19,7 +18,7 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
         if (!this._isGPUPicking) {
             EventsCache.dispatchEvent(scene, "animate", { delta: clock.getDelta(), total: clock.getElapsedTime() }); //TODO correggere
             EventsCache.dispatchEvent(scene, "framerendering");
-            updateMatrices();
+            // updateMatrices();
         } else {
             this._isGPUPicking = false;
         }

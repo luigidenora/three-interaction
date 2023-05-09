@@ -16,7 +16,7 @@ export * from './Objects/Main';
 export * from './Objects/PerspectiveCamera';
 export * from './Objects/WebGLRenderer';
 
-export * from './Patch/AutoUpdateMatrix';
+// export * from './Patch/AutoUpdateMatrix';
 export * from './Patch/Euler';
 export * from './Patch/Matrix4';
 export * from './Patch/Object3D';
