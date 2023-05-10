@@ -12,20 +12,13 @@ export class RaycasterManager {
 
     constructor(public renderer: WebGLRenderer) { }
 
-    //TODO FIX GPU
     public getIntersections(scene: Scene, camera: Camera, event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this.updateCanvasPointerPosition(event);
         this.raycaster.setFromCamera(this.pointerUv, camera);
         if (isDragging) {
             if (findDropTarget) {
-                if (this.raycastGPU) {
-                    this.raycastObjectsGPU(scene, camera as any, intersections);
-                } else {
-                    for (const dropTarget of scene.__dropTargets.data) {
-                        this.raycastObjects(dropTarget, intersections);
-                    }
-                }
+                this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections) : this.raycastObjectsDropTarget(scene, intersections);
             }
         } else {
             this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections) : this.raycastObjects(scene, intersections);
@@ -60,6 +53,34 @@ export class RaycasterManager {
                 intersection.hitbox = intersection.object;
                 intersection.object = object;
                 previousCount++;
+            }
+        }
+
+        return target;
+    }
+
+    private raycastObjectsDropTarget(scene: Scene, target: IntersectionExt[] = []): IntersectionExt[] {
+        for (const object of scene.__dropTargets.data) {
+            if (/* object.interceptByRaycaster &&  */object.visible) {
+
+                // for (const obj of object.children) {
+                //     this.raycastObjectsDropTarget(obj, target);
+                // }
+
+                let previousCount = target.length;
+
+                if (object.objectsToRaycast) {
+                    this.raycaster.intersectObjects(object.objectsToRaycast, false, target);
+                } else {
+                    this.raycaster.intersectObject(object, false, target);
+                }
+
+                while (target.length > previousCount) {
+                    const intersection = target[previousCount];
+                    intersection.hitbox = intersection.object;
+                    intersection.object = object;
+                    previousCount++;
+                }
             }
         }
 
