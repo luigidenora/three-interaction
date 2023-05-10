@@ -7,7 +7,7 @@ import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
 import { Cursor } from "../Events/CursorManager";
 
-export interface InteractionPrototype {
+export interface Object3DExtPrototype {
     /** @internal */ __eventsDispatcher: EventsDispatcher;
     draggable: boolean;
     dragging: boolean;

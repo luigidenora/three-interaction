@@ -20,7 +20,6 @@ export class EventsManager {
     private _lastPointerMove: { [x: string]: PointerEvent } = {};
     private _lastClick: PointerEventExt;
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
-    private _lastIntersectionDropTarget: IntersectionExt;
     private _queue = new InteractionEventsQueue();
     private _cursorManager: CursorHandler;
     private _dragManager = new DragAndDropManager();
@@ -79,7 +78,6 @@ export class EventsManager {
             this._primaryIdentifier = event.pointerId;
         }
         if (this._dragManager.isDragging) {
-            this._lastIntersectionDropTarget = this.intersectionDropTarget;
             const intersections = this.raycasterManager.getIntersections(scene, camera, event, true, this._dragManager.findDropTarget);
             this.intersectionDropTarget = intersections[0];
         } else {
@@ -158,7 +156,7 @@ export class EventsManager {
         this._lastPointerMove[event.pointerId] = event;
         this.raycastScene(scene, camera, event);
         if (this._dragManager.isDragging) {
-            this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera);
+            this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera, this.intersectionDropTarget);
         } else {
             this.pointerOutOver(event);
             const target = this.intersection[event.pointerId]?.object;
@@ -173,7 +171,7 @@ export class EventsManager {
             if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDrop) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(scene, camera, event);
-                this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera);
+                this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera, this.intersectionDropTarget);
             }
         } else if (this.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {
@@ -241,7 +239,7 @@ export class EventsManager {
         const keyDownEvent = this.triggerAncestorKeyboard("keydown", event, true);
         if (!keyDownEvent?._defaultPrevented) {
             if (event.key === "Escape" || event.key === "Esc") {
-                this._dragManager.cancelDragging();
+                this._dragManager.cancelDragging(this._lastPointerMove[this._primaryIdentifier]);
             }
         }
     }

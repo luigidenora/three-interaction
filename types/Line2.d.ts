@@ -3,9 +3,9 @@ import { Line2 as Line2Base } from "../node_modules/@types/three/examples/jsm/li
 import { Cursor } from "../src/Events/CursorManager";
 import { Events } from "../src/Events/Events";
 import { EventsDispatcher } from "../src/index";
-import { InteractionPrototype } from "../src/Patch/Object3D";
+import { Object3DExtPrototype } from "../src/Patch/Object3D";
 
-export class Line2 extends Line2Base  implements InteractionPrototype {
+export class Line2 extends Line2Base  implements Object3DExtPrototype {
     __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];

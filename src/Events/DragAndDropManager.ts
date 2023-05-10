@@ -1,5 +1,5 @@
 import { Plane, Matrix4, Vector3, Raycaster, Camera, Object3D } from "three";
-import { DragEventExt, InteractionEvents } from "./Events";
+import { DragEventExt, InteractionEvents, IntersectionExt } from "./Events";
 
 //todo check multitouch
 export class DragAndDropManager {
@@ -16,9 +16,7 @@ export class DragAndDropManager {
     public get findDropTarget(): boolean { return this._findDropTarget }
     public get target(): Object3D { return this._target }
 
-    //todo handle drop and raycasting only su droptarget
-
-    public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera): void {
+    public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, dropTarget: IntersectionExt): void {
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
         if (raycaster.ray.intersectPlane(this._plane, this._intersection)) {
             this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
@@ -46,11 +44,11 @@ export class DragAndDropManager {
         }
     }
 
-    public cancelDragging(): void {
+    public cancelDragging(event: PointerEvent): void {
         if (this._target) {
             this._target.dragging = false;
             this._target.position.copy(this._startPosition);
-            this.triggerEvent("dragend", undefined); //TODO last event? o aggiungere dragcancel?
+            this.triggerEvent("dragend", event); //todo gestire prevent default?
             this._target = undefined;
         }
     }

@@ -21,6 +21,7 @@ export * from './Patch/Euler';
 export * from './Patch/Matrix4';
 export * from './Patch/Object3D';
 export * from './Patch/Quaternion';
+export * from './Patch/Scene';
 export * from './Patch/Vector3';
 export * from './Patch/WebGLRenderer';
 

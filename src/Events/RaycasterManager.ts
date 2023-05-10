@@ -22,7 +22,7 @@ export class RaycasterManager {
                 if (this.raycastGPU) {
                     this.raycastObjectsGPU(scene, camera as any, intersections);
                 } else {
-                    for (const dropTarget of scene.dropTargets) {
+                    for (const dropTarget of scene.__dropTargets.data) {
                         this.raycastObjects(dropTarget, intersections);
                     }
                 }

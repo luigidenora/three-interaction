@@ -1,10 +1,10 @@
 import { Object3D as Object3DBase } from "three/index";
 import { Events } from "../src/Events/Events";
-import { InteractionPrototype } from "../src/Patch/Object3D";
+import { Object3DExtPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
 import { Cursor } from "../src/Events/CursorManager";
 
-export class Object3D extends Object3DBase implements InteractionPrototype {
+export class Object3D extends Object3DBase implements Object3DExtPrototype {
     override parent: Object3D;
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;

@@ -3,9 +3,9 @@ import { Mesh as MeshBase } from "three/index";
 import { Cursor } from "../src/Events/CursorManager";
 import { Events } from "../src/Events/Events";
 import { EventsDispatcher } from "../src/index";
-import { InteractionPrototype } from "../src/Patch/Object3D";
+import { Object3DExtPrototype } from "../src/Patch/Object3D";
 
-export class Mesh extends MeshBase  implements InteractionPrototype {
+export class Mesh extends MeshBase  implements Object3DExtPrototype {
     __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];

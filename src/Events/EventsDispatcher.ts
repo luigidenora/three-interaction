@@ -3,6 +3,7 @@ import { InteractionEvents, Events } from "./Events";
 import { EventsCache } from "./MiscEventsManager";
 import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/Object3D";
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
+import { addDropTargetToScene } from "../Patch/Scene";
 
 export class EventsDispatcher {
     private _listeners: { [x: string]: ((args?: any) => void)[] } = {};
@@ -19,6 +20,8 @@ export class EventsDispatcher {
                     applyObject3DVector3Patch(this.parent as Object3D);
                 } else if (type === "rotationchange") {
                     applyObject3DRotationPatch(this.parent as Object3D);
+                } else if (type === "drop" || type === "dragenter" || type === "dragleave" || type === "dragover") {
+                    addDropTargetToScene(this.parent as Object3D);
                 }
             }
         }

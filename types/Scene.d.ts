@@ -1,15 +1,15 @@
 import { Object3D } from "three";
 import { Scene as SceneBase } from "three/index";
 import { Events } from "../src/Events/Events";
-import { InteractionPrototype } from "../src/Patch/Object3D";
-import { EventsDispatcher } from "../src/index";
+import { Object3DExtPrototype } from "../src/Patch/Object3D";
+import { DistinctTargetArray, EventsDispatcher, SceneExtPrototype } from "../src/index";
 import { Cursor } from "../src/Events/CursorManager";
 
-export class Scene extends SceneBase  implements InteractionPrototype {
+export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;
-    dropTargets: Object3D[];
+    __dropTargets: DistinctTargetArray;
     override parent: Object3D;
     override children: Object3D[];
     draggable: boolean;

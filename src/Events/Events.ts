@@ -45,10 +45,10 @@ export interface InteractionEvents {
   dragstart: DragEventExt;
   dragend: DragEventExt;
 
-  // dragenter: DragEventExt;
-  // dragover: DragEventExt;
-  // dragleave: DragEventExt;
-  // drop: DragEventExt;
+  dragenter: DragEventExt;
+  dragover: DragEventExt;
+  dragleave: DragEventExt;
+  drop: DragEventExt;
 
   // mouseover: PointerEventExt;
   // mouseenter: PointerEventExt;
