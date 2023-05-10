@@ -9,6 +9,7 @@ export class Scene extends SceneBase  implements InteractionPrototype {
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;
+    dropTargets: Object3D[];
     override parent: Object3D;
     override children: Object3D[];
     draggable: boolean;

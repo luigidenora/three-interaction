@@ -14,6 +14,7 @@ export class DragAndDropManager {
 
     public get isDragging(): boolean { return !!this._target }
     public get findDropTarget(): boolean { return this._findDropTarget }
+    public get target(): Object3D { return this._target }
 
     //todo handle drop and raycasting only su droptarget
 

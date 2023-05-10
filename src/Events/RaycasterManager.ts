@@ -12,21 +12,26 @@ export class RaycasterManager {
 
     constructor(public renderer: WebGLRenderer) { }
 
+    //TODO FIX GPU
     public getIntersections(scene: Scene, camera: Camera, event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
+        const intersections: IntersectionExt[] = [];
         this.updateCanvasPointerPosition(event);
         this.raycaster.setFromCamera(this.pointerUv, camera);
         if (isDragging) {
             if (findDropTarget) {
-                //TODO FIX GPU
-                const intersections = this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any) : this.raycastObjects(scene.dropTargets, []);
-                intersections.sort(this.intersectionSortComparer);
-                return intersections;
+                if (this.raycastGPU) {
+                    this.raycastObjectsGPU(scene, camera as any, intersections);
+                } else {
+                    for (const dropTarget of scene.dropTargets) {
+                        this.raycastObjects(dropTarget, intersections);
+                    }
+                }
             }
         } else {
-            const intersections = this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any) : this.raycastObjects(scene, []);
-            intersections.sort(this.intersectionSortComparer);
-            return intersections;
+            this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections) : this.raycastObjects(scene, intersections);
         }
+        intersections.sort(this.intersectionSortComparer);
+        return intersections;
     }
 
     private updateCanvasPointerPosition(event: PointerEvent): void {
@@ -35,7 +40,7 @@ export class RaycasterManager {
         this.pointer.set(event.offsetX, event.offsetY);
     }
 
-    private raycastObjects(object: Object3D, target: IntersectionExt[]): IntersectionExt[] {
+    private raycastObjects(object: Object3D, target: IntersectionExt[] = []): IntersectionExt[] {
         if (object.interceptByRaycaster && object.visible) {
 
             for (const obj of object.children) {
@@ -61,7 +66,7 @@ export class RaycasterManager {
         return target;
     }
 
-    private raycastObjectsGPU(scene: Scene, camera: PerspectiveCamera | OrthographicCamera): IntersectionExt[] {
+    private raycastObjectsGPU(scene: Scene, camera: PerspectiveCamera | OrthographicCamera, target: IntersectionExt[] = []): IntersectionExt[] {
         const width = this.renderer.domElement.width;
         const height = this.renderer.domElement.height;
         camera.setViewOffset(width, height, this.pointer.x * devicePixelRatio, this.pointer.y * devicePixelRatio, 1, 1);
@@ -73,7 +78,6 @@ export class RaycasterManager {
         const id = (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | (pixelBuffer[2]);
         this.renderer.setRenderTarget(null);
         const object = object3DList[id];
-        const target: IntersectionExt[] = [];
 
         if (object) {
             if (object.objectsToRaycast) {

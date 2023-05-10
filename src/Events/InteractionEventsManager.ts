@@ -70,7 +70,7 @@ export class EventsManager {
             this.computeQueuedEvent(event, scene, camera);
         }
         this.pointerIntersection(scene, camera);
-        this._cursorManager.update(undefined, this.intersection[this._primaryIdentifier]?.object);
+        this._cursorManager.update(this._dragManager.target, this.intersection[this._primaryIdentifier]?.object); //todo creare hoveredobj?
     }
 
     private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {
@@ -81,7 +81,7 @@ export class EventsManager {
         if (this._dragManager.isDragging) {
             this._lastIntersectionDropTarget = this.intersectionDropTarget;
             const intersections = this.raycasterManager.getIntersections(scene, camera, event, true, this._dragManager.findDropTarget);
-            intersections && (this.intersectionDropTarget = intersections[0]);
+            this.intersectionDropTarget = intersections[0];
         } else {
             this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
             const intersections = this.raycasterManager.getIntersections(scene, camera, event, false, false);
