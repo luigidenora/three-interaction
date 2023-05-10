@@ -1,6 +1,6 @@
 import { Camera, Object3D, Scene, WebGLRenderer } from "three";
 import { CursorHandler } from "./CursorManager";
-import { DragManager } from "./DragManager";
+import { DragAndDropManager } from "./DragAndDropManager";
 import { FocusEventExt, InteractionEvents, IntersectionExt, KeyboardEventExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
@@ -20,7 +20,7 @@ export class EventsManager {
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
     private _queue = new InteractionEventsQueue();
     private _cursorManager: CursorHandler;
-    private _dragManager = new DragManager();
+    private _dragManager = new DragAndDropManager();
     private _primaryRaycasted: boolean;
     private _mouseDetected = false;
     private _isTapping = false;
@@ -155,15 +155,13 @@ export class EventsManager {
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
-        if (!this.continousPointerRaycasting) return;
+        if (!this.continousPointerRaycasting || this._dragManager.isDragging) return;
         if (this._mouseDetected || this._isTapping) {
             if (!this._primaryRaycasted) {
                 this.pointerOutOver(scene, camera, this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier]);
             }
-            if (!this._dragManager.isDragging) { //todo decidere se triggerarlo sul droptarget
-                const intersection = this.intersection[this._primaryIdentifier];
-                intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
-            }
+            const intersection = this.intersection[this._primaryIdentifier];
+            intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
         }
     }
 

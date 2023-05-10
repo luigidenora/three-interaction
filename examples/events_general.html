@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>ag-three DOM events</title>
+    <title>ag-three events</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="files/favicon.ico" />
@@ -11,7 +11,7 @@
 
 <body>
     <div id="info">
-        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - DOM events
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - events
         <div>
             <span class="blink" id="pointerover">pointerover</span>
             <span class="blink" id="pointerout">pointerout</span>
@@ -29,6 +29,9 @@
             <span class="blink" id="drag">drag</span>
             <span class="blink" id="dragstart">dragstart</span>
             <span class="blink" id="dragend">dragend</span>
+            <span class="blink" id="positionchange">positionchange</span>
+            <span class="blink" id="scalechange">scalechange</span>
+            <span class="blink" id="rotationchange">rotationchange</span>
         </div>
     </div>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -55,21 +58,31 @@
         );
 
         scene.sphere.draggable = true;
-        scene.sphere.activable = scene.box.activable = true; //todo default true
+
+        scene.bindEvent(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection", "click", "dblclick",
+            "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend"],
+            (event) => blink(document.getElementById(event.type), event.target === scene.box));
+
+        scene.box.bindEvent("rotationchange", () => blink(document.getElementById("rotationchange"), true));
+
+        scene.sphere.bindEvent("positionchange", () => blink(document.getElementById("positionchange"), false));
+        scene.sphere.bindEvent("scalechange", () => blink(document.getElementById("scalechange"), false));
 
         scene.box.bindEvent("animate", function (e) {
-            this.rotation.y += e.delta;
-            this.rotation.x += e.delta * 1.5;
+            if (this.hovered) {
+                this.rotation.y += e.delta;
+                this.rotation.x += e.delta * 1.5;
+            }
         });
 
-        scene.bindEvent(["focus", "blur"], (e) => {
+        scene.bindEvent("focus", (e) => {
             e.target.material.emissive.set(0xaaaa00);
             e.relatedTarget?.material.emissive.set(0);
         });
 
-        scene.bindEvent(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection",
-            "click", "dblclick", "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend"],
-            (event) => blink(document.getElementById(event.type), event.target === scene.box));
+        scene.sphere.bindEvent(["pointerover", "pointerout"], function (e) {
+            this.scale.multiplyScalar(e.type === "pointerover" ? 1.2 : 1 / 1.2)
+        });
 
         window.main = new Main([scene], true, { antialias: true });
 

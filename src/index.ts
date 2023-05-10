@@ -1,5 +1,5 @@
 export * from './Events/CursorManager';
-export * from './Events/DragManager';
+export * from './Events/DragAndDropManager';
 export * from './Events/Events';
 export * from './Events/EventsDispatcher';
 export * from './Events/InteractionEventsManager';

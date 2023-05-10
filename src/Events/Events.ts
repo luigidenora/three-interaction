@@ -19,7 +19,7 @@ export interface UpdateEvents {
 export interface MiscEvents {
   rendererresize: RendererResizeEvent;
   animate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
-  framerendering: never;
+  framerendering: never; //todo
 }
 
 export interface InteractionEvents {
@@ -209,14 +209,14 @@ export class PointerEventExt extends MouseEventExt {
   }
 }
 
-export class DragEventExt extends MouseEventExt {
-  // /** TODO */
-  // dataTransfer: Object3D;
+export class DragEventExt extends PointerEventExt {
+  /** TODO */
+  public readonly dataTransfer: { [x: string]: any };
   /** TODO */
   public readonly position: Vector3;
 
-  constructor(cancelable: boolean, position?: Vector3) { //TODO capire questi undefined
-    super(undefined, undefined, undefined, undefined, cancelable);
+  constructor(event: PointerEvent, cancelable: boolean, position?: Vector3) { //TODO capire questi undefined
+    super(event, undefined, undefined, undefined, cancelable);
     this.position = position;
   }
 }
@@ -271,7 +271,7 @@ export class KeyboardEventExt extends EventExt {
   public get repeat() { return this.domEvent.repeat }
   /** Returns a boolean value that is true if the Shift key was active when the key event was generated. */
   public get shiftKey() { return this.domEvent.shiftKey }
- 
+
   constructor(event: KeyboardEvent, cancelable: boolean) {
     super(cancelable);
     this.domEvent = event;

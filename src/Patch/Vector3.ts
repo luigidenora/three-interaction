@@ -15,8 +15,8 @@ export function applyVector3Patch(parent: Object3D): void {
 
 function patchVector(vec3: any): void {
     vec3._x = vec3.x;
-    vec3._y = vec3.x;
-    vec3._z = vec3.x;
+    vec3._y = vec3.y;
+    vec3._z = vec3.z;
     vec3.isVector3 = true;
     Object.setPrototypeOf(vec3, Vector3Ext.prototype);
 

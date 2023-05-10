@@ -12,7 +12,7 @@ export interface InteractionPrototype {
     draggable: boolean;
     dragging: boolean;
     clicked: boolean;
-    activable: boolean; // default false
+    activable: boolean; // default true
     get activableObj(): Object3D; //TODO cache
     active: boolean;
     activeUntilParent: boolean; //TODO Handle
@@ -33,7 +33,7 @@ export interface InteractionPrototype {
 
 export const object3DList: { [x: number]: Object3D } = {};
 
-Object3D.prototype.activable = false;
+Object3D.prototype.activable = true;
 Object3D.prototype.active = false;
 Object3D.prototype.clicked = false;
 Object3D.prototype.dragging = false;
@@ -42,7 +42,7 @@ Object3D.prototype.hovered = false;
 Object3D.prototype.enabled = true;
 Object3D.prototype.interceptByRaycaster = true;
 
-Object.defineProperty(Object3D.prototype, "activableObj", {
+Object.defineProperty(Object3D.prototype, "activableObj", { //todo cache?
     get: function (this: Object3D) {
         let obj = this;
         while (obj && !obj.activable) {
