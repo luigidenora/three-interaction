@@ -16,23 +16,8 @@ export class DragAndDropManager {
     public get findDropTarget(): boolean { return this._findDropTarget }
 
     //todo handle drop and raycasting only su droptarget
-    public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, target: Object3D): boolean {
-        if (event.isPrimary) {
-            if (this._target) {
-                this.doDragging(event, raycaster, camera);
-                return true;
-            } else if (target && target.draggable && target.clicked) {
-                this._target = target;
-                this._startPosition.copy(target.position);
-                target.dragging = true;
-                this.startDragging(event, raycaster, camera);
-                return true;
-            }
-        }
-        return false;
-    }
 
-    private doDragging(event: PointerEvent, raycaster: Raycaster, camera: Camera): void {
+    public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera): void {
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
         if (raycaster.ray.intersectPlane(this._plane, this._intersection)) {
             this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
@@ -44,13 +29,19 @@ export class DragAndDropManager {
         }
     }
 
-    private startDragging(event: PointerEvent, raycaster: Raycaster, camera: Camera): void {
-        this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
-        if (raycaster.ray.intersectPlane(this._plane, this._intersection)) {
-            this._inverseMatrix.copy(this._target.parent.matrixWorld).invert();
-            this._offset.copy(this._intersection).sub(this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
-            const dragEvent = this.triggerEvent("dragstart", event, true);
-            this._findDropTarget = dragEvent._defaultPrevented;
+    public startDragging(event: PointerEvent, raycaster: Raycaster, camera: Camera, target: Object3D): boolean {
+        if (target && target.draggable && target.clicked) {
+            this._target = target;
+            this._startPosition.copy(target.position);
+            target.dragging = true;
+            this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
+            if (raycaster.ray.intersectPlane(this._plane, this._intersection)) {
+                this._inverseMatrix.copy(this._target.parent.matrixWorld).invert();
+                this._offset.copy(this._intersection).sub(this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
+                const dragEvent = this.triggerEvent("dragstart", event, true);
+                this._findDropTarget = dragEvent._defaultPrevented;
+            }
+            return true;
         }
     }
 

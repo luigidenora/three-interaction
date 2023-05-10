@@ -7,9 +7,11 @@ import { RaycasterManager } from "./RaycasterManager";
 
 export class EventsManager {
     public enabled = true;
-    public continousPointerRaycasting = true; //for intersection event
+    public continousRaycasting = true; //for intersection event
+    public continousRaycastingDrop = true; //for trigger drag without moving
     public disactiveWhenClickOut = false;
     public intersection: { [x: string]: IntersectionExt } = {};
+    public intersectionDropTarget: IntersectionExt;
     public activeObj: Object3D;
     public raycasterManager: RaycasterManager;
     private _primaryIdentifier: number;
@@ -18,6 +20,7 @@ export class EventsManager {
     private _lastPointerMove: { [x: string]: PointerEvent } = {};
     private _lastClick: PointerEventExt;
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
+    private _lastIntersectionDropTarget: IntersectionExt;
     private _queue = new InteractionEventsQueue();
     private _cursorManager: CursorHandler;
     private _dragManager = new DragAndDropManager();
@@ -75,9 +78,15 @@ export class EventsManager {
             this._primaryRaycasted = true;
             this._primaryIdentifier = event.pointerId;
         }
-        this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
-        const intersections = this.raycasterManager.getIntersections(scene, camera, event);
-        this.intersection[event.pointerId] = intersections[0];
+        if (this._dragManager.isDragging) {
+            this._lastIntersectionDropTarget = this.intersectionDropTarget;
+            const intersections = this.raycasterManager.getIntersections(scene, camera, event, true, this._dragManager.findDropTarget);
+            intersections && (this.intersectionDropTarget = intersections[0]);
+        } else {
+            this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
+            const intersections = this.raycasterManager.getIntersections(scene, camera, event, false, false);
+            this.intersection[event.pointerId] = intersections[0];
+        }
     }
 
     private triggerPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D): void {
@@ -147,18 +156,30 @@ export class EventsManager {
 
     private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
         this._lastPointerMove[event.pointerId] = event;
-        this.pointerOutOver(scene, camera, event);
-        const target = this.intersection[event.pointerId]?.object;
-        if (!this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera, target)) {
-            this.triggerAncestorPointer("pointermove", event, target);
+        this.raycastScene(scene, camera, event);
+        if (this._dragManager.isDragging) {
+            this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera);
+        } else {
+            this.pointerOutOver(event);
+            const target = this.intersection[event.pointerId]?.object;
+            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, camera, target)) {
+                this.triggerAncestorPointer("pointermove", event, target);
+            }
         }
     }
 
     private pointerIntersection(scene: Scene, camera: Camera): void {
-        if (!this.continousPointerRaycasting || this._dragManager.isDragging) return;
-        if (this._mouseDetected || this._isTapping) {
+        if (this._dragManager.isDragging) {
+            if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDrop) {
+                const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
+                this.raycastScene(scene, camera, event);
+                this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera);
+            }
+        } else if (this.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {
-                this.pointerOutOver(scene, camera, this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier]);
+                const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
+                this.raycastScene(scene, camera, event);
+                this.pointerOutOver(event);
             }
             const intersection = this.intersection[this._primaryIdentifier];
             intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
@@ -169,8 +190,7 @@ export class EventsManager {
         this.triggerAncestorWheel(event, this.intersection[this._primaryIdentifier]);
     }
 
-    private pointerOutOver(scene: Scene, camera: Camera, event: PointerEvent): void {
-        this.raycastScene(scene, camera, event);
+    private pointerOutOver(event: PointerEvent): void {
         const hoveredObj = this.intersection[event.pointerId]?.object;
         const lastHoveredObj = this._lastIntersection[event.pointerId]?.object;
 

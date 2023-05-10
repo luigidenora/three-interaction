@@ -12,12 +12,21 @@ export class RaycasterManager {
 
     constructor(public renderer: WebGLRenderer) { }
 
-    public getIntersections(scene: Scene, camera: Camera, event: PointerEvent): IntersectionExt[] {
+    public getIntersections(scene: Scene, camera: Camera, event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
         this.updateCanvasPointerPosition(event);
         this.raycaster.setFromCamera(this.pointerUv, camera);
-        const intersections = this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any) : this.raycastObjects(scene, []);
-        intersections.sort(this.intersectionSortComparer);
-        return intersections;
+        if (isDragging) {
+            if (findDropTarget) {
+                //TODO FIX GPU
+                const intersections = this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any) : this.raycastObjects(scene.dropTargets, []);
+                intersections.sort(this.intersectionSortComparer);
+                return intersections;
+            }
+        } else {
+            const intersections = this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any) : this.raycastObjects(scene, []);
+            intersections.sort(this.intersectionSortComparer);
+            return intersections;
+        }
     }
 
     private updateCanvasPointerPosition(event: PointerEvent): void {
