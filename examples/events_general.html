@@ -29,6 +29,11 @@
             <span class="blink" id="drag">drag</span>
             <span class="blink" id="dragstart">dragstart</span>
             <span class="blink" id="dragend">dragend</span>
+            <span class="blink" id="drop">drop</span>
+            <span class="blink" id="dragenter">dragenter</span>
+            <span class="blink" id="dragleave">dragleave</span>
+            <span class="blink" id="dragover">dragover</span>
+            <span class="blink" id="dragcancel">dragcancel</span>
             <span class="blink" id="positionchange">positionchange</span>
             <span class="blink" id="scalechange">scalechange</span>
             <span class="blink" id="rotationchange">rotationchange</span>
@@ -47,28 +52,31 @@
     <script type="module">
 
         import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, SphereGeometry, PlaneGeometry } from "three";
-        import { PerspectiveCamera, Main } from "../src/index";
+        import { OrthographicCamera, Main } from "../src/index";
 
         const scene = new Scene();
         scene.add(
-            scene.camera = new PerspectiveCamera(70, 1, 10000).translateZ(10),
+            scene.camera = new OrthographicCamera(20).translateZ(10),
             new DirectionalLight(0xffffff, 0.7).translateZ(10),
             scene.box = new Mesh(new BoxGeometry(5, 5, 5), new MeshLambertMaterial({ color: 0xff6666 })).translateZ(-10),
-            scene.sphere = new Mesh(new SphereGeometry(1.5), new MeshLambertMaterial({ color: 0x6666ff })).translateX(5),
-            scene.plane = new Mesh(new PlaneGeometry(5, 10), new MeshLambertMaterial({ color: 0x66ff66 })).translateX(-6)
+            scene.sphere = new Mesh(new SphereGeometry(2), new MeshLambertMaterial({ color: 0x6666ff })).translateX(10),
+            scene.plane = new Mesh(new PlaneGeometry(10, 15), new MeshLambertMaterial({ color: 0x66ff66 })).translateX(-10)
         );
 
-        scene.plane.interceptByRaycaster = false; //i ntercept only as drop target
+        scene.plane.interceptByRaycaster = false; // intercept only as drop target
         scene.sphere.draggable = true;
 
+        scene.box.userData.className = "blink active-box";
+        scene.sphere.userData.className = "blink active-sphere";
+        scene.plane.userData.className = "blink active-plane";
+
         scene.bindEvent(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection", "click", "dblclick",
-            "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend"],
-            (event) => blink(document.getElementById(event.type), event.target === scene.box));
+            "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend", "drop", "dragenter", "dragleave", "dragover", "dragcancel"],
+            (event) => blink(document.getElementById(event.type), event.target.userData.className));
 
-        scene.box.bindEvent("rotationchange", () => blink(document.getElementById("rotationchange"), true));
-
-        scene.sphere.bindEvent("positionchange", () => blink(document.getElementById("positionchange"), false));
-        scene.sphere.bindEvent("scalechange", () => blink(document.getElementById("scalechange"), false));
+        scene.box.bindEvent("rotationchange", () => blink(document.getElementById("rotationchange"), scene.box.userData.className));
+        scene.sphere.bindEvent("positionchange", () => blink(document.getElementById("positionchange"), scene.sphere.userData.className));
+        scene.sphere.bindEvent("scalechange", () => blink(document.getElementById("scalechange"), scene.sphere.userData.className));
 
         scene.box.bindEvent("animate", function (e) {
             if (this.hovered) {
@@ -86,8 +94,8 @@
             e.preventDefault(); // now will search for dropTarget
         });
 
-        scene.plane.bindEvent("dragover", function (e) {
-            e.relatedTarget.position.copy(this.position);
+        scene.plane.bindEvent(["dragenter", "dragleave", "drop", "dragcancel"], function (e) {
+            this.material.emissive.set(e.type === "dragenter" ? 0xaaaa00 : 0);
         });
 
         scene.sphere.bindEvent(["pointerover", "pointerout"], function (e) {
@@ -96,9 +104,9 @@
 
         window.main = new Main([scene], true, { antialias: true });
 
-        function blink(element, isBox) {
+        function blink(element, className) {
             clearTimeout(element.timer);
-            element.className = isBox ? "blink active-box" : "blink active-sphere";
+            element.className = className;
             element.timer = setTimeout(() => element.className = "blink", 200);
         }
 

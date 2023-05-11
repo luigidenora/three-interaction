@@ -44,6 +44,7 @@ export interface InteractionEvents {
   drag: DragEventExt;
   dragstart: DragEventExt;
   dragend: DragEventExt;
+  dragcancel: DragEventExt;
 
   dragenter: DragEventExt;
   dragover: DragEventExt;
@@ -112,88 +113,83 @@ export class EventExt {
 }
 
 export class MouseEventExt extends EventExt {
+  /** Original dom event. */
+  public domEvent: MouseEvent;
   /** Returns true if the alt key was down when the mouse event was fired. */
-  public get altKey() { return this._event.altKey }
+  public get altKey() { return this.domEvent.altKey }
   /** The button number that was pressed (if applicable) when the mouse event was fired. */
-  public get button() { return this._event.button }
+  public get button() { return this.domEvent.button }
   /** The buttons being pressed (if any) when the mouse event was fired. */
-  public get buttons() { return this._event.buttons }
+  public get buttons() { return this.domEvent.buttons }
   /** The X coordinate of the mouse pointer in local (DOM content) coordinates. */
-  public get clientX() { return this._event.clientX }
+  public get clientX() { return this.domEvent.clientX }
   /** The Y coordinate of the mouse pointer in local (DOM content) coordinates. */
-  public get clientY() { return this._event.clientY }
+  public get clientY() { return this.domEvent.clientY }
   /** Returns true if the control key was down when the mouse event was fired. */
-  public get ctrlKey() { return this._event.ctrlKey }
+  public get ctrlKey() { return this.domEvent.ctrlKey }
   /** Returns true if the meta key was down when the mouse event was fired. */
-  public get metaKey() { return this._event.metaKey }
+  public get metaKey() { return this.domEvent.metaKey }
   /** The X coordinate of the pointer relative to the position of the last event. */
-  public get movementX() { return this._event.movementX }
+  public get movementX() { return this.domEvent.movementX }
   /** The Y coordinate of the pointer relative to the position of the last event. */
-  public get movementY() { return this._event.movementY }
+  public get movementY() { return this.domEvent.movementY }
   /** The X coordinate of the mouse pointer relative to the position of the padding edge of the target node. */
-  public get offsetX() { return this._event.offsetX }
+  public get offsetX() { return this.domEvent.offsetX }
   /** The Y coordinate of the mouse pointer relative to the position of the padding edge of the target node. */
-  public get offsetY() { return this._event.offsetY }
+  public get offsetY() { return this.domEvent.offsetY }
   /** The X coordinate of the mouse pointer relative to the whole document. */
-  public get pageX() { return this._event.pageX }
+  public get pageX() { return this.domEvent.pageX }
   /** The Y coordinate of the mouse pointer relative to the whole document. */
-  public get pageY() { return this._event.pageY }
+  public get pageY() { return this.domEvent.pageY }
   /** The secondary target for the event, if there is one. */
   public readonly relatedTarget: Object3D;
   /** The X coordinate of the mouse pointer in global (screen) coordinates. */
-  public get screenX() { return this._event.screenX }
+  public get screenX() { return this.domEvent.screenX }
   /** The Y coordinate of the mouse pointer in global (screen) coordinates. */
-  public get screenY() { return this._event.screenY }
+  public get screenY() { return this.domEvent.screenY }
   /** Returns true if the shift key was down when the mouse event was fired. */
-  public get shiftKey() { return this._event.shiftKey }
-  /** Original dom event */
-  public _event: MouseEvent;
+  public get shiftKey() { return this.domEvent.shiftKey }
   /** TODO. */
   public readonly intersection: IntersectionExt;
-  /** TODO. */
-  public readonly movement: Vector3;
 
-  constructor(event: MouseEvent, intersection: IntersectionExt, lastIntersection?: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
+  constructor(event: MouseEvent, intersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
     super(cancelable);
-    this._event = event;
+    this.domEvent = event;
     this.intersection = intersection;
     this.relatedTarget = relatedTarget;
-    if (intersection && intersection?.object === lastIntersection?.object) {
-      this.movement = intersection.point.clone().sub(lastIntersection.point); // todo getter and cache
-    }
   }
 
   /** Returns the current state of the specified modifier key. See KeyboardEvent.getModifierState() for details. */
   public getModifierState(keyArg: string): boolean {
-    return this._event.getModifierState(keyArg);
+    return this.domEvent.getModifierState(keyArg);
   }
 }
 
 export class PointerEventExt extends MouseEventExt {
+  public override domEvent: PointerEvent;
   /** A unique identifier for the pointer causing the event. */
-  public get pointerId() { return this._event.pointerId }
+  public get pointerId() { return this.domEvent.pointerId }
   /** The width (magnitude on the X axis), in CSS pixels, of the contact geometry of the pointer. */
-  public get width() { return this._event.width }
+  public get width() { return this.domEvent.width }
   /** The height (magnitude on the Y axis), in CSS pixels, of the contact geometry of the pointer. */
-  public get height() { return this._event.height }
+  public get height() { return this.domEvent.height }
   /** The normalized pressure of the pointer input in the range 0 to 1, where 0 and 1 represent the minimum and maximum pressure the hardware is capable of detecting, respectively. */
-  public get pressure() { return this._event.pressure }
+  public get pressure() { return this.domEvent.pressure }
   /** The normalized tangential pressure of the pointer input (also known as barrel pressure or cylinder stress) in the range -1 to 1, where 0 is the neutral position of the control. */
-  public get tangentialPressure() { return this._event.tangentialPressure }
+  public get tangentialPressure() { return this.domEvent.tangentialPressure }
   /** The plane angle (in degrees, in the range of -90 to 90) between the Y–Z plane and the plane containing both the pointer (e.g. pen stylus) axis and the Y axis. */
-  public get tiltX() { return this._event.tiltX }
+  public get tiltX() { return this.domEvent.tiltX }
   /** The plane angle (in degrees, in the range of -90 to 90) between the X–Z plane and the plane containing both the pointer (e.g. pen stylus) axis and the X axis. */
-  public get tiltY() { return this._event.tiltY }
+  public get tiltY() { return this.domEvent.tiltY }
   /** The clockwise rotation of the pointer (e.g. pen stylus) around its major axis in degrees, with a value in the range 0 to 359. */
-  public get twist() { return this._event.twist }
+  public get twist() { return this.domEvent.twist }
   /** Indicates the device type that caused the event (mouse, pen, touch, etc.). */
-  public get pointerType() { return this._event.pointerType }
+  public get pointerType() { return this.domEvent.pointerType }
   /** Indicates if the pointer represents the primary pointer of this pointer type. */
-  public get isPrimary() { return this._event.isPrimary }
-  public override _event: PointerEvent;
+  public get isPrimary() { return this.domEvent.isPrimary }
 
-  constructor(event: PointerEvent, intersection: IntersectionExt, lastIntersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
-    super(event, intersection, lastIntersection, relatedTarget, cancelable);
+  constructor(event: PointerEvent, intersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
+    super(event, intersection, relatedTarget, cancelable);
   }
 
   /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */
@@ -215,39 +211,33 @@ export class DragEventExt extends PointerEventExt {
   /** TODO */
   public readonly position: Vector3;
 
-  constructor(event: PointerEvent, cancelable: boolean, dataTransfer: { [x: string]: any }, position?: Vector3, relatedTarget?: Object3D) { //TODO capire questi undefined
-    super(event, undefined, undefined, relatedTarget, cancelable);
+  constructor(event: PointerEvent, cancelable: boolean, dataTransfer: { [x: string]: any }, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt) {
+    super(event, intersection, relatedTarget, cancelable);
     this.position = position;
     this.dataTransfer = dataTransfer;
-    // this.intersection //todo
   }
 }
 
 export class PointerIntersectionEvent extends EventExt {
   /** TODO. */
   public readonly intersection: IntersectionExt;
-  /** TODO. */
-  public readonly movement: Vector3;
 
-  constructor(intersection: IntersectionExt, lastIntersection: IntersectionExt) {
+  constructor(intersection: IntersectionExt) {
     super();
     this.intersection = intersection;
-    if (lastIntersection && intersection.object === lastIntersection?.object) {
-      this.movement = intersection.point.clone().sub(lastIntersection.point); // todo getter and cache
-    }
   }
 }
 
 export class WheelEventExt extends MouseEventExt {
+  public override domEvent: WheelEvent;
   /*  Returns an unsigned long representing the unit of the delta* values' scroll amount. Permitted values are: 0 = pixels, 1 = lines, 2 = pages. */
-  public get deltaMode() { return this._event.deltaMode }
+  public get deltaMode() { return this.domEvent.deltaMode }
   /** Returns a double representing the horizontal scroll amount. */
-  public get deltaX() { return this._event.deltaX }
+  public get deltaX() { return this.domEvent.deltaX }
   /** Returns a double representing the vertical scroll amount. */
-  public get deltaY() { return this._event.deltaY }
+  public get deltaY() { return this.domEvent.deltaY }
   /** Returns a double representing the scroll amount for the z-axis. */
-  public get deltaZ() { return this._event.deltaZ }
-  public override _event: WheelEvent;
+  public get deltaZ() { return this.domEvent.deltaZ }
 
   constructor(event: WheelEvent, intersection: IntersectionExt) {
     super(event, intersection);

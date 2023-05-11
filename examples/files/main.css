@@ -77,9 +77,14 @@ select {
 }
 
 .blink.active-sphere {
-	background: #6c6ad3;
+	background: #6666ff;
 }
 
 .blink.active-box {
-	background: #c45e5e;
+	background: #ff6666;
+}
+
+.blink.active-plane {
+	background: #66ff66;
+	color: #000;
 }

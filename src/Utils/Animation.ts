@@ -137,16 +137,18 @@ export class Easings {
 type Easing = keyof Easings | ((x: number) => number);
 
 export interface Action {
-    position?: Vector3 | { value: Vector3, easing: Easing };
-    scale?: number | Vector3 | { value: number | Vector3, easing: Easing };
-    rotation?: Euler | { value: Euler, easing: Easing };
     easing?: Easing;
+    position?: Vector3 | { value: Vector3, easing?: Easing };
+    scale?: number | Vector3 | { value: number | Vector3, easing?: Easing };
+    rotation?: Euler | { value: Euler, easing?: Easing };
+    opacity?: number | { value: number, easing?: Easing };
+    //custom TODO
 }
 
 export class Tweening {
     // private _actions = [];
 
-    public to(time: number, config: Action,): this {
+    public to(time: number, config: Action): this {
         const test: Action = {
             easing: 'easeInBack'
 

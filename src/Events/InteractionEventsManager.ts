@@ -89,14 +89,14 @@ export class EventsManager {
 
     private triggerPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D): void {
         if (target) {
-            const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], this._lastIntersection[event.pointerId], relatedTarget);
+            const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], relatedTarget);
             target.triggerEvent(type, pointerEvent);
         }
     }
 
     private triggerAncestorPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
         if (target) {
-            const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], this._lastIntersection[event.pointerId], relatedTarget, cancelable);
+            const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], relatedTarget, cancelable);
             target.triggerEventAncestor(type, pointerEvent);
             return pointerEvent;
         }
@@ -180,7 +180,7 @@ export class EventsManager {
                 this.pointerOutOver(event);
             }
             const intersection = this.intersection[this._primaryIdentifier];
-            intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection, this._lastIntersection[this._primaryIdentifier]));
+            intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection));
         }
     }
 
