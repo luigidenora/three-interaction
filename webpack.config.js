@@ -1,7 +1,6 @@
 const path = require('path');
 const CopyPkgJsonPlugin = require("copy-pkg-json-webpack-plugin")
 const CopyPlugin = require("copy-webpack-plugin");
-const RemovePlugin = require('remove-files-webpack-plugin');
 
 module.exports = {
   mode: 'production',

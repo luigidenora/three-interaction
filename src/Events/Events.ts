@@ -211,7 +211,7 @@ export class DragEventExt extends PointerEventExt {
   /** TODO */
   public readonly position: Vector3;
 
-  constructor(event: PointerEvent, cancelable: boolean, dataTransfer: { [x: string]: any }, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt) {
+  constructor(event?: PointerEvent, cancelable = false, dataTransfer: { [x: string]: any } = {}, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt) {
     super(event, intersection, relatedTarget, cancelable);
     this.position = position;
     this.dataTransfer = dataTransfer;

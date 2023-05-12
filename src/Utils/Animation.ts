@@ -145,49 +145,49 @@ export interface Action {
     //custom TODO
 }
 
-export class Tweening {
-    // private _actions = [];
+// export class Tweening {
+//     // private _actions = [];
 
-    public to(time: number, config: Action): this {
-        const test: Action = {
-            easing: 'easeInBack'
+//     public to(time: number, config: Action): this {
+//         const test: Action = {
+//             easing: 'easeInBack'
 
-        }
-        return this;
-    }
+//         }
+//         return this;
+//     }
 
-    public by(): this {
-        return this;
-    }
+//     public by(): this {
+//         return this;
+//     }
 
-    public call(callback: () => void): this {
-        callback();
-        return this;
-    }
+//     public call(callback: () => void): this {
+//         callback();
+//         return this;
+//     }
 
-    public repeat(times: number, config: Tweening): this {
-        return this;
-    }
+//     public repeat(times: number, config: Tweening): this {
+//         return this;
+//     }
 
-    public repeatForever(): this {
-        return this;
-    }
+//     public repeatForever(): this {
+//         return this;
+//     }
 
-    public delay(time: number): this {
-        return this;
-    }
+//     public delay(time: number): this {
+//         return this;
+//     }
 
-    public start(): void {
+//     public start(): void {
 
-    }
+//     }
 
-    public clone(): Tweening {
-        return undefined;
-    }
+//     public clone(): Tweening {
+//         return undefined;
+//     }
 
-    public then(tween: Tweening): this {
-        return this;
-    }
+//     public then(tween: Tweening): this {
+//         return this;
+//     }
 
-    // public parallel()
-}
+//     // public parallel()
+// }
