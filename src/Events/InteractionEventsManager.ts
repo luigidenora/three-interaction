@@ -53,7 +53,7 @@ export class EventsManager {
         domElement.addEventListener("pointermove", this.enqueue.bind(this));
         domElement.addEventListener("pointerup", this.enqueue.bind(this));
         domElement.addEventListener("wheel", this.enqueue.bind(this));
-        document.addEventListener("keydown", this.enqueue.bind(this));
+        document.addEventListener("keydown", this.enqueue.bind(this)); //todo capire meglio?
         document.addEventListener("keyup", this.enqueue.bind(this));
     }
 
@@ -134,8 +134,8 @@ export class EventsManager {
     }
 
     private pointerDown(event: PointerEvent, scene: Scene, camera: Camera): void {
-        if (event.pointerType !== "mouse") { //todo controllare che non ci sia in queue anche
-            this.raycastScene(scene, camera, event);
+        if (event.pointerType !== "mouse") {
+            this.pointerMove(event, scene, camera);
         }
         const target = this.intersection[event.pointerId]?.object;
         const pointerDownEvent = this.triggerAncestorPointer("pointerdown", event, target, undefined, true);
@@ -209,6 +209,12 @@ export class EventsManager {
         const target = this.intersection[event.pointerId]?.object;
         const lastPointerDownTarget = this._lastPointerDownExt[event.pointerId]?._target;
         let lastClick: PointerEventExt;
+
+        if (event.pointerType !== "mouse" && target) {
+            target.hovered = false;
+            this.triggerAncestorPointer("pointerout", event, target);
+            this.triggerPointer("pointerleave", event, target);
+        }
 
         if (!this._dragManager.stopDragging(event)) {
             this.triggerAncestorPointer("pointerup", event, target, lastPointerDownTarget);

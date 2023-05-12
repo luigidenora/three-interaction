@@ -21,7 +21,7 @@ export class DragAndDropManager {
 
     public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, dropTargetIntersection: IntersectionExt): void {
         if (!event.isPrimary) return;
-        
+
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._targetMatrixWorld));
         raycaster.ray.intersectPlane(this._plane, this._intersection)
         this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
@@ -119,10 +119,8 @@ export class DragAndDropManager {
             const lastDropTarget = this._lastDropTarget;
             this._lastDropTarget = dropTarget;
 
-            // // if (event.isPrimary) {
-            // lastDropTarget && (lastDropTarget.hovered = false);
-            // dropTarget && (dropTarget.hovered = true);
-            // // }
+            // lastDropTarget && (lastDropTarget.target = undefined);
+            // dropTarget && (dropTarget.target = this._target);
 
             if (dropTarget !== lastDropTarget) { //documenta che il related target è sempre l'oggetto che stai draggando
                 this.triggerEvent("dragleave", event, lastDropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
