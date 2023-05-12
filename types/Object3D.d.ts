@@ -3,8 +3,16 @@ import { Events } from "../src/Events/Events";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
 import { EventsDispatcher } from "../src/index";
 import { Cursor } from "../src/Events/CursorManager";
+import { BindingCallback } from "../src/Binding/Binding";
 
 export class Object3D extends Object3DBase implements Object3DExtPrototype {
+    __boundCallbacks: BindingCallback[];
+    __manualDetection: boolean;
+    setManualDetectionMode(): void;
+    detectChanges(): void;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
+    unbindByKey(key: string): this;
     override parent: Object3D;
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;

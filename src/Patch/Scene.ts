@@ -4,6 +4,7 @@ import { Utils } from "../Utils/Utils";
 
 export interface SceneExtPrototype {
     /** @internal */ __dropTargets: DistinctTargetArray;
+    /** @internal */ __boundObjects: DistinctTargetArray;
 }
 
 Scene.prototype.activable = false;

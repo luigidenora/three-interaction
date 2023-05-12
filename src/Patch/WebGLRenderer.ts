@@ -9,7 +9,7 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera) {
         //TODO smart rendering
-        if (!this._isGPUPicking) {
+        if (!this.__isGPUPicking) {
             // EventsCache.dispatchEvent(scene, "framerendering"); metterlo quando c'è multirenderer
             
             this.getViewport(viewportSize);
@@ -26,7 +26,7 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
 
             // updateMatrices();
         } else {
-            this._isGPUPicking = false;
+            this.__isGPUPicking = false;
         }
         baseRender(scene, camera);
     }

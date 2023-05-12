@@ -4,8 +4,17 @@ import { Events } from "../src/Events/Events";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
 import { DistinctTargetArray, EventsDispatcher, SceneExtPrototype } from "../src/index";
 import { Cursor } from "../src/Events/CursorManager";
+import { BindingCallback } from "../src/Binding/Binding";
 
 export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
+    __boundObjects: DistinctTargetArray;
+    __boundCallbacks: BindingCallback[];
+    __manualDetection: boolean;
+    setManualDetectionMode(): void;
+    detectChanges(): void;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
+    unbindByKey(key: string): this;
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;

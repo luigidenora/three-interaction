@@ -6,6 +6,11 @@ import { EventsDispatcher } from "../src/index";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
 
 export class Line2 extends Line2Base  implements Object3DExtPrototype {
+    setManualDetectionMode(): void;
+    detectChanges(): void;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
+    unbindByKey(key: string): this;
     __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];
