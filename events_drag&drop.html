@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three-ag drag & drop</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="files/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="files/main.css">
+</head>
+
+<body>
+    <div id="info">
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - drag & drop<br>
+        Press ESC to cancel a drag.
+    </div>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three/build/three.module.min.js",
+                "three/examples/": "https://unpkg.com/three/examples/"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import { DirectionalLight, Mesh, MeshLambertMaterial, MeshBasicMaterial, Scene, SphereGeometry, PlaneGeometry, Color } from "three";
+        import { OrthographicCamera, Main, DragEventExt } from "./bundle.js";
+
+        const scene = new Scene().add(
+            new OrthographicCamera(20).translateZ(10),
+            new DirectionalLight(0xffffff).translateZ(10),
+        );
+
+        const materialDP = [new MeshBasicMaterial({ color: 0xffffff }), new MeshBasicMaterial({ color: 0x666666 })];
+        const geometryDP = new PlaneGeometry(2, 2);
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 6; j++) {
+                const dropTarget = new Mesh(geometryDP, materialDP[(i + j) % 2]).translateX(-9 + j * 2).translateY(-7 + i * 2);
+                dropTarget.interceptByRaycaster = false;
+                scene.add(dropTarget);
+
+                dropTarget.bindEvent("dragenter", function (e) {
+                    if (!this.userData.droppedTarget || this.userData.droppedTarget === e.relatedTarget) {
+                        e.relatedTarget.position.copy(this.position);
+                    }
+                });
+
+                dropTarget.bindEvent("drop", function (e) {
+                    if (e.relatedTarget.userData.dropTarget) {
+                        e.relatedTarget.userData.dropTarget.userData.droppedTarget = undefined;
+                    }
+                    if (!this.userData.droppedTarget) {
+                        this.userData.droppedTarget = e.relatedTarget;
+                        e.relatedTarget.userData.dropTarget = this;
+                    }
+                });
+            }
+        }
+
+        const geometrySphere = new SphereGeometry(1);
+        for (let i = 1; i < 8; i++) {
+            const sphere = new Mesh(geometrySphere, new MeshLambertMaterial({ color: new Color(i / 6, i / 3 % 1, i / 2 % 1), transparent: true }));
+            sphere.position.set(9, -7.5 + (i - 1) * 2.5, 0);
+            sphere.draggable = true;
+            scene.add(sphere);
+
+            sphere.bindEvent("dragstart", function (e) {
+                e.preventDefault(); // search for drop target
+                this.position.z = 1; // avoid artifact
+            });
+
+            sphere.bindEvent("drag", function (e) {
+                const validDropTarget = e.relatedTarget && !e.relatedTarget.userData.droppedTarget;
+                this.material.opacity = validDropTarget ? 1 : 0.4;
+                if (validDropTarget) e.preventDefault(); // prevent set position by mouse
+            });
+
+            sphere.bindEvent("dragend", function (e) {
+                this.material.opacity = 1;
+                if (!e.relatedTarget || e.relatedTarget.userData.droppedTarget !== this) {
+                    e.preventDefault(); // cancel drag
+                    const event = new DragEventExt();
+                    event.relatedTarget = this; //TODO params in constructor
+                    this.userData.dropTarget?.triggerEventAncestor("drop", event);
+                }
+            });
+        }
+
+        window.main = new Main([scene], true, { antialias: true });
+
+    </script>
+</body>
+
+</html>

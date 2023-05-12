@@ -26,8 +26,8 @@
 
     <script type="module">
 
-        import { BoxGeometry, Mesh, MeshBasicMaterial, Scene, SphereGeometry } from "./bundle.js";
-        import { PerspectiveCamera, Main, LinkedLine } from "../src/index";
+        import { BoxGeometry, Mesh, MeshBasicMaterial, Scene, SphereGeometry } from "three";
+        import { PerspectiveCamera, Main, LinkedLine } from "./bundle.js";
 
         const scene = new Scene().add(new PerspectiveCamera(70, 1, 10000).translateZ(10));
         scene.interceptByRaycaster = false;

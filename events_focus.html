@@ -31,25 +31,22 @@
 
         const scene = new Scene();
         scene.add(
-            new PerspectiveCamera(70, 1, 10000).translateZ(8),
-            new DirectionalLight(0xffffff, 0.3).translateZ(20),
-            scene.light = new PointLight(0x000000, 2, 30),
+            new PerspectiveCamera(70, 1, 10000).translateZ(5),
+            new DirectionalLight(0xffffff, 0.05).translateZ(20),
+            scene.light = new PointLight(0x000000, 2, 30)
         );
 
         const geometry = [new BoxGeometry(1, 1, 1), new SphereGeometry(0.5)];
         for (let i = 0; i < 200; i++) {
             const mesh = new Mesh(geometry[i % 2], new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
             scene.add(mesh);
-            const isBox = i % 2 === 0;
-            mesh.activable = isBox;
-            mesh.draggable = !isBox;
+            mesh.radius = Math.random() * 10 + 5;
+            mesh.interceptByRaycaster = i % 2 === 0; // raycaster will intersect only boxes, spheres cannot have focus.
             mesh.angleX = Math.random() * 2 * Math.PI - Math.PI;
             mesh.angleY = Math.random() * 2 * Math.PI - Math.PI;
 
-            !isBox && mesh.position.setFromSphericalCoords(10, mesh.angleX * 100, mesh.angleY * 100);
-
-            isBox && mesh.bindEvent("animate", function (e) {
-                this.position.setFromSphericalCoords(10, this.angleX + e.total / 5, this.angleY + e.total / 5);
+            mesh.bindEvent("animate", function (e) {
+                this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 5, this.angleY + e.total / 5);
                 this.rotation.x += e.delta * this.angleX;
                 this.rotation.y += e.delta * this.angleY;
             });
