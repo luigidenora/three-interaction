@@ -1,9 +1,10 @@
-import { Camera, Object3D, Scene, WebGLRenderer } from "three";
+import { Camera, Clock, Object3D, Scene, WebGLRenderer } from "three";
 import { CursorHandler } from "./CursorManager";
 import { DragAndDropManager } from "./DragAndDropManager";
 import { FocusEventExt, InteractionEvents, IntersectionExt, KeyboardEventExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
+import { EventsCache } from "./MiscEventsManager";
 
 export class EventsManager {
     public enabled = true;
@@ -26,6 +27,7 @@ export class EventsManager {
     private _primaryRaycasted: boolean;
     private _mouseDetected = false;
     private _isTapping = false;
+    private _clock = new Clock();
 
     constructor(renderer: WebGLRenderer) {
         this.registerRenderer(renderer);
@@ -70,6 +72,7 @@ export class EventsManager {
         }
         this.pointerIntersection(scene, camera);
         this._cursorManager.update(this._dragManager.target, this.intersection[this._primaryIdentifier]?.object); //todo creare hoveredobj?
+        EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
     }
 
     private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {

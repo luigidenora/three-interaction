@@ -13,7 +13,6 @@ export class WebGLRenderer extends WebGLRendererBase {
         this.fullscreen = fullscreen;
         !parameters.canvas && document.body.appendChild(this.domElement);
         applyWebGLRendererPatch(this);
-        this.addScene(...scenes);
         this.activeScene = scenes[0];
         if (this.activeScene) {  //TODO documenta
             for (const obj of this.activeScene.children) {
