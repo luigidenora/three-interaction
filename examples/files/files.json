@@ -2,7 +2,8 @@
 	"Events": [
 		"events_focus",
 		"events_instancedMesh",
-		"events_general"
+		"events_general",
+		"events_drag&drop"
 	],
 	"Objects": [
 		"objects_instancedMeshSingle",

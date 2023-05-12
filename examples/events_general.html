@@ -86,7 +86,7 @@
         });
 
         scene.bindEvent("focus", (e) => {
-            e.target.material.emissive.set(0xaaaa00);
+            e.target.material.emissive.set(0xcccc00);
             e.relatedTarget?.material.emissive.set(0);
         });
 
@@ -95,7 +95,7 @@
         });
 
         scene.plane.bindEvent(["dragenter", "dragleave", "drop", "dragcancel"], function (e) {
-            this.material.emissive.set(e.type === "dragenter" ? 0xaaaa00 : 0);
+            this.material.emissive.set(e.type === "dragenter" ? 0xcccc00 : 0);
         });
 
         scene.sphere.bindEvent(["pointerover", "pointerout"], function (e) {
