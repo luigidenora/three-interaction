@@ -1,5 +1,6 @@
 import { Euler, Object3D, Quaternion, Scene, Vector2, Vector3 } from "three";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
+import { Utils } from "../Utils/Utils";
 
 /**
  * Executes all callbacks bound to objects with detectChangesMode set to 'auto'. 
@@ -74,7 +75,7 @@ export class Binding {
 
   public static bindObjToScene(target: Object3D, updateChildren: boolean, scene?: Scene): void {
     if (!target.__manualDetection && target.__boundCallbacks) {
-      scene ||= this.getSceneFromObj(target);
+      scene ||= Utils.getSceneFromObj(target);
       if (scene) {
         const boundObjects = scene.__boundObjects ?? (scene.__boundObjects = new DistinctTargetArray());
         boundObjects.push(target);
@@ -88,9 +89,8 @@ export class Binding {
     }
   }
 
-  public static unbindObjFromScene(target: Object3D, scene?: Scene): void {
+  public static unbindObjFromScene(target: Object3D, scene: Scene): void {
     if (!target.__manualDetection) {
-      scene ||= this.getSceneFromObj(target);
       const boundObjects = scene?.__boundObjects;
       if (boundObjects) {
         boundObjects.remove(target);
@@ -101,15 +101,6 @@ export class Binding {
       for (const child of target.children) {
         this.unbindObjFromScene(child, scene);
       }
-    }
-  }
-
-  private static getSceneFromObj(target: Object3D): Scene {
-    while (target) {
-      if ((target as unknown as Scene).isScene) {
-        return target as unknown as Scene;
-      }
-      target = target.parent;
     }
   }
 

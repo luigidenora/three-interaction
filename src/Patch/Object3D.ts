@@ -7,6 +7,8 @@ import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
 import { Cursor } from "../Events/CursorManager";
 import { Binding, BindingCallback } from "../Binding/Binding";
+import { EventsCache } from "../Events/MiscEventsManager";
+import { Utils } from "../Utils/Utils";
 
 export interface Object3DExtPrototype extends BindingPrototype, InteractionPrototype {}
 
@@ -116,7 +118,7 @@ Object3D.prototype.triggerEventAncestor = function (type: any, args) {
 Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code in constructor
     set: function (value) {
         if (!this._patched) {
-            object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
+            // object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
             this.__eventsDispatcher = new EventsDispatcher(this);
             // bindAutoUpdateMatrixObject3D(this);
             this._patched = true;
@@ -202,7 +204,11 @@ Object3D.prototype.add = function (object: Object3D) {
 const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
-        Binding.unbindObjFromScene(object);
+        const scene = Utils.getSceneFromObj(this);
+        Binding.unbindObjFromScene(object, scene);
+        EventsCache.remove(object, scene);
+        //remove droptarget
+        //remove objlist
     }
     removeBase.call(this, ...arguments);
     return this;

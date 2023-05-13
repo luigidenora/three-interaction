@@ -31,8 +31,19 @@ export class EventsCache {
       eventCache.push(target);
    }
 
-   public static remove(): void {
-      // TODO
+   public static remove(target: Object3D, scene: Scene): void { //can be opt if slow
+      const sceneCache = this._events[scene?.id];
+      if (sceneCache) {
+         for (const key in sceneCache) {  //can be opt if slow
+            const eventCache = sceneCache[key];
+            eventCache.remove(target);
+         }
+      }
+      if (target.children) {
+         for (const child of target.children) {
+            this.remove(child, scene);
+         }
+      }
    }
 
    public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {

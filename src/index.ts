@@ -1,3 +1,6 @@
+export * from './Binding/Binding';
+export * from './Binding/Decorators';
+
 export * from './Events/CursorManager';
 export * from './Events/DragAndDropManager';
 export * from './Events/Events';

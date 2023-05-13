@@ -1,12 +1,15 @@
-import { Camera, Scene, WebGLRenderer as WebGLRendererBase, WebGLRendererParameters } from "three";
+import { Camera, Clock, Scene, WebGLRenderer as WebGLRendererBase, WebGLRendererParameters } from "three";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsManager } from "../Events/InteractionEventsManager";
+import { computeAutoBinding } from "../Binding/Binding";
+import { EventsCache } from "../Events/MiscEventsManager";
 
 export class WebGLRenderer extends WebGLRendererBase {
     public eventsManager: EventsManager;
     public activeScene: Scene;
     public activeCamera: Camera;
     public fullscreen: boolean;
+    private _clock = new Clock();
 
     constructor(scenes: Scene[], animate: XRFrameRequestCallback, fullscreen = true, parameters: WebGLRendererParameters = {}) {
         super(parameters);
@@ -27,7 +30,9 @@ export class WebGLRenderer extends WebGLRendererBase {
         this.setPixelRatio(window.devicePixelRatio);
         this.eventsManager = new EventsManager(this);
         this.setAnimationLoop((time, frame) => {
+            computeAutoBinding(this.activeScene);
             this.eventsManager.update(this.activeScene, this.activeCamera);
+            EventsCache.dispatchEvent(this.activeScene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
             animate(time, frame);
         });
     }
