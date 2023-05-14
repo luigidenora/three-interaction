@@ -12,7 +12,7 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    unbindByKey(key: string): this;
+    unbindProperty(key: string): this;
     override parent: Object3D;
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;

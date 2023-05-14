@@ -5,11 +5,10 @@ import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 import { addDropTargetToScene } from "../Patch/Scene";
 
-export class EventsDispatcher {
+export class EventsDispatcher {  //TODO union with events dispatcher?
     private _listeners: { [x: string]: ((args?: any) => void)[] } = {};
 
-    constructor(public parent: Object3D | InstancedMeshSingle) {
-    }
+    constructor(public parent: Object3D | InstancedMeshSingle) { }
 
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (!this._listeners[type]) {

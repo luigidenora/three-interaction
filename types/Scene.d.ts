@@ -14,7 +14,7 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    unbindByKey(key: string): this;
+    unbindProperty(key: string): this;
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;

@@ -1,18 +1,20 @@
 import { Object3D, Scene } from "three";
+import { Binding, BindingCallback } from "../Binding/Binding";
+import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
-import { applyVector3Patch } from "./Vector3";
-import { applyQuaternionPatch } from "./Quaternion";
-import { applyEulerPatch } from "./Euler";
-import { applyMatrix4Patch } from "./Matrix4";
-import { Cursor } from "../Events/CursorManager";
-import { Binding, BindingCallback } from "../Binding/Binding";
 import { EventsCache } from "../Events/MiscEventsManager";
 import { Utils } from "../Utils/Utils";
+import { applyEulerPatch } from "./Euler";
+import { applyMatrix4Patch } from "./Matrix4";
+import { applyQuaternionPatch } from "./Quaternion";
+import { applyVector3Patch } from "./Vector3";
 
-export interface Object3DExtPrototype extends BindingPrototype, InteractionPrototype {}
+export interface Object3DExtPrototype extends BindingPrototype, InteractionPrototype { }
 
 export interface BindingPrototype {
+    /** @internal */ __boundCallbacks: BindingCallback[];
+    /** @internal */ __manualDetection: boolean;
     /**
      * If 'manual' you need to call detectChanges() manually. Used to increase performance. Default: auto.
      */
@@ -23,25 +25,16 @@ export interface BindingPrototype {
     detectChanges(): void;
     /**
      * Bind an expression to a property.
-     * @param property Property name and binding unique key.
+     * @param property Property name.
      * @param getCallback Callback that returns the value to bind.
      * @param bindAfterParentAdded If true you can use 'parent' property in the getCallback, avoiding null exception. Default: true.
      */
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     /**
-     * Bind a callback. 
-     * @param key Binding unique key.
-     * @param callback Binding callback.
-     * @param bindAfterParentAdded If true you can use 'parent' property in the callback, avoiding null exception. Default: true.
+     * Remove a property binding.
+     * @param property Property name.
      */
-    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    /**
-     * Remove a binding by a key.
-     * @param key Binding unique key.
-     */
-    unbindByKey(key: string): this;
-    /** @internal */ __boundCallbacks: BindingCallback[];
-    /** @internal */ __manualDetection: boolean;
+    unbindProperty<T extends keyof this>(property: T): this;
 }
 
 export interface InteractionPrototype {
@@ -111,18 +104,15 @@ Object3D.prototype.triggerEvent = function (type: any, args) {
     this.__eventsDispatcher.dispatchDOMEvent(type, args);
 }
 
-Object3D.prototype.triggerEventAncestor = function (type: any, args) {
+Object3D.prototype.triggerEventAncestor = function (type: any, args) { //TODO Cambare nome
     this.__eventsDispatcher.dispatchDOMEventAncestor(type, args);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code in constructor
     set: function (value) {
-        if (!this._patched) {
-            // object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
-            this.__eventsDispatcher = new EventsDispatcher(this);
-            // bindAutoUpdateMatrixObject3D(this);
-            this._patched = true;
-        }
+        // object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
+        this.__eventsDispatcher = new EventsDispatcher(this);
+        // bindAutoUpdateMatrixObject3D(this);
         Object.defineProperty(this, "userData", { // hack to inject code in constructor
             value, writable: true
         });
@@ -174,20 +164,7 @@ Object3D.prototype.bindProperty = function (property, getValue, bindAfterParentA
     return this;
 };
 
-Object3D.prototype.bindCallback = function (key, callback, bindAfterParentAdded = true) {
-    if (bindAfterParentAdded && !this.parent && !(this as unknown as Scene).isScene) {
-        const event = () => {
-            Binding.createCallback(key, this, callback);
-            this.removeEventListener("added", event);
-        };
-        this.addEventListener("added", event);
-    } else {
-        Binding.createCallback(key, this, callback);
-    }
-    return this;
-};
-
-Object3D.prototype.unbindByKey = function (property) {
+Object3D.prototype.unbindProperty = function (property) {
     Binding.unbindByKey(this, property);
     return this;
 };
@@ -196,7 +173,8 @@ const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
     addBase.call(this, ...arguments);
     if (arguments.length == 1 && object !== this && object?.isObject3D) {
-        Binding.bindObjToScene(object, true);
+        const scene = Utils.getSceneFromObj(this);
+        Binding.bindObjAndChildrenToScene(object, scene);
     }
     return this;
 };
@@ -205,7 +183,7 @@ const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
         const scene = Utils.getSceneFromObj(this);
-        Binding.unbindObjFromScene(object, scene);
+        Binding.unbindObjAndChildrenFromScene(object, scene);
         EventsCache.remove(object, scene);
         //remove droptarget
         //remove objlist

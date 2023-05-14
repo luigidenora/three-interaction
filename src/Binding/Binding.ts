@@ -1,4 +1,4 @@
-import { Euler, Object3D, Quaternion, Scene, Vector2, Vector3 } from "three";
+import { Object3D, Scene } from "three";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 import { Utils } from "../Utils/Utils";
 
@@ -19,45 +19,22 @@ export interface BindingCallback {
 /** @internal */
 export class Binding {
 
-  public static createCallback(key: string, target: Object3D, callback: () => void): void {
-    if (this.getIndexByKey(target, key) === -1) {
-      this.bindObjCallback({ key, callback }, target);
-      this.bindObjToScene(target, false);
-    }
-  }
-
   public static createProperty(key: string, target: Object3D, getValue: () => any): void {
-    if (this.getIndexByKey(target, key) === -1) {
-      this.bindObjCallback(this.getPropBindingCallback(key, getValue, target), target);
-      this.bindObjToScene(target, false);
-    }
+    //if already exists throw exception  if (this.getIndexByKey(target, key) === -1)
+    this.bindObjCallback({ key, callback: this.getBindingCallback(key, getValue, target) }, target);
+    this.bindObjToScene(target);
   }
 
-  private static getPropBindingCallback(key: string, getValue: () => any, target: Object3D): BindingCallback {
-    if (target.__manualDetection) {
-      return { key, callback: this.getPropManualCallback(key, getValue, target) };
-    }
-    return { key, callback: this.getPropAutoCallback(key, getValue, target) };
-  }
-
-  private static getPropManualCallback(key: string, getValue: () => any, target: any): () => void {
-    if ((target[key] as Vector3)?.isVector3 || (target[key] as Vector2)?.isVector2 ||
-      (target[key] as Quaternion)?.isQuaternion || (target[key] as Euler)?.isEuler) {
-      return function (this: any) { this[key].copy(getValue.call(this)) };
-    } else {
-      return function (this: any) { this[key] = getValue.call(this) };
-    }
-  }
-
-  private static getPropAutoCallback(key: string, getValue: () => any, target: Object3D): () => void {
+  private static getBindingCallback(key: string, getValue: () => any, target: Object3D): () => void {
     const needsUpdateKey = `__needsUpdate${key}`;
     const privateKey = `__${key}`;
-    const needsUpdateCallback = function (this: any) { this[needsUpdateKey] = true };
+    const needsUpdateCallback = () => { (target as any)[needsUpdateKey] = true };
+    const bindedGetValue = getValue.bind(target); //todo check
 
     Object.defineProperty(target, key, {
       get: function (this: any) {
         if (this[needsUpdateKey] === true) {
-          this[privateKey] = getValue.call(this);
+          this[privateKey] = bindedGetValue();
           this[needsUpdateKey] = false;
         }
         return this[privateKey];
@@ -70,52 +47,53 @@ export class Binding {
   private static bindObjCallback(bindingCallback: BindingCallback, target: Object3D): void {
     const boundCallbacks = target.__boundCallbacks ?? (target.__boundCallbacks = []);
     boundCallbacks.push(bindingCallback);
-    this.executeCallback(target, bindingCallback);
+    bindingCallback.callback();
   }
 
-  public static bindObjToScene(target: Object3D, updateChildren: boolean, scene?: Scene): void {
-    if (!target.__manualDetection && target.__boundCallbacks) {
-      scene ||= Utils.getSceneFromObj(target);
+  public static bindObjToScene(target: Object3D): void {
+    if (!target.__manualDetection) {
+      const scene = Utils.getSceneFromObj(target);
       if (scene) {
         const boundObjects = scene.__boundObjects ?? (scene.__boundObjects = new DistinctTargetArray());
         boundObjects.push(target);
       }
     }
+  }
 
-    if (updateChildren) {
-      for (const child of target.children) {
-        this.bindObjToScene(child, true, scene);
-      }
+  public static bindObjAndChildrenToScene(target: Object3D, scene: Scene): void {
+    if (!target.__manualDetection && target.__boundCallbacks) {
+      const boundObjects = scene.__boundObjects ?? (scene.__boundObjects = new DistinctTargetArray()); //todo cache this param
+      boundObjects.push(target);
+    }
+
+    for (const child of target.children) {
+      this.bindObjAndChildrenToScene(child, scene);
     }
   }
 
-  public static unbindObjFromScene(target: Object3D, scene: Scene): void {
+  public static unbindObjAndChildrenFromScene(target: Object3D, scene: Scene): void {
     if (!target.__manualDetection) {
-      const boundObjects = scene?.__boundObjects;
-      if (boundObjects) {
+      const boundObjects = scene?.__boundObjects;  //todo cache this param e fixare le condizioni
+      if (boundObjects !== undefined) {
         boundObjects.remove(target);
       }
     }
 
     if (scene) {
       for (const child of target.children) {
-        this.unbindObjFromScene(child, scene);
+        this.unbindObjAndChildrenFromScene(child, scene);
       }
     }
   }
 
-  private static executeCallback(target: Object3D, bindingCallback: BindingCallback): void {
-    bindingCallback.callback.call(target);
-  }
-
   private static executeAllCallbacks(target: Object3D): void {
-    for (const callback of target.__boundCallbacks) {
-      this.executeCallback(target, callback);
+    for (const bindingCallback of target.__boundCallbacks) {
+      bindingCallback.callback();
     }
   }
 
   public static unbindByKey(target: Object3D, key: string): void {
-    const index = this.getIndexByKey(target, key);
+    const index = this.getIndexByKey(target, key); //TODO FIX
     if (index !== -1) {
       target.__boundCallbacks.splice(index, 1);
     }
@@ -130,7 +108,7 @@ export class Binding {
     return -1;
   }
 
-  public static computeSingle(target: Object3D): void {
+  public static computeSingle(target: Object3D): void { //TODO remove
     this.executeAllCallbacks(target);
   }
 

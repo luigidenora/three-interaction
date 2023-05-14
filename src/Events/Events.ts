@@ -6,14 +6,10 @@ export interface UpdateEvents {
   positionchange: never;
   scalechange: never;
   rotationchange: never;
-  // childadd
-  // childremove 
-  // parentdadd // This event propagation Up to down.
-  // parentremove // This event propagation Up to down.
+  // scenechange: never;
+  // parentchange: never;
   // enablechange // This event propagation Up to down.
   // visiblechange // This event propagation Up to down.
-  // ownenablechange // This event propagation Up to down.
-  // ownvisiblechange // This event propagation Up to down.
 }
 
 export interface MiscEvents {
