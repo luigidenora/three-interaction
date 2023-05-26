@@ -18,7 +18,6 @@ export * from './Objects/LoadingMaterial';
 export * from './Objects/Main';
 export * from './Objects/OrthographicCamera';
 export * from './Objects/PerspectiveCamera';
-export * from './Objects/WebGLRenderer';
 
 // export * from './Patch/AutoUpdateMatrix';
 export * from './Patch/Euler';

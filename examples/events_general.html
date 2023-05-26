@@ -104,7 +104,8 @@
             this.scale.multiplyScalar(e.type === "pointerover" ? 1.2 : 1 / 1.2);
         });
 
-        window.main = new Main([scene], true, { antialias: true });
+        window.main = new Main(true, { antialias: true });
+        window.main.addScene(scene);
 
         function blink(element, className) {
             clearTimeout(element.timer);
