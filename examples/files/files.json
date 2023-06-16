@@ -8,5 +8,8 @@
 	"Objects": [
 		"objects_instancedMeshSingle",
 		"objects_linkedLine"
+	],
+	"Rendering": [
+		"rendering_multi"
 	]
 }

@@ -28,6 +28,9 @@ export * from './Patch/Scene';
 export * from './Patch/Vector3';
 export * from './Patch/WebGLRenderer';
 
+export * from './Rendering/RenderManager';
+export * from './Rendering/RenderView';
+
 export * from './Utils/Animation';
 export * from './Utils/DistinctTargetArray';
 export * from './Utils/Utils';

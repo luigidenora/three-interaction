@@ -8,14 +8,14 @@ export class RaycasterManager {
     public raycastGPU = false; //todo capire se ha senso
     private pickingTexture = new WebGLRenderTarget(1, 1); // todo move
     private pointer = new Vector2();
-    private pointerUv = new Vector2();
+    private pointerNormalized = new Vector2();
 
     constructor(public renderer: WebGLRenderer) { }
 
     public getIntersections(scene: Scene, camera: Camera, event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this.updateCanvasPointerPosition(event);
-        this.raycaster.setFromCamera(this.pointerUv, camera);
+        this.raycaster.setFromCamera(this.pointerNormalized, camera);
         if (isDragging) {
             if (findDropTarget) {
                 this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections) : this.raycastObjectsDropTarget(scene, intersections);
@@ -28,8 +28,8 @@ export class RaycasterManager {
     }
 
     private updateCanvasPointerPosition(event: PointerEvent): void {
-        this.pointerUv.x = event.offsetX / this.renderer.domElement.clientWidth * 2 - 1;
-        this.pointerUv.y = event.offsetY / this.renderer.domElement.clientHeight * -2 + 1;
+        this.pointerNormalized.x = event.offsetX / this.renderer.domElement.clientWidth * 2 - 1;
+        this.pointerNormalized.y = event.offsetY / this.renderer.domElement.clientHeight * -2 + 1;
         this.pointer.set(event.offsetX, event.offsetY);
     }
 
