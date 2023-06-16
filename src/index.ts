@@ -29,7 +29,7 @@ export * from './Patch/Vector3';
 export * from './Patch/WebGLRenderer';
 
 export * from './Rendering/RenderManager';
-export * from './Rendering/RenderView';
+export * from './Rendering/RenderViewport';
 
 export * from './Utils/Animation';
 export * from './Utils/DistinctTargetArray';

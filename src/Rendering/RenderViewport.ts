@@ -19,7 +19,7 @@ export interface ViewParameters {
   composer?: EffectComposer;
 }
 
-export class RenderView implements ViewParameters {
+export class RenderViewport implements ViewParameters {
   public scene: Scene;
   public camera: Camera;
   public viewportNormalized: Viewport;
@@ -41,7 +41,7 @@ export class RenderView implements ViewParameters {
     this.backgroundAlpha = parameters.backgroundAlpha;
     this.backgroundColor = typeof parameters.backgroundColor === "number" ? new Color(parameters.backgroundColor) : parameters.backgroundColor;
 
-    // if (InteractionModulePresent)
+    // if (InteractionModulePresent) TODO
     this.scene.add(this.camera); // useful to trigger camera resize event
     this.update();
   }

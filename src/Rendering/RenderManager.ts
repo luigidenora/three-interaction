@@ -1,25 +1,18 @@
-import { Color, EventDispatcher, Vector2, WebGLRenderer } from "three";
-import { RenderView, ViewParameters } from "./RenderView";
+import { Scene, Color, EventDispatcher, Vector2, WebGLRenderer, Camera } from "three";
+import { RenderViewport as RenderViewport, ViewParameters } from "./RenderViewport";
 
 export class RenderManager extends EventDispatcher {
   public renderer: WebGLRenderer;
-  public views: RenderView[] = [];
-  public activeView: RenderView;
+  public views: RenderViewport[] = [];
+  public activeScene: Scene;
+  public activeCamera: Camera;
+  public activeViewport: RenderViewport;
   public backgroundColor: Color; //todo getter
   public backgroundAlpha: number; //todo getter
   public fullscreen: boolean; // TODO renderlo modificabile
-  private _enabled: boolean;
+  public renderScene = true;
+  public renderViewports = true;
   private _rendererSize = new Vector2();
-
-  public get enabled(): boolean { return this._enabled }
-  public set enabled(value: boolean) {
-    this.activeView = undefined;
-    this.renderer.setScissorTest(value);
-    this.renderer.setViewport(0, 0, this._rendererSize.x, this._rendererSize.y);
-    this.renderer.setScissor(0, 0, this._rendererSize.x, this._rendererSize.y);
-    this.renderer.setClearColor(this.backgroundColor, this.backgroundAlpha);
-    this._enabled = value;
-  }
 
   constructor(renderer: WebGLRenderer, fullscreen: boolean, backgroundColor: Color | number = 0x000000, backgroundAlpha = 1) {
     super();
@@ -27,14 +20,13 @@ export class RenderManager extends EventDispatcher {
     this.fullscreen = fullscreen;
     this.backgroundAlpha = backgroundAlpha;
     this.backgroundColor = typeof backgroundColor === "number" ? new Color(backgroundColor) : backgroundColor;
-    this.enabled = true;
     window.addEventListener("resize", this.onResize.bind(this));
     this.updateRenderSize();
   }
 
-  public add(...views: ViewParameters[]): void {
+  public addViewport(...views: ViewParameters[]): void {
     for (const view of views) {
-      this.views.push(new RenderView(view, this._rendererSize));
+      this.views.push(new RenderViewport(view, this._rendererSize));
     }
   }
 
@@ -52,10 +44,10 @@ export class RenderManager extends EventDispatcher {
   }
 
   public updateActiveView(mouse: Vector2): void {
-    this.activeView = this.getViewportByMouse(mouse);
+    this.activeViewport = this.getViewportByMouse(mouse);
   }
 
-  public getViewportByMouse(mouse: Vector2): RenderView {
+  public getViewportByMouse(mouse: Vector2): RenderViewport {
     for (const view of this.views) {
       const v = view.viewport;
       if (view.enabled === true && v.left <= mouse.x && v.left + v.width >= mouse.x && v.top <= mouse.y && v.top + v.height >= mouse.y) {
@@ -65,8 +57,8 @@ export class RenderManager extends EventDispatcher {
   }
 
   public getRayOrigin(mouse: Vector2, target: Vector2): Vector2 {
-    if (this._enabled === true) {
-      const viewport = this.activeView.viewport;
+    if (this._renderViewports === true) { //check solo se enabled TODO
+      const viewport = this.activeViewport.viewport;
       target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.top) / viewport.height * -2 + 1);
     } else {
       target.set(mouse.x / this.renderer.domElement.clientWidth * 2 - 1, mouse.y / this.renderer.domElement.clientHeight * -2 + 1);
@@ -74,24 +66,31 @@ export class RenderManager extends EventDispatcher {
     return target;
   }
 
-  public render(): boolean {
-    let rendered = false;
-    for (const view of this.views) {
-      rendered = this.renderView(view) || rendered;
+  public render(): void {
+    if (this.renderScene) {
+      this.renderer.setScissorTest(false);
+      this.renderer.setViewport(0, 0, this._rendererSize.x, this._rendererSize.y);
+      this.renderer.setScissor(0, 0, this._rendererSize.x, this._rendererSize.y);
+      this.renderer.setClearColor(this.backgroundColor, this.backgroundAlpha);
+      this.renderer.render(this.activeScene, this.activeCamera);
     }
-    return rendered;
+
+    if (this.renderViewports) {
+      this.renderer.setScissorTest(true);
+      for (const view of this.views) {
+        this.renderView(view);
+      }
+    }
   }
 
-  private renderView(view: RenderView): boolean {
+  private renderView(view: RenderViewport): void {
     if (view.enabled === true) { // element.scene.needsRender
       const v = view.viewport;
       this.renderer.setViewport(v.left, v.top, v.width, v.height);
       this.renderer.setScissor(v.left, v.top, v.width, v.height);
       this.renderer.setClearColor(view.backgroundColor ?? this.backgroundColor, view.backgroundAlpha ?? this.backgroundAlpha);
       this.renderer.render(view.scene, view.camera);
-      return true;
     }
-    return false;
   }
 
   private onResize(): void {

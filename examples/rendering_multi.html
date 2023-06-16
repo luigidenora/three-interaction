@@ -53,7 +53,7 @@
         window.main = main;
         main.addScene(scene);
 
-        main.renderManager.add(
+        main.renderManager.addViewport(
             { scene, camera: new OrthographicCamera(20).translateZ(10), viewport: { left: 0, top: 0, width: 0.5, height: 1 }, backgroundColor: 0x333333 },
             { scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, top: 0, width: 0.5, height: 1 }, backgroundColor: 0x666666 }
         );

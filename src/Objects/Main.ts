@@ -23,7 +23,7 @@ export class Main {
         applyWebGLRendererPatch(this.renderer);
         this.eventsManager = new EventsManager(this.renderer);
         this.renderManager = new RenderManager(this.renderer, fullscreen);
-        this.renderManager.enabled = false;
+        this.renderManager.renderViewports = false;
 
         if (parameters.canvas === undefined) {
             document.body.appendChild(this.renderer.domElement);
