@@ -1,7 +1,10 @@
-import { Scene, Color, EventDispatcher, Vector2, WebGLRenderer, Camera } from "three";
-import { RenderView as RenderView, ViewParameters } from "./RenderView";
+import { Camera, Color, Scene, Vector2, WebGLRenderer } from "three";
+import { RenderView, ViewParameters } from "./RenderView";
 
-export class RenderManager extends EventDispatcher {
+/**
+ * The RenderManager class manages the rendering of views and provides methods for manipulating views and their parameters.
+ */
+export class RenderManager {
   public views: RenderView[] = [];
   public activeView: RenderView;
   public backgroundColor: Color; //todo getter
@@ -10,23 +13,34 @@ export class RenderManager extends EventDispatcher {
   private _renderer: WebGLRenderer;
   private _rendererSize = new Vector2();
 
+  /**
+   * @param renderer - The WebGL renderer used for rendering.
+   * @param fullscreen - Flag indicating whether fullscreen rendering is enabled.
+   * @param backgroundColor - The background color for rendering. Default is 0x000000 (black).
+   * @param backgroundAlpha - The background alpha value for rendering. Default is 1 (fully opaque).
+   */
   constructor(renderer: WebGLRenderer, fullscreen: boolean, backgroundColor: Color | number = 0x000000, backgroundAlpha = 1) {
-    super();
     this._renderer = renderer;
     this.fullscreen = fullscreen;
     this.backgroundAlpha = backgroundAlpha;
     this.backgroundColor = typeof backgroundColor === "number" ? new Color(backgroundColor) : backgroundColor;
     window.addEventListener("resize", this.onResize.bind(this));
     this.updateRenderSize();
-    this._renderer.setClearColor(this.backgroundColor, this.backgroundAlpha);
+    this._renderer.setClearColor(this.backgroundColor, this.backgroundAlpha); //todo remove quandoo faccio getter
   }
 
+  /** 
+   * Adds one or more views.
+   */
   public add(...views: ViewParameters[]): void {
     for (const view of views) {
       this.views.push(new RenderView(view, this._rendererSize));
     }
   }
 
+  /**
+   * Retrieves a view by its name.
+   */
   public getByName(name: string): RenderView {
     for (let i = 0; i < this.views.length; i++) {
       if (this.views[i].name === name) {
@@ -35,6 +49,9 @@ export class RenderManager extends EventDispatcher {
     }
   }
 
+  /**
+   * Removes a view.
+   */
   public remove(view: RenderView): void {
     const index = this.views.indexOf(view);
     if (index !== -1) {
@@ -45,6 +62,10 @@ export class RenderManager extends EventDispatcher {
     }
   }
 
+
+  /**
+   * Removes a view by its name.
+   */
   public removeByName(name: string): void {
     for (let i = 0; i < this.views.length; i++) {
       if (this.views[i].name === name) {
@@ -57,6 +78,9 @@ export class RenderManager extends EventDispatcher {
     }
   }
 
+  /**
+   * Removes all views.
+   */
   public clear(): void {
     this.views = [];
     this.setDefaultRendererParameters();
@@ -69,10 +93,16 @@ export class RenderManager extends EventDispatcher {
     this._renderer.setClearColor(this.backgroundColor, this.backgroundAlpha);
   }
 
+  /**
+   * Updates the active view based on the mouse position.
+   */
   public updateActiveView(mouse: Vector2): void {
     this.activeView = this.getViewByMouse(mouse);
   }
 
+  /**
+   * Retrieves the view based on the mouse position.
+   */
   public getViewByMouse(mouse: Vector2): RenderView {
     for (let i = this.views.length - 1; i >= 0; i--) {
       const view = this.views[i];
@@ -83,6 +113,9 @@ export class RenderManager extends EventDispatcher {
     }
   }
 
+  /**
+   * Retrieves the ray origin based on the mouse position.
+   */
   public getRayOrigin(mouse: Vector2, target: Vector2): Vector2 {
     this.updateActiveView(mouse);
     if (this.activeView.enabled === true) {
@@ -91,6 +124,11 @@ export class RenderManager extends EventDispatcher {
     }
   }
 
+  /**
+   * Performs rendering.
+   * If there are active views, each view is rendered individually.
+   * If there are no active views, the scene is rendered using the provided scene and camera.
+   */
   public render(scene: Scene, camera: Camera): void {
     if (this.views.length > 0) {
       for (const view of this.views) {

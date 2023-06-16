@@ -73,6 +73,9 @@ export class RenderView implements ViewParameters {
     this.update();
   }
 
+  /**
+   * Updates the dimensions of the viewport based on the renderer size.
+   */
   public update(): void {
     if (this.viewport !== undefined) {
       this.viewport.left = Math.floor(this._rendererSize.x * this.viewportNormalized.left);
