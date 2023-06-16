@@ -50,14 +50,12 @@
         scene.add(box, sphere);
 
         const main = new Main(true, { antialias: true });
-        window.main = main;
         main.addScene(scene);
 
-        main.renderManager.addViewport(
+        main.renderManager.add(
             { scene, camera: new OrthographicCamera(20).translateZ(10), viewport: { left: 0, top: 0, width: 0.5, height: 1 }, backgroundColor: 0x333333 },
             { scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, top: 0, width: 0.5, height: 1 }, backgroundColor: 0x666666 }
         );
-        main.renderManager.enabled = true;
 
     </script>
 </body>

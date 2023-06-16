@@ -23,7 +23,6 @@ export class Main {
         applyWebGLRendererPatch(this.renderer);
         this.eventsManager = new EventsManager(this.renderer);
         this.renderManager = new RenderManager(this.renderer, fullscreen);
-        this.renderManager.renderViewports = false;
 
         if (parameters.canvas === undefined) {
             document.body.appendChild(this.renderer.domElement);
@@ -48,8 +47,7 @@ export class Main {
     }
 
     public render() {
-        this.renderManager.render();
-        // this.renderer.render(this.activeScene, this.activeCamera);
+        this.renderManager.render(this.activeScene, this.activeCamera);
     }
 
     public addScene(...scene: Scene[]): void {
