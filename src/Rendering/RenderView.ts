@@ -76,7 +76,6 @@ export class RenderView implements ViewParameters {
     this._onBeforeRender = parameters.onBeforeRender;
     this._onAfterRender = parameters.onAfterRender;
 
-    // if (InteractionModulePresent) TODO
     this.scene.add(this.camera); // useful to trigger camera resize event
     this.update();
   }

@@ -21,11 +21,12 @@ export class Main {
     public interactionManager: InteractionManager;
     public stats = new Stats();
     public scenes: Scene[] = [];
-    public activeScene: Scene; //TODO autoupdate if multiview
-    public activeCamera: Camera; //TODO autoupdate if multiview
-    public activeComposer: EffectComposer;
     private _animate: XRFrameRequestCallback;
     private _clock = new Clock();
+
+    public get activeScene(): Scene { return this.renderManager.activeScene };
+    public get activeCamera(): Camera { return this.renderManager.activeCamera };
+    public get activeComposer(): EffectComposer { return this.renderManager.activeComposer };
 
     constructor(parameters: MainParameters, rendererParameters: WebGLRendererParameters = {}) {
         this.renderer = new WebGLRenderer(rendererParameters);
@@ -67,20 +68,20 @@ export class Main {
     public addScene(...scene: Scene[]): void {
         this.scenes.push(...scene);
         if (this.activeScene === undefined) {  //TODO documenta
-            this.activeScene = scene[0];
-            for (const obj of this.activeScene.children) {
+            for (const obj of scene[0].children) {
                 if ((obj as unknown as Camera).isCamera === true) {
-                    this.activeCamera = obj as unknown as Camera;
+                    this.setActiveScene(scene[0], obj as unknown as Camera);
                     break;
                 }
             }
         }
     }
 
-    public setActiveScene(scene?: Scene, camera?: Camera, composer?: EffectComposer) {
-        this.activeScene = scene;
-        this.activeCamera = camera;
-        this.activeComposer = composer;
+    /**
+     * Se non ci sono view TODO
+     */
+    public setActiveScene(scene: Scene, camera: Camera, composer?: EffectComposer): void {
+        this.renderManager.setActiveScene(scene, camera, composer);
     }
 
 }

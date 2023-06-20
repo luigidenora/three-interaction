@@ -10,22 +10,32 @@ export class RenderManager {
   public renderer: WebGLRenderer;
   public views: RenderView[] = [];
   public activeView: RenderView;
-  public _backgroundColor: Color;
-  public _backgroundAlpha: number;
-  private _fullscreen: boolean; // TODO editable?
-  private _rendererSize = new Vector2();
   private _visibleScenes = new DistinctTargetArray<Scene>();
+  private _rendererSize = new Vector2();
+  private _fullscreen: boolean; // TODO editable?
+  private _activeScene: Scene;
+  private _activeCamera: Camera;
+  private _activeComposer: EffectComposer;
+  private _backgroundColor: Color;
+  private _backgroundAlpha: number;
 
-  public get activeScene(): Scene { return this.activeView.scene }; //TODO  finire
+  /** todo */
+  public get activeScene(): Scene { return this.activeView?.scene ?? this._activeScene };
 
-  public get activeCamera(): Camera { return this.activeView.camera }; //TODO  finire
+  /** todo */
+  public get activeCamera(): Camera { return this.activeView?.camera ?? this._activeCamera };
 
+  /** todo */
+  public get activeComposer(): EffectComposer { return this.activeView?.composer ?? this._activeComposer };
+
+  /** todo */
   public get backgroundColor(): Color { return this._backgroundColor };
   public set backgroundColor(value: Color) {
     this._backgroundColor = value;
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   };
 
+  /** todo */
   public get backgroundAlpha(): number { return this._backgroundAlpha };
   public set backgroundAlpha(value: number) {
     this._backgroundAlpha = value;
@@ -148,7 +158,7 @@ export class RenderManager {
   /**
    * Retrieves the ray origin based on the mouse position.
    */
-  public getRayOrigin(mouse: Vector2, target: Vector2): Vector2 {
+  public getNormalizedMouse(mouse: Vector2, target: Vector2): Vector2 {
     this.updateActiveView(mouse);
     if (this.activeView !== undefined) {
       const viewport = this.activeView.viewport;
@@ -205,6 +215,12 @@ export class RenderManager {
       this.renderer.setSize(width, height, false);
     }
     this.renderer.getSize(this._rendererSize);
+  }
+
+  public setActiveScene(scene: Scene, camera: Camera, composer?: EffectComposer) {
+    this._activeScene = scene;
+    this._activeCamera = camera;
+    this._activeComposer = composer;
   }
 
 }

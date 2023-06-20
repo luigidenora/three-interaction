@@ -9,7 +9,7 @@ export class RaycasterManager {
     public raycastGPU = false; //todo capire se ha senso
     private _pickingTexture = new WebGLRenderTarget(1, 1); // todo move
     private _pointer = new Vector2();
-    private _rayOrigin = new Vector2();
+    private _pointerNormalized = new Vector2();
     private _renderManager: RenderManager;
     private _renderer: WebGLRenderer;
 
@@ -21,10 +21,10 @@ export class RaycasterManager {
     public getIntersections(event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this._pointer.set(event.offsetX, event.offsetY);
-        this._renderManager.getRayOrigin(this._pointer, this._rayOrigin);
-        console.log(this._rayOrigin);
-        const { scene, camera } = this._renderManager.activeView;
-        this.raycaster.setFromCamera(this._rayOrigin, camera);
+        this._renderManager.getNormalizedMouse(this._pointer, this._pointerNormalized);
+        const scene = this._renderManager.activeScene;
+        const camera = this._renderManager.activeCamera;
+        this.raycaster.setFromCamera(this._pointerNormalized, camera);
         if (isDragging) {
             if (findDropTarget) {
                 this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections) : this.raycastObjectsDropTarget(scene, intersections);
