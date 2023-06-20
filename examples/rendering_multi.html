@@ -45,12 +45,12 @@
 
         const main = new Main({ scenes: [scene] }, { antialias: true });
 
-        main.renderManager.add({
+        main.renderManager.add({ name: "left",
             scene, camera: new OrthographicCamera(20).translateZ(10), backgroundColor: 0x333333, viewport: { left: 0, bottom: 0, width: 0.5, height: 1 },
             onBeforeRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = true; },
             onAfterRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = false; }
         });
-        main.renderManager.add({ scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, bottom: 0, width: 0.5, height: 1 } });
+        main.renderManager.add({ name: "Right", scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, bottom: 0, width: 0.5, height: 1 } });
 
     </script>
 </body>

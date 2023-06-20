@@ -31,8 +31,8 @@ export class Main {
         this.renderer = new WebGLRenderer(rendererParameters);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         applyWebGLRendererPatch(this.renderer);
-        this.interactionManager = new InteractionManager(this.renderer);
         this.renderManager = new RenderManager(this.renderer, parameters.fullscreen ?? true);
+        this.interactionManager = new InteractionManager(this.renderManager);
         this._animate = parameters.animate;
 
         if (rendererParameters.canvas === undefined) {
@@ -44,7 +44,7 @@ export class Main {
         this.addScene(...parameters.scenes);
 
         this.renderer.setAnimationLoop((time, frame) => {
-            this.interactionManager.update(this.activeScene, this.activeCamera);
+            this.interactionManager.update();
 
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {

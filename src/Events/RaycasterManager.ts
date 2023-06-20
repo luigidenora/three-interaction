@@ -1,6 +1,7 @@
 import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderTarget, WebGLRenderer } from "three";
 import { IntersectionExt } from "./Events";
 import { object3DList } from "../Patch/Object3D";
+import { RenderManager } from "../Rendering/RenderManager";
 
 export class RaycasterManager {
     public raycaster = new Raycaster();
@@ -8,17 +9,22 @@ export class RaycasterManager {
     public raycastGPU = false; //todo capire se ha senso
     private _pickingTexture = new WebGLRenderTarget(1, 1); // todo move
     private _pointer = new Vector2();
-    private _pointerNormalized = new Vector2();
+    private _rayOrigin = new Vector2();
+    private _renderManager: RenderManager;
     private _renderer: WebGLRenderer;
 
-    constructor(renderer: WebGLRenderer) { 
-        this._renderer = renderer;
+    constructor(renderManager: RenderManager) {
+        this._renderManager = renderManager;
+        this._renderer = renderManager.renderer;
     }
 
-    public getIntersections(scene: Scene, camera: Camera, event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
+    public getIntersections(event: PointerEvent, isDragging: boolean, findDropTarget: boolean): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
-        this.updateCanvasPointerPosition(event);
-        this.raycaster.setFromCamera(this._pointerNormalized, camera);
+        this._pointer.set(event.offsetX, event.offsetY);
+        this._renderManager.getRayOrigin(this._pointer, this._rayOrigin);
+        console.log(this._rayOrigin);
+        const { scene, camera } = this._renderManager.activeView;
+        this.raycaster.setFromCamera(this._rayOrigin, camera);
         if (isDragging) {
             if (findDropTarget) {
                 this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections) : this.raycastObjectsDropTarget(scene, intersections);
@@ -28,12 +34,6 @@ export class RaycasterManager {
         }
         intersections.sort(this.intersectionSortComparer);
         return intersections;
-    }
-
-    private updateCanvasPointerPosition(event: PointerEvent): void {
-        this._pointerNormalized.x = event.offsetX / this._renderer.domElement.clientWidth * 2 - 1;
-        this._pointerNormalized.y = event.offsetY / this._renderer.domElement.clientHeight * -2 + 1;
-        this._pointer.set(event.offsetX, event.offsetY);
     }
 
     private raycastObjects(object: Object3D, target: IntersectionExt[] = []): IntersectionExt[] {

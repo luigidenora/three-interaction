@@ -1,9 +1,10 @@
-import { Camera, Object3D, Scene, WebGLRenderer } from "three";
+import { Camera, Object3D, Scene, Vector2, WebGLRenderer } from "three";
 import { CursorHandler } from "./CursorManager";
 import { DragAndDropManager } from "./DragAndDropManager";
 import { FocusEventExt, InteractionEvents, IntersectionExt, KeyboardEventExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
+import { RenderManager } from "../Rendering/RenderManager";
 
 export class InteractionManager {
     public enabled = true;
@@ -12,25 +13,28 @@ export class InteractionManager {
     public disactiveWhenClickOut = false;
     public intersection: { [x: string]: IntersectionExt } = {};
     public intersectionDropTarget: IntersectionExt;
-    public activeObj: Object3D;
+    public activeObject: Object3D;
     public raycasterManager: RaycasterManager;
+    private _renderManager: RenderManager;
+    private _cursorManager: CursorHandler;
+    private _queue = new InteractionEventsQueue();
+    private _dragManager = new DragAndDropManager();
     private _primaryIdentifier: number;
     private _lastPointerDownExt: { [x: string]: PointerEventExt } = {};
     private _lastPointerDown: { [x: string]: PointerEvent } = {};
     private _lastPointerMove: { [x: string]: PointerEvent } = {};
     private _lastClick: PointerEventExt;
     private _lastIntersection: { [x: string]: IntersectionExt } = {};
-    private _queue = new InteractionEventsQueue();
-    private _cursorManager: CursorHandler;
-    private _dragManager = new DragAndDropManager();
     private _primaryRaycasted: boolean;
     private _mouseDetected = false;
     private _isTapping = false;
 
-    constructor(renderer: WebGLRenderer) {
+    constructor(renderManager: RenderManager) {
+        this._renderManager = renderManager;
+        const renderer = renderManager.renderer;
         this.registerRenderer(renderer);
         this._cursorManager = new CursorHandler(renderer.domElement);
-        this.raycasterManager = new RaycasterManager(renderer);
+        this.raycasterManager = new RaycasterManager(renderManager);
     }
 
     public registerRenderer(renderer: WebGLRenderer): void {
@@ -61,28 +65,28 @@ export class InteractionManager {
         this._queue.enqueue(event);
     }
 
-    public update(scene: Scene, camera: Camera): void { //todo user active scene?
+    public update(): void { //todo user active scene?
         //TODO check se canvas ha perso focus
         if (!this.enabled) return;
         this._primaryRaycasted = false;
         for (const event of this._queue.dequeue()) {
-            this.computeQueuedEvent(event, scene, camera);
+            this.computeQueuedEvent(event);
         }
-        this.pointerIntersection(scene, camera);
+        this.pointerIntersection();
         this._cursorManager.update(this._dragManager.target, this.intersection[this._primaryIdentifier]?.object); //todo creare hoveredobj?
     }
 
-    private raycastScene(scene: Scene, camera: Camera, event: PointerEvent): void {
+    private raycastScene(event: PointerEvent): void {
         if (event.isPrimary) {
             this._primaryRaycasted = true;
             this._primaryIdentifier = event.pointerId;
         }
         if (this._dragManager.isDragging) {
-            const intersections = this.raycasterManager.getIntersections(scene, camera, event, true, this._dragManager.findDropTarget);
+            const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.findDropTarget);
             this.intersectionDropTarget = intersections[0];
         } else {
             this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
-            const intersections = this.raycasterManager.getIntersections(scene, camera, event, false, false);
+            const intersections = this.raycasterManager.getIntersections(event, false, false);
             this.intersection[event.pointerId] = intersections[0];
         }
     }
@@ -110,17 +114,17 @@ export class InteractionManager {
     }
 
     private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
-        if (this.activeObj) {
+        if (this.activeObject) {
             const keyboardEvent = new KeyboardEventExt(event, cancelable);
-            this.activeObj.triggerEventAncestor(type, keyboardEvent);
+            this.activeObject.triggerEventAncestor(type, keyboardEvent);
             return keyboardEvent;
         }
     }
 
-    private computeQueuedEvent(event: Event, scene: Scene, camera: Camera): void {
+    private computeQueuedEvent(event: Event): void {
         switch (event.type) {
-            case "pointermove": return this.pointerMove(event as PointerEvent, scene, camera);
-            case "pointerdown": return this.pointerDown(event as PointerEvent, scene, camera);
+            case "pointermove": return this.pointerMove(event as PointerEvent);
+            case "pointerdown": return this.pointerDown(event as PointerEvent);
             case "pointerup": return this.pointerUp(event as PointerEvent);
             case "wheel": return this.wheel(event as WheelEvent);
             case "keydown": return this.keyDown(event as KeyboardEvent);
@@ -133,9 +137,9 @@ export class InteractionManager {
         return event.isPrimary && ((event.pointerType === "mouse" && event.button === 0) || event.pointerType !== "mouse");
     }
 
-    private pointerDown(event: PointerEvent, scene: Scene, camera: Camera): void {
+    private pointerDown(event: PointerEvent): void {
         if (event.pointerType !== "mouse") {
-            this.pointerMove(event, scene, camera);
+            this.pointerMove(event);
         }
         const target = this.intersection[event.pointerId]?.object;
         const pointerDownEvent = this.triggerAncestorPointer("pointerdown", event, target, undefined, true);
@@ -152,31 +156,31 @@ export class InteractionManager {
         }
     }
 
-    private pointerMove(event: PointerEvent, scene: Scene, camera: Camera): void {
+    private pointerMove(event: PointerEvent): void {
         this._lastPointerMove[event.pointerId] = event;
-        this.raycastScene(scene, camera, event);
+        this.raycastScene(event);
         if (this._dragManager.isDragging) {
-            this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera, this.intersectionDropTarget);
+            this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeCamera, this.intersectionDropTarget);
         } else {
             this.pointerOutOver(event);
             const target = this.intersection[event.pointerId]?.object;
-            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, camera, target)) {
+            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeCamera, target)) {
                 this.triggerAncestorPointer("pointermove", event, target);
             }
         }
     }
 
-    private pointerIntersection(scene: Scene, camera: Camera): void {
+    private pointerIntersection(): void {
         if (this._dragManager.isDragging) {
             if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDrop) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
-                this.raycastScene(scene, camera, event);
-                this._dragManager.performDrag(event, this.raycasterManager.raycaster, camera, this.intersectionDropTarget);
+                this.raycastScene(event);
+                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeCamera, this.intersectionDropTarget);
             }
         } else if (this.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
-                this.raycastScene(scene, camera, event);
+                this.raycastScene(event);
                 this.pointerOutOver(event);
             }
             const intersection = this.intersection[this._primaryIdentifier];
@@ -257,12 +261,12 @@ export class InteractionManager {
     private focus(event: PointerEvent, target: Object3D): void { //TODO creare possibilità di settare focus manulamente
         if (!event.isPrimary) return;
         const activableObj = target?.activableObj;
-        if (this.activeObj !== activableObj) {
+        if (this.activeObject !== activableObj) {
 
             if (!this.disactiveWhenClickOut && !activableObj) return;
 
             const event = new FocusEventExt(activableObj);
-            const oldActiveObj = this.activeObj;
+            const oldActiveObj = this.activeObject;
 
             if (oldActiveObj) {
                 oldActiveObj.active = false;
@@ -277,7 +281,7 @@ export class InteractionManager {
                 activableObj.triggerEvent("focusin", event);
             }
 
-            this.activeObj = activableObj;
+            this.activeObject = activableObj;
         }
     }
 }
