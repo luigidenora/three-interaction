@@ -5,7 +5,7 @@ import { FocusEventExt, InteractionEvents, IntersectionExt, KeyboardEventExt, Po
 import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
 
-export class EventsManager {
+export class InteractionManager {
     public enabled = true;
     public continousRaycasting = true; //for intersection event
     public continousRaycastingDrop = true; //for trigger drag without moving

@@ -10,10 +10,12 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera: Camera) {
         //TODO smart rendering
+        
+        this.getViewport(viewportSize);
+        handleRendererResize(this, scene);
+
         if (!this.__isGPUPicking) {
             // EventsCache.dispatchEvent(scene, "framerendering"); metterlo quando c'è multirenderer
-            this.getViewport(viewportSize); //TODO scissor o viewport?
-            handleRendererResize(this, scene);
         } else {
             this.__isGPUPicking = false;
         }

@@ -46,11 +46,10 @@
         scene.add(scene.sphere = new Mesh(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff })));
         scene.sphere.position.setX(1).setY(1);
 
-        const main = new Main(true, { antialias: true });
-        main.addScene(scene);
+        const main = new Main({ scenes: [scene] }, { antialias: true });
 
         main.renderManager.add({
-            scene, camera: new OrthographicCamera(20).translateZ(10), backgroundColor: 0x333333, viewport: { left: 0, bottom: 0, width: 0.5, height: 1 } ,
+            scene, camera: new OrthographicCamera(20).translateZ(10), backgroundColor: 0x333333, viewport: { left: 0, bottom: 0, width: 0.5, height: 1 },
             onBeforeRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = true; },
             onAfterRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = false; }
         });

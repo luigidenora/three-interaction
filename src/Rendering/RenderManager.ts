@@ -1,6 +1,7 @@
 import { Camera, Color, Scene, Vector2, WebGLRenderer } from "three";
 import { RenderView, ViewParameters } from "./RenderView";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { DistinctTargetArray } from "../index";
 
 /**
  * The RenderManager class manages the rendering of views and provides methods for manipulating views and their parameters.
@@ -8,11 +9,24 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 export class RenderManager {
   public views: RenderView[] = [];
   public activeView: RenderView;
-  public backgroundColor: Color; //todo getter
-  public backgroundAlpha: number; //todo getter
-  public fullscreen: boolean; // TODO renderlo modificabile
+  public _backgroundColor: Color;
+  public _backgroundAlpha: number;
+  private _fullscreen: boolean; // TODO editable?
   private _renderer: WebGLRenderer;
   private _rendererSize = new Vector2();
+  private _visibleScenes = new DistinctTargetArray<Scene>();
+
+  public get backgroundColor(): Color { return this._backgroundColor };
+  public set backgroundColor(value: Color) {
+    this._backgroundColor = value;
+    this._renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
+  };
+
+  public get backgroundAlpha(): number { return this._backgroundAlpha };
+  public set backgroundAlpha(value: number) {
+    this._backgroundAlpha = value;
+    this._renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
+  };
 
   /**
    * @param renderer - The WebGL renderer used for rendering.
@@ -22,12 +36,12 @@ export class RenderManager {
    */
   constructor(renderer: WebGLRenderer, fullscreen: boolean, backgroundColor: Color | number = 0x000000, backgroundAlpha = 1) {
     this._renderer = renderer;
-    this.fullscreen = fullscreen;
-    this.backgroundAlpha = backgroundAlpha;
-    this.backgroundColor = typeof backgroundColor === "number" ? new Color(backgroundColor) : backgroundColor;
+    this._fullscreen = fullscreen;
+    this._backgroundAlpha = backgroundAlpha;
+    this._backgroundColor = typeof backgroundColor === "number" ? new Color(backgroundColor) : backgroundColor;
     window.addEventListener("resize", this.onResize.bind(this));
     this.updateRenderSize();
-    this._renderer.setClearColor(this.backgroundColor, this.backgroundAlpha); //todo remove quandoo faccio getter
+    this._renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   }
 
   /** 
@@ -90,7 +104,21 @@ export class RenderManager {
     this._renderer.setScissorTest(false);
     this._renderer.setViewport(0, 0, this._rendererSize.width, this._rendererSize.height);
     this._renderer.setScissor(0, 0, this._rendererSize.width, this._rendererSize.height);
-    this._renderer.setClearColor(this.backgroundColor, this.backgroundAlpha);
+    this._renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
+  }
+
+  /**
+   * Returns an array of visible scenes.
+   */
+  public getVisibleScenes(): Scene[] {
+    if (this.views.length === 0) return undefined;
+    this._visibleScenes.clear();
+    for (const view of this.views) {
+      if (view.visible === true) {
+        this._visibleScenes.push(view.scene);
+      }
+    }
+    return this._visibleScenes.data;
   }
 
   /**
@@ -137,7 +165,7 @@ export class RenderManager {
           this._renderer.setScissorTest(view.viewportNormalized !== undefined);
           this._renderer.setViewport(v.left, v.bottom, v.width, v.height);
           this._renderer.setScissor(v.left, v.bottom, v.width, v.height);
-          this._renderer.setClearColor(view.backgroundColor ?? this.backgroundColor, view.backgroundAlpha ?? this.backgroundAlpha);
+          this._renderer.setClearColor(view.backgroundColor ?? this._backgroundColor, view.backgroundAlpha ?? this._backgroundAlpha);
           view.onBeforeRender();
           this.executeRender(view.scene, view.camera, view.composer);
           view.onAfterRender();
@@ -164,7 +192,7 @@ export class RenderManager {
   }
 
   private updateRenderSize(): void {
-    if (this.fullscreen === true) {
+    if (this._fullscreen === true) {
       this._renderer.setSize(window.innerWidth, window.innerHeight);
     } else {
       const { width, height } = this._renderer.domElement.getBoundingClientRect();
