@@ -30,10 +30,7 @@
         import { AmbientLight, Mesh, MeshLambertMaterial, Scene, BoxGeometry, SphereGeometry } from "three";
         import { OrthographicCamera, Main, RenderView } from "../src/index";
 
-        const scene = new Scene().add(
-            new AmbientLight(0xaaaaaa),
-            new OrthographicCamera(20).translateZ(10)
-        );
+        const scene = new Scene().add(new AmbientLight(0xaaaaaa));
 
         scene.add(scene.box = new Mesh(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 })));
         scene.box.draggable = true;

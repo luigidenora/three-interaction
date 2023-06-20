@@ -66,7 +66,7 @@ export class Main {
 
     public addScene(...scene: Scene[]): void {
         this.scenes.push(...scene);
-        if (this.activeScene !== undefined) {  //TODO documenta
+        if (this.activeScene === undefined) {  //TODO documenta
             this.activeScene = scene[0];
             for (const obj of this.activeScene.children) {
                 if ((obj as unknown as Camera).isCamera === true) {
