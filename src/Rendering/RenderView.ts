@@ -7,8 +7,8 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 export interface Viewport {
   /** The left coordinate of the viewport. */
   left: number;
-  /** The top coordinate of the viewport. */
-  top: number;
+  /** The bottom coordinate of the viewport. */
+  bottom: number;
   /** The width of the viewport */
   width: number;
   /** The height of the viewport. */
@@ -37,6 +37,10 @@ export interface ViewParameters {
   backgroundAlpha?: number;
   /** The effect composer used for post-processing (optional). */
   composer?: EffectComposer;
+  /**  */
+  onBeforeRender?: Function;
+  /**  */
+  onAfterRender?: Function;
 }
 
 /**
@@ -48,13 +52,15 @@ export class RenderView implements ViewParameters {
   /** The normalized viewport defining the dimensions and position of the view. Values range from 0 to 1. */
   public viewportNormalized: Viewport;
   /** The viewport defining the dimensions and position of the view. */
-  public viewport = { left: 0, top: 0, width: 0, height: 0 };
+  public viewport = { left: 0, bottom: 0, width: 0, height: 0 };
   public name: string;
   public visible: boolean;
   public enabled: boolean;
   public backgroundColor: Color;
   public backgroundAlpha: number;
   public composer: EffectComposer;
+  private _onBeforeRender: Function;
+  private _onAfterRender: Function;
   private _rendererSize: Vector2;
 
   constructor(parameters: ViewParameters, rendererSize: Vector2) {
@@ -67,6 +73,8 @@ export class RenderView implements ViewParameters {
     this.enabled = parameters.enabled ?? true;
     this.backgroundAlpha = parameters.backgroundAlpha;
     this.backgroundColor = typeof parameters.backgroundColor === "number" ? new Color(parameters.backgroundColor) : parameters.backgroundColor;
+    this._onBeforeRender = parameters.onBeforeRender;
+    this._onAfterRender = parameters.onAfterRender;
 
     // if (InteractionModulePresent) TODO
     this.scene.add(this.camera); // useful to trigger camera resize event
@@ -77,14 +85,26 @@ export class RenderView implements ViewParameters {
    * Updates the dimensions of the viewport based on the renderer size.
    */
   public update(): void {
-    if (this.viewport !== undefined) {
+    if (this.viewportNormalized !== undefined) {
       this.viewport.left = Math.floor(this._rendererSize.x * this.viewportNormalized.left);
-      this.viewport.top = Math.floor(this._rendererSize.y * this.viewportNormalized.top);
+      this.viewport.bottom = Math.floor(this._rendererSize.y * this.viewportNormalized.bottom);
       this.viewport.width = Math.floor(this._rendererSize.x * this.viewportNormalized.width);
       this.viewport.height = Math.floor(this._rendererSize.y * this.viewportNormalized.height);
     } else {
       this.viewport.width = this._rendererSize.x;
       this.viewport.height = this._rendererSize.y;
+    }
+  }
+
+  public onBeforeRender(): void {
+    if (this._onBeforeRender !== undefined) {
+      this._onBeforeRender();
+    }
+  }
+
+  public onAfterRender(): void {
+    if (this._onAfterRender !== undefined) {
+      this._onAfterRender();
     }
   }
 

@@ -35,27 +35,26 @@
             new OrthographicCamera(20).translateZ(10)
         );
 
-        const box = new Mesh(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 }));
-        box.draggable = true;
-        box.position.x = -1;
-        box.bindEvent("animate", function (e) {
+        scene.add(scene.box = new Mesh(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 })));
+        scene.box.draggable = true;
+        scene.box.position.setX(-1);
+        scene.box.bindEvent("animate", function (e) {
             this.rotation.x += e.delta;
             this.rotation.y += e.delta * 1.5;
         });
 
-        const sphere = new Mesh(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff }));
-        sphere.draggable = true;
-        sphere.position.x = 1;
-
-        scene.add(box, sphere);
+        scene.add(scene.sphere = new Mesh(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff })));
+        scene.sphere.position.setX(1).setY(1);
 
         const main = new Main(true, { antialias: true });
         main.addScene(scene);
 
-        main.renderManager.add(
-            { scene, camera: new OrthographicCamera(20).translateZ(10), viewport: { left: 0, top: 0, width: 0.5, height: 1 }, backgroundColor: 0x333333 },
-            { scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, top: 0, width: 0.5, height: 1 }, backgroundColor: 0x666666 }
-        );
+        main.renderManager.add({
+            scene, camera: new OrthographicCamera(20).translateZ(10), backgroundColor: 0x333333, viewport: { left: 0, bottom: 0, width: 0.5, height: 1 } ,
+            onBeforeRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = true; },
+            onAfterRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = false; }
+        });
+        main.renderManager.add({ scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, bottom: 0, width: 0.5, height: 1 } });
 
     </script>
 </body>

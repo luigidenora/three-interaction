@@ -1,5 +1,6 @@
 import { Camera, Color, Scene, Vector2, WebGLRenderer } from "three";
 import { RenderView, ViewParameters } from "./RenderView";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 
 /**
  * The RenderManager class manages the rendering of views and provides methods for manipulating views and their parameters.
@@ -30,12 +31,12 @@ export class RenderManager {
   }
 
   /** 
-   * Adds one or more views.
+   * Adds a view.
    */
-  public add(...views: ViewParameters[]): void {
-    for (const view of views) {
-      this.views.push(new RenderView(view, this._rendererSize));
-    }
+  public add(view: ViewParameters): RenderView {
+    const renderView = new RenderView(view, this._rendererSize);
+    this.views.push(renderView);
+    return renderView;
   }
 
   /**
@@ -61,7 +62,6 @@ export class RenderManager {
       this.setDefaultRendererParameters();
     }
   }
-
 
   /**
    * Removes a view by its name.
@@ -107,7 +107,7 @@ export class RenderManager {
     for (let i = this.views.length - 1; i >= 0; i--) {
       const view = this.views[i];
       const v = view.viewport;
-      if (view.visible === true && v.left <= mouse.x && v.left + v.width >= mouse.x && v.top <= mouse.y && v.top + v.height >= mouse.y) {
+      if (view.visible === true && v.left <= mouse.x && v.left + v.width >= mouse.x && v.bottom <= mouse.y && v.bottom + v.height >= mouse.y) {
         return view;
       }
     }
@@ -120,7 +120,7 @@ export class RenderManager {
     this.updateActiveView(mouse);
     if (this.activeView.enabled === true) {
       const viewport = this.activeView.viewport;
-      return target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.top) / viewport.height * -2 + 1);
+      return target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
     }
   }
 
@@ -129,18 +129,28 @@ export class RenderManager {
    * If there are active views, each view is rendered individually.
    * If there are no active views, the scene is rendered using the provided scene and camera.
    */
-  public render(scene: Scene, camera: Camera): void {
+  public render(scene?: Scene, camera?: Camera, composer?: EffectComposer): void {
     if (this.views.length > 0) {
       for (const view of this.views) {
         if (view.visible === true) { // TODO element.scene.needsRender
           const v = view.viewport;
           this._renderer.setScissorTest(view.viewportNormalized !== undefined);
-          this._renderer.setViewport(v.left, v.top, v.width, v.height);
-          this._renderer.setScissor(v.left, v.top, v.width, v.height);
+          this._renderer.setViewport(v.left, v.bottom, v.width, v.height);
+          this._renderer.setScissor(v.left, v.bottom, v.width, v.height);
           this._renderer.setClearColor(view.backgroundColor ?? this.backgroundColor, view.backgroundAlpha ?? this.backgroundAlpha);
-          this._renderer.render(view.scene, view.camera);
+          view.onBeforeRender();
+          this.executeRender(view.scene, view.camera, view.composer);
+          view.onAfterRender();
         }
       }
+    } else {
+      this.executeRender(scene, camera, composer);
+    }
+  }
+
+  private executeRender(scene?: Scene, camera?: Camera, composer?: EffectComposer): void {
+    if (composer !== undefined) {
+      composer.render();
     } else {
       this._renderer.render(scene, camera);
     }
