@@ -27,7 +27,7 @@
     <script type="module">
 
         import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, Mesh, MeshPhongMaterial, Scene, SphereGeometry } from "three";
-        import { InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera, WebGLRenderer, Main } from "./bundle.js";
+        import { InstancedMesh, InstancedMeshSingle, LoadingMaterial, PerspectiveCamera, Main } from "./bundle.js";
 
         const scene = new Scene();
         scene.add(
@@ -61,7 +61,7 @@
             });
         }
 
-        window.main = new Main([scene], true, { antialias: true });
+        const main = new Main({ scenes: [scene] }, { antialias: true });
 
     </script>
 </body>

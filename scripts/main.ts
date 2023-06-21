@@ -85,3 +85,23 @@
 // }
 
 // (window as any).main = new Main();
+
+// class Impact extends Mesh {
+
+//     constructor(position, faceNormal, color) {
+//         super(impactGeometry, new MeshBasicMaterial({ color, transparent: true, opacity: 0.7, side: DoubleSide }));
+
+//         this.position.copy(position).sub(faceNormal.clone().setLength(sphereRadius));
+//         this.lookAt(this.position.clone().add(faceNormal));
+//         this.bindProperty("visible", () => showImpact);
+
+//         this.bindEvent("animate", (e) => {
+//             this.material.opacity -= e.delta * timeSpeed / 4;
+//             this.scale.setScalar(this.material.opacity)
+//             if (this.material.opacity <= 0) {
+//                 this.material.dispose();
+//                 this.removeFromParent();
+//             }
+//         });
+//     }
+// }

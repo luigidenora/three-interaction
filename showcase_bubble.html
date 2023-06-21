@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three-ag drag & drop</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="files/favicon.ico" />
+    <!-- <link type="text/css" rel="stylesheet" href="files/main.css"> -->
+    <style>
+        body {
+            margin: 0;
+            background-color: aliceblue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            font-size: 3em;
+            overscroll-behavior: contain;
+        }
+
+        html {
+            overflow: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <!-- <div id="info">
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - bubbles<br>
+    </div> -->
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three/build/three.module.min.js",
+                "three/examples/": "https://unpkg.com/three/examples/"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import html2canvas from 'html2canvas';
+        import { CanvasTexture, CircleGeometry, Mesh, Scene as SceneBase } from 'three';
+        import { Main, PerspectiveCamera, BubbleMaterial } from "./bundle.js";
+
+        document.querySelector('body').innerHTML = "<h1>Lorem ipsum</h1>";
+
+        class Bubble extends Mesh {
+            static material = new BubbleMaterial();
+            static geometry = new CircleGeometry(1, 128, 128);
+
+            constructor() {
+                super(Bubble.geometry, Bubble.material);
+                this.theta = Math.random() * Math.PI * 2 - Math.PI * 2;
+                this.phi = Math.random() * Math.PI * 2 - Math.PI * 2;
+                this.bindEvent('animate', (args) => {
+                    this.position.setFromSphericalCoords(4, this.theta + args.total / 2, this.phi + args.total / 2);
+                    this.position.y /= 2;
+                });
+                this.bindProperty('visible', () => this.material.uniforms.map?.value !== undefined);
+            }
+        }
+
+        class Scene extends SceneBase {
+
+            constructor() {
+                super();
+                this.add(new PerspectiveCamera(75).translateZ(10));
+
+                for (let i = 0; i < 10; i++) {
+                    this.add(new Bubble());
+                }
+
+                this.bindEvent('rendererresize', async (args) => {
+                    const page = await this.initPage()
+                    Bubble.material.setTexture(new CanvasTexture(page));
+                    Bubble.material.setResolution(args.width * window.devicePixelRatio, args.height * window.devicePixelRatio);
+                });
+                this.bindEvent('animate', (args) => {
+                    Bubble.material.setTime(args.total);
+                });
+            }
+
+            initPage() {
+                return html2canvas(document.body, {
+                    ignoreElements: (element) => element === document.querySelector('canvas'),
+                });
+            }
+        }
+
+        const main = new Main({ scenes: [new Scene()] });
+        main.renderManager.backgroundAlpha = 0;
+
+    </script>
+</body>
+
+</html>

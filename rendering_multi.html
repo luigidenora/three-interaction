@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three-ag drag & drop</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="files/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="files/main.css">
+</head>
+
+<body>
+    <div id="info">
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - drag &
+        drop<br>
+        Press ESC to cancel a drag.
+    </div>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three/build/three.module.min.js",
+                "three/examples/": "https://unpkg.com/three/examples/"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import { AmbientLight, Mesh, MeshLambertMaterial, Scene, BoxGeometry, SphereGeometry } from "three";
+        import { OrthographicCamera, Main, RenderView } from "./bundle.js";
+
+        const scene = new Scene().add(new AmbientLight(0xaaaaaa));
+
+        scene.add(scene.box = new Mesh(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 })));
+        scene.box.draggable = true;
+        scene.box.position.setX(-1);
+        scene.box.bindEvent("animate", function (e) {
+            this.rotation.x += e.delta;
+            this.rotation.y += e.delta * 1.5;
+        });
+
+        scene.add(scene.sphere = new Mesh(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff })));
+        scene.sphere.position.setX(1).setY(1);
+
+        const main = new Main({ scenes: [scene] }, { antialias: true });
+
+        main.renderManager.add({ name: "left",
+            scene, camera: new OrthographicCamera(20).translateZ(10), backgroundColor: 0x333333, viewport: { left: 0, bottom: 0, width: 0.5, height: 1 },
+            onBeforeRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = true; },
+            onAfterRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = false; }
+        });
+        main.renderManager.add({ name: "Right", scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, bottom: 0, width: 0.5, height: 1 } });
+
+        window.main = main;
+
+    </script>
+</body>
+
+</html>
