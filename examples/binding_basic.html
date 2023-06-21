@@ -94,7 +94,7 @@
             }
         });
 
-        window.main = new Main([scene], true, { antialias: true });
+        const main = new Main({ scenes: [scene] }, { antialias: true });
 
         const layers = {
             "toggle green": colorVisibility[0],

@@ -11,22 +11,30 @@ export interface MainParameters {
     animate?: XRFrameRequestCallback;
     fullscreen?: boolean;
     scenes: Scene[];
-    showStats: boolean; // TODO
-    smartRendering: boolean; // TODO
+    showStats?: boolean; // TODO
+    smartRendering?: boolean; // TODO
+    fps?: number; //default 0
+    backgroundColor?: number, //default 0x000000
+    backgroundAlpha?: number //default 1. Alpha in webgl context parameters must be true.
+    disableRightClickOnCanvas?: boolean, //default true
 }
 
 export class Main {
     public renderer: WebGLRenderer;
     public renderManager: RenderManager;
     public interactionManager: InteractionManager;
-    public stats = new Stats();
+    public _stats: Stats;
     public scenes: Scene[] = [];
     private _animate: XRFrameRequestCallback;
     private _clock = new Clock();
+    private _showStats: boolean;
 
     public get activeScene(): Scene { return this.renderManager.activeScene };
     public get activeCamera(): Camera { return this.renderManager.activeCamera };
     public get activeComposer(): EffectComposer { return this.renderManager.activeComposer };
+
+    public get showStats(): boolean { return this._showStats }
+    public set showStats(value: boolean) { this.setStats(value) }
 
     constructor(parameters: MainParameters, rendererParameters: WebGLRendererParameters = {}) {
         this.renderer = new WebGLRenderer(rendererParameters);
@@ -40,7 +48,7 @@ export class Main {
             document.body.appendChild(this.renderer.domElement);
         }
 
-        document.body.appendChild(this.stats.dom);
+        this.setStats(parameters.showStats);
 
         this.addScene(...parameters.scenes);
 
@@ -55,8 +63,24 @@ export class Main {
 
             this.animate(time, frame);
             this.renderManager.render(this.activeScene, this.activeCamera, this.activeComposer);
-            this.stats.update();
+
+            if (this._showStats === true) {
+                this._stats.update();
+            }
         });
+    }
+
+    private setStats(value: boolean) {
+        if (value === true) {
+            if (this._stats === undefined) {
+                this._stats = new Stats();
+                document.body.appendChild(this._stats.dom);
+            }
+            this._stats.dom.style.display = "block";
+        } else if (this._stats !== undefined) {
+            this._stats.dom.style.display = "none";
+        }
+        this._showStats = value;
     }
 
     private animate(time: DOMHighResTimeStamp, frame: XRFrame): void {

@@ -65,7 +65,7 @@
             scene.light.matrix = e.target.matrix; // folow focused cube because matrixAutoUpdate is false.
         });
 
-        window.main = new Main([scene], true, { antialias: true });
+        const main = new Main({ scenes: [scene] }, { antialias: true });
 
     </script>
 </body>
