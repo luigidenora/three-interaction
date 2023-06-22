@@ -30,8 +30,8 @@ export class RenderManager {
 
   /** todo */
   public get backgroundColor(): Color { return this._backgroundColor };
-  public set backgroundColor(value: Color) {
-    this._backgroundColor = value;
+  public set backgroundColor(value: Color | number) {
+    this._backgroundColor = typeof value === "number" ? new Color(value) : value;
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   };
 
