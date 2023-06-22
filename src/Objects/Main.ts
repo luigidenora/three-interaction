@@ -15,8 +15,7 @@ export interface MainParameters {
     disableContextMenu?: boolean;
     backgroundColor?: Color | number;
     backgroundAlpha?: number;
-    smartRendering?: boolean;
-    fps?: number;
+    // fps?: number;
 }
 
 export class Main {
@@ -96,18 +95,26 @@ export class Main {
 
     private setAnimationLoop(): void {
         this.renderer.setAnimationLoop((time, frame) => {
-            this.interactionManager.update();
-
+            
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {
-                EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
                 computeAutoBinding(scene);
             }
 
-            this.animate(time, frame);
-            this.renderManager.render(this.activeScene, this.activeCamera, this.activeComposer);
+            this.interactionManager.update();
 
-            if (this._showStats === true) {
+            for (const scene of visibleScenes) {
+                EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
+            }
+
+            this.animate(time, frame);
+            const rendered = this.renderManager.render(this.activeScene, this.activeCamera, this.activeComposer);
+
+            for (const scene of visibleScenes) {
+                scene.__needsRender = !scene.__smartRendering;
+            }
+
+            if (this._showStats === true && rendered === true) {
                 this._stats.update();
             }
         });

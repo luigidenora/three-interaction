@@ -54,6 +54,7 @@ export interface InteractionPrototype {
     cursorOnDrag: Cursor;
     interceptByRaycaster?: boolean; // default true
     objectsToRaycast?: Object3D[];
+    needsRender(): void;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
@@ -81,6 +82,13 @@ Object.defineProperty(Object3D.prototype, "activableObj", { //todo cache?
         return obj;
     }
 });
+
+Object3D.prototype.needsRender = function (this: Object3D) {
+    const scene = Utils.getSceneFromObj(this); //TODO Cache
+    if (scene !== undefined) {
+        scene.__needsRender = true;
+    }
+};
 
 Object3D.prototype.bindEvent = function (this: Object3D, types: any, listener) {
     if (typeof (types) === "string") {

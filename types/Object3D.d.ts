@@ -6,13 +6,14 @@ import { Cursor } from "../src/Events/CursorManager";
 import { BindingCallback } from "../src/Binding/Binding";
 
 export class Object3D extends Object3DBase implements Object3DExtPrototype {
+    needsRender(): void;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
     setManualDetectionMode(): void;
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    unbindProperty(key: string): this;
+    unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;

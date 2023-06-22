@@ -7,6 +7,9 @@ import { Cursor } from "../src/Events/CursorManager";
 import { BindingCallback } from "../src/Binding/Binding";
 
 export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
+    __smartRendering: boolean;
+    __needsRender: boolean;
+    needsRender(): void;
     __boundObjects: DistinctTargetArray;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
@@ -14,7 +17,7 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    unbindProperty(key: string): this;
+    unbindProperty<T extends keyof this>(property: T): this;
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;
@@ -36,7 +39,6 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     objectsToRaycast: Object3D[];
     cursorOnHover: Cursor;
     cursorOnDrag: Cursor;
-    /** @internal */ _threeDepth: number;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

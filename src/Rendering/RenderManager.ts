@@ -173,10 +173,11 @@ export class RenderManager {
    * If there are active views, each view is rendered individually.
    * If there are no active views, the scene is rendered using the provided scene and camera.
    */
-  public render(scene?: Scene, camera?: Camera, composer?: EffectComposer): void {
+  public render(scene?: Scene, camera?: Camera, composer?: EffectComposer): boolean {
+    let rendered = false;
     if (this.views.length > 0) {
       for (const view of this.views) {
-        if (view.visible === true) { // TODO element.scene.needsRender
+        if (view.visible === true && view.scene.__needsRender === true) {
           const v = view.viewport;
           this.renderer.setScissorTest(view.viewportNormalized !== undefined);
           this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
@@ -185,11 +186,14 @@ export class RenderManager {
           view.onBeforeRender();
           this.executeRender(view.scene, view.camera, view.composer);
           view.onAfterRender();
+          rendered ||= true;
         }
       }
     } else {
       this.executeRender(scene, camera, composer);
+      rendered ||= true;
     }
+    return rendered;
   }
 
   private executeRender(scene?: Scene, camera?: Camera, composer?: EffectComposer): void {

@@ -21,7 +21,7 @@ export interface Viewport {
 export interface ViewParameters {
   /** The scene to be rendered in the view. */
   scene: Scene;
-  /** The camera used to view the scene. */
+  /** The camera used to view the scene (Don't use the same camera for differents scenes). */
   camera: Camera;
   /** The normalized viewport defining the dimensions and position of the view (optional). Values range from 0 to 1. */
   viewport?: Viewport;
@@ -37,10 +37,12 @@ export interface ViewParameters {
   backgroundAlpha?: number;
   /** The effect composer used for post-processing (optional). */
   composer?: EffectComposer;
-  /**  */
+  /** TODO */
   onBeforeRender?: Function;
-  /**  */
+  /** TODO */
   onAfterRender?: Function;
+  /** TODO */
+  smartRendering?: boolean;
 }
 
 /**
@@ -62,6 +64,7 @@ export class RenderView implements ViewParameters {
   private _onBeforeRender: Function;
   private _onAfterRender: Function;
   private _rendererSize: Vector2;
+  public smartRendering: boolean; //TODO internal
 
   constructor(parameters: ViewParameters, rendererSize: Vector2) {
     this._rendererSize = rendererSize;
@@ -75,7 +78,9 @@ export class RenderView implements ViewParameters {
     this.backgroundColor = typeof parameters.backgroundColor === "number" ? new Color(parameters.backgroundColor) : parameters.backgroundColor;
     this._onBeforeRender = parameters.onBeforeRender;
     this._onAfterRender = parameters.onAfterRender;
+    this.smartRendering = parameters.smartRendering;
 
+    this.scene.__smartRendering ||= this.smartRendering;
     this.scene.add(this.camera); // useful to trigger camera resize event
     this.update();
   }

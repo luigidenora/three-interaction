@@ -2,15 +2,18 @@ import { Object3D } from "three";
 import { OrthographicCamera as OrthographicCameraBase } from "three/index";
 import { Cursor } from "../src/Events/CursorManager";
 import { Events } from "../src/Events/Events";
-import { EventsDispatcher } from "../src/index";
+import { BindingCallback, EventsDispatcher } from "../src/index";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
 
 export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototype {
+    __boundCallbacks: BindingCallback[];
+    __manualDetection: boolean;
+    needsRender(): void;
     setManualDetectionMode(): void;
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
     bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
-    unbindProperty(key: string): this;
+    unbindProperty<T extends keyof this>(property: T): this;
     __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;
     override children: Object3D[];

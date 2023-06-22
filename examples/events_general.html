@@ -57,7 +57,6 @@
 
         const scene = new Scene();
         scene.add(
-            scene.camera = new OrthographicCamera(20).translateZ(10),
             new DirectionalLight(0xffffff, 0.7).translateZ(10),
             scene.box = new Mesh(new BoxGeometry(5, 5, 5), new MeshLambertMaterial({ color: 0xff6666 })).translateZ(-5),
             scene.sphere = new Mesh(new SphereGeometry(2), new MeshLambertMaterial({ color: 0x6666ff })).translateX(10),
@@ -105,6 +104,7 @@
         });
 
         const main = new Main({ scenes: [scene] }, { antialias: true });
+        main.renderManager.add({ scene, camera: new OrthographicCamera(20).translateZ(10), smartRendering: true });
 
         function blink(element, className) {
             clearTimeout(element.timer);
