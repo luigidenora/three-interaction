@@ -10,6 +10,7 @@ export * from './Events/InteractionEventsQueue';
 export * from './Events/MiscEventsManager';
 export * from './Events/RaycasterManager';
 
+export * from './Objects/BubbleMaterial';
 export * from './Objects/InstancedMesh';
 export * from './Objects/InstancedMeshSingle';
 export * from './Objects/Line2';
@@ -19,7 +20,6 @@ export * from './Objects/Main';
 export * from './Objects/OrthographicCamera';
 export * from './Objects/PerspectiveCamera';
 
-// export * from './Patch/AutoUpdateMatrix';
 export * from './Patch/Euler';
 export * from './Patch/Matrix4';
 export * from './Patch/Object3D';

@@ -11,5 +11,8 @@
 	],
 	"Rendering": [
 		"rendering_multi"
+	],
+	"Showcase": [
+		"showcase_bubble"
 	]
 }
