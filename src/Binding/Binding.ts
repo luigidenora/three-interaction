@@ -15,6 +15,7 @@ export class Binding {
       console.error("Cannot override property already bound.");
       return;
     }
+
     const getValueBinded = getValue.bind(target);
     this.defineProperty(key, getValueBinded, target);
     this.addToBoundCallbacks(key, getValueBinded, target);
@@ -23,9 +24,11 @@ export class Binding {
   private static getIndexByKey(target: Object3D, key: string): number {
     const boundCallbacks = target.__boundCallbacks;
     if (boundCallbacks === undefined) return -1;
+
     for (let i = 0; i < boundCallbacks.length; i++) {
       if (boundCallbacks[i].key === key) return i;
     }
+
     return -1;
   }
 
@@ -55,7 +58,7 @@ export class Binding {
 
     Object.defineProperty(target, key, {
       get: function (this: any) {
-        if (this[lastTickKey] !== Main.ticks) { //override with scene.ticks
+        if (this[lastTickKey] !== Main.ticks) {  //override with scene.ticks ?
           this[privateKey] = getValue();
           this[lastTickKey] = Main.ticks;
         }
@@ -103,5 +106,4 @@ export class Binding {
 
     target.__manualDetection = true;
   }
-
 }
