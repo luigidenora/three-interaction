@@ -143,11 +143,7 @@ export function applyObject3DRotationPatch(target: Object3D): void {
 }
 
 Object3D.prototype.setManualDetectionMode = function () {
-    if (this.__boundCallbacks === undefined) {
-        this.__manualDetection = true;
-    } else {
-        console.error("Cannot change detectChangesMode if a binding is already created.");
-    }
+    Binding.setManualDetectionMode(this);
 };
 
 Object3D.prototype.detectChanges = function () {

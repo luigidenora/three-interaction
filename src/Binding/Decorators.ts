@@ -18,12 +18,14 @@ export const Bind = (): Function =>
       delete (target as any)[key];
       delete descriptor.get; //to avoid to auto define property after decorator
       delete descriptor.set; //to avoid to auto define property after decorator
-      descriptor.writable = true;
+      delete descriptor.configurable; //to avoid to auto define property after decorator
       target.bindProperty(key as keyof Object3D, base);
     }
   };
 
-//TODO check performance with cache class
 export const ManualDetection = (): Function => (constructor: typeof Object3D) => class Object3DManualDetection extends constructor {
-  public override __manualDetection = true;
+  constructor() {
+    super();
+    this.setManualDetectionMode();
+  }
 };

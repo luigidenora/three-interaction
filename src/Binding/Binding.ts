@@ -3,7 +3,7 @@ import { Main } from "../Objects/Main";
 
 /** @internal */
 export interface BindingCallback {
-  getValue: () => any;
+  setValue: () => void;
   key: string;
 }
 
@@ -20,44 +20,63 @@ export class Binding {
     this.addToBoundCallbacks(key, getValueBinded, target);
   }
 
+  private static getIndexByKey(target: Object3D, key: string): number {
+    const boundCallbacks = target.__boundCallbacks;
+    if (boundCallbacks === undefined) return -1;
+    for (let i = 0; i < boundCallbacks.length; i++) {
+      if (boundCallbacks[i].key === key) return i;
+    }
+    return -1;
+  }
+
   private static defineProperty(key: string, getValue: () => any, target: Object3D): void {
+    if (target.__manualDetection === true) {
+      this.definePropertyManualDetection(key, target);
+    } else {
+      this.definePropertyAutoDetection(key, getValue, target);
+    }
+  }
+
+  private static definePropertyManualDetection(key: string, target: Object3D): void {
     const privateKey = `__${key}`;
 
-    if (target.__manualDetection === false) {
-      const lastTickKey = `__lastTick_${key}`;
+    Object.defineProperty(target, key, {
+      get: function (this: any) {
+        return this[privateKey];
+      },
+      set: function () { },
+      configurable: true
+    });
+  }
 
-      Object.defineProperty(target, key, {
-        get: function (this: any) {
-          if (this[lastTickKey] !== Main.ticks) { //override with scene.ticks
-            this[privateKey] = getValue();
-            this[lastTickKey] = Main.ticks;
-          }
-          return this[privateKey];
+  private static definePropertyAutoDetection(key: string, getValue: () => any, target: Object3D): void {
+    const privateKey = `__${key}`;
+    const lastTickKey = `__lastTick_${key}`;
+
+    Object.defineProperty(target, key, {
+      get: function (this: any) {
+        if (this[lastTickKey] !== Main.ticks) { //override with scene.ticks
+          this[privateKey] = getValue();
+          this[lastTickKey] = Main.ticks;
         }
-      });
-
-    } else {
-
-      Object.defineProperty(target, key, {
-        get: function (this: any) {
-          return this[privateKey];
-        }
-      });
-
-    }
+        return this[privateKey];
+      },
+      set: function () { },
+      configurable: true
+    });
   }
 
   private static addToBoundCallbacks(key: string, getValue: () => any, target: Object3D): void {
     const boundCallbacks = target.__boundCallbacks ?? (target.__boundCallbacks = []);
-    boundCallbacks.push({ key, getValue: getValue });
-    if (target.__manualDetection === true) {
-      getValue();
-    }
+    const privateKey = `__${key}`;
+    const setValue = () => { (target as any)[privateKey] = getValue() };
+    boundCallbacks.push({ key, setValue });
+    setValue();
   }
 
   public static detectChanges(target: Object3D): void {
     for (const bindingCallback of target.__boundCallbacks) {
-      bindingCallback.getValue();
+      bindingCallback.setValue();
     }
   }
 
@@ -73,13 +92,16 @@ export class Binding {
     }
   }
 
-  private static getIndexByKey(target: Object3D, key: string): number {
-    const boundCallbacks = target.__boundCallbacks;
-    if (boundCallbacks === undefined) return -1;
-    for (let i = 0; i < boundCallbacks.length; i++) {
-      if (boundCallbacks[i].key === key) return i;
+  public static setManualDetectionMode(target: Object3D): void {
+    if (target.__manualDetection === true) return;
+
+    if (target.__boundCallbacks !== undefined) {
+      for (const boundCallback of target.__boundCallbacks) {
+        this.definePropertyManualDetection(boundCallback.key, target);
+      }
     }
-    return -1;
+
+    target.__manualDetection = true;
   }
 
 }

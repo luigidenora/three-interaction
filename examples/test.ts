@@ -3,18 +3,16 @@ import { Bind, Main, ManualDetection, OrthographicCamera } from "../src/index";
 
 class Sphere extends Mesh {
     static geometry = new SphereGeometry(1);
-    @Bind() get test() { return (window as any).kek === true }
+    @Bind() get visible() { return (window as any).kek === true }
     constructor() {
         super(Sphere.geometry, new MeshBasicMaterial({ color: 0xffff00 }));
     }
 }
 
 @ManualDetection()
-class SphereManual extends Mesh {
-    static geometry = new SphereGeometry(1);
-    @Bind() get test() { return (window as any).kek === true }
+class SphereManual extends Sphere {
     constructor() {
-        super(Sphere.geometry, new MeshBasicMaterial({ color: 0xffff00 }));
+        super();
         this.translateX(3);
     }
 }
