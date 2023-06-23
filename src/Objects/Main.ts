@@ -3,7 +3,6 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { InteractionManager } from "../Events/InteractionManager";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsCache } from "../Events/MiscEventsManager";
-import { computeAutoBinding } from "../Binding/Binding";
 import { RenderManager } from "../Rendering/RenderManager";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 
@@ -19,6 +18,7 @@ export interface MainParameters {
 }
 
 export class Main {
+    public static ticks = 0;
     public renderer: WebGLRenderer;
     public renderManager: RenderManager;
     public interactionManager: InteractionManager;
@@ -95,21 +95,18 @@ export class Main {
 
     private setAnimationLoop(): void {
         this.renderer.setAnimationLoop((time, frame) => {
+            Main.ticks++;
+    
+            this.interactionManager.update();
             
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {
-                computeAutoBinding(scene);
-            }
-
-            this.interactionManager.update();
-
-            for (const scene of visibleScenes) {
                 EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
             }
-
+            
             this.animate(time, frame);
             const rendered = this.renderManager.render(this.activeScene, this.activeCamera, this.activeComposer);
-
+            
             for (const scene of visibleScenes) {
                 scene.__needsRender = !scene.__smartRendering;
             }

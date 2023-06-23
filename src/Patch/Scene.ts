@@ -4,7 +4,6 @@ import { Utils } from "../Utils/Utils";
 
 export interface SceneExtPrototype {
     /** @internal */ __dropTargets: DistinctTargetArray;
-    /** @internal */ __boundObjects: DistinctTargetArray;
     /** @internal */ __needsRender: boolean;
     /** @internal */ __smartRendering: boolean;
 }

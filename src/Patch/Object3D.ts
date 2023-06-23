@@ -21,7 +21,6 @@ export interface Object3DExtPrototype {
     dragging: boolean;
     clicked: boolean;
     activable: boolean; // default true
-    get activableObj(): Object3D; //TODO cache
     active: boolean;
     activeUntilParent: boolean; //TODO Handle
     hovered: boolean;
@@ -32,6 +31,7 @@ export interface Object3DExtPrototype {
     cursorOnDrag: Cursor;
     interceptByRaycaster?: boolean; // default true
     objectsToRaycast?: Object3D[];
+    get activableObj(): Object3D; //TODO cache
     needsRender(): void;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
@@ -69,8 +69,9 @@ Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;
 Object3D.prototype.enabled = true;
 Object3D.prototype.interceptByRaycaster = true;
+Object3D.prototype.__manualDetection = false;
 
-Object.defineProperty(Object3D.prototype, "activableObj", { //todo cache?
+Object.defineProperty(Object3D.prototype, "activableObj", {
     get: function (this: Object3D) {
         let obj = this;
         while (obj && !obj.activable) {
@@ -117,7 +118,6 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
     set: function (value) {
         // object3DList[this.id] = this; //TODO gestire gpu id a parte per via di instanced mesh
         this.__eventsDispatcher = new EventsDispatcher(this);
-        // bindAutoUpdateMatrixObject3D(this);
         Object.defineProperty(this, "userData", { // hack to inject code in constructor
             value, writable: true
         });
@@ -142,10 +142,8 @@ export function applyObject3DRotationPatch(target: Object3D): void {
     }
 }
 
-/** BINDING */
-
 Object3D.prototype.setManualDetectionMode = function () {
-    if (!this.__boundCallbacks) {
+    if (this.__boundCallbacks === undefined) {
         this.__manualDetection = true;
     } else {
         console.error("Cannot change detectChangesMode if a binding is already created.");
@@ -153,33 +151,26 @@ Object3D.prototype.setManualDetectionMode = function () {
 };
 
 Object3D.prototype.detectChanges = function () {
-    Binding.computeSingle(this);
+    Binding.detectChanges(this);
 };
 
-Object3D.prototype.bindProperty = function (property, getValue, bindAfterParentAdded = true) {
-    if (bindAfterParentAdded && !this.parent && !(this as unknown as Scene).isScene) {
-        const event = () => {
-            Binding.createProperty(property, this, getValue);
-            this.removeEventListener("added", event);
-        };
-        this.addEventListener("added", event);
-    } else {
-        Binding.createProperty(property, this, getValue);
-    }
+Object3D.prototype.bindProperty = function (property, getValue) {
+    Binding.bindProperty(property, this, getValue);
     return this;
 };
 
 Object3D.prototype.unbindProperty = function (property) {
-    Binding.unbindByKey(this, property);
+    Binding.unbindProperty(this, property);
     return this;
 };
 
 const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
     addBase.call(this, ...arguments);
-    if (arguments.length == 1 && object !== this && object?.isObject3D) {
-        const scene = Utils.getSceneFromObj(this);
-        Binding.bindObjAndChildrenToScene(object, scene);
+    if (arguments.length === 1 && object !== this && object?.isObject3D === true) {
+        // if ((this as Scene).isScene === true) {
+
+        // }
     }
     return this;
 };
@@ -188,7 +179,6 @@ const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
         const scene = Utils.getSceneFromObj(this);
-        Binding.unbindObjAndChildrenFromScene(object, scene);
         EventsCache.remove(object, scene);
         //remove droptarget
         //remove objlist

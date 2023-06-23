@@ -10,7 +10,6 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     __smartRendering: boolean;
     __needsRender: boolean;
     needsRender(): void;
-    __boundObjects: DistinctTargetArray;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
     setManualDetectionMode(): void;
