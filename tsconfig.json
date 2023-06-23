@@ -9,6 +9,7 @@
 		"stripInternal": true,
 		"outDir": "build",
 		"esModuleInterop": true,
+		"experimentalDecorators": true,
 		"paths": {
 			"three": [
 				"./types/three.d.ts"

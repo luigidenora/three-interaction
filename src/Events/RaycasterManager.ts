@@ -1,7 +1,7 @@
-import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderTarget, WebGLRenderer } from "three";
-import { IntersectionExt } from "./Events";
+import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderTarget, WebGLRenderer } from "three";
 import { object3DList } from "../Patch/Object3D";
 import { RenderManager } from "../Rendering/RenderManager";
+import { IntersectionExt } from "./Events";
 
 export class RaycasterManager {
     public raycaster = new Raycaster();

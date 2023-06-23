@@ -11,7 +11,8 @@
 
 <body>
     <div id="info">
-        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - LinkedLine<br>
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> -
+        LinkedLine<br>
         LinkedLine allows to create a line always connected to two object3D.
     </div>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -24,31 +25,7 @@
         }
     </script>
 
-    <script type="module">
-
-        import { BoxGeometry, Mesh, MeshBasicMaterial, Scene, SphereGeometry } from "three";
-        import { PerspectiveCamera, Main, LinkedLine } from "../src/index";
-
-        const scene = new Scene().add(new PerspectiveCamera(70, 1, 10000).translateZ(10));
-        scene.interceptByRaycaster = false;
-
-        const points = [];
-        for (let i = 0; i < 20; i++) {
-            const point = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 0xffffff * Math.random() }));
-            points.push(point);
-            scene.add(point);
-            point.bindEvent("animate", (e) => point.position.set(-Math.cos(e.total / 10 * (i + 1)) * 5, Math.sin(e.total / 10 * (i + 1)) * 5));
-        }
-
-        for (let i = 0; i < points.length - 1; i++) {
-            for (let j = i + 1; j < points.length; j++) {
-                scene.add(new LinkedLine(points[i], points[j]));
-            }
-        }
-
-        const main = new Main({ scenes: [scene] }, { antialias: true });
-
-    </script>
+    <script type="module" src="./test.ts"></script>
 </body>
 
 </html>

@@ -10,35 +10,13 @@ import { applyMatrix4Patch } from "./Matrix4";
 import { applyQuaternionPatch } from "./Quaternion";
 import { applyVector3Patch } from "./Vector3";
 
-export interface Object3DExtPrototype extends BindingPrototype, InteractionPrototype { }
-
-export interface BindingPrototype {
+export interface Object3DExtInternalPrototype {
+    /** @internal */ __eventsDispatcher: EventsDispatcher;
     /** @internal */ __boundCallbacks: BindingCallback[];
     /** @internal */ __manualDetection: boolean;
-    /**
-     * If 'manual' you need to call detectChanges() manually. Used to increase performance. Default: auto.
-     */
-    setManualDetectionMode(): void;
-    /**
-     * Executes all callbacks bound to this object (children excluded). 
-     */
-    detectChanges(): void;
-    /**
-     * Bind an expression to a property.
-     * @param property Property name.
-     * @param getCallback Callback that returns the value to bind.
-     * @param bindAfterParentAdded If true you can use 'parent' property in the getCallback, avoiding null exception. Default: true.
-     */
-    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
-    /**
-     * Remove a property binding.
-     * @param property Property name.
-     */
-    unbindProperty<T extends keyof this>(property: T): this;
 }
 
-export interface InteractionPrototype {
-    /** @internal */ __eventsDispatcher: EventsDispatcher;
+export interface Object3DExtPrototype {
     draggable: boolean;
     dragging: boolean;
     clicked: boolean;
@@ -60,6 +38,25 @@ export interface InteractionPrototype {
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
     triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
     triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
+    /**
+     * If 'manual' you need to call detectChanges() manually. Used to increase performance. Default: auto. */
+    setManualDetectionMode(): void;
+    /**
+     * Executes all callbacks bound to this object (children excluded). 
+     */
+    detectChanges(): void;
+    /**
+     * Bind an expression to a property.
+     * @param property Property name.
+     * @param getCallback Callback that returns the value to bind.
+     * @param bindAfterParentAdded If true you can use 'parent' property in the getCallback, avoiding null exception. Default: true.
+     */
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    /**
+     * Remove a property binding.
+     * @param property Property name.
+     */
+    unbindProperty<T extends keyof this>(property: T): this;
 }
 
 export const object3DList: { [x: number]: Object3D } = {};

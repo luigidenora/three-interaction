@@ -12,7 +12,6 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     setManualDetectionMode(): void;
     detectChanges(): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
-    bindCallback(key: string, callback: () => void, bindAfterParentAdded?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];

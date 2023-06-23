@@ -38,9 +38,9 @@ export interface ViewParameters {
   /** The effect composer used for post-processing (optional). */
   composer?: EffectComposer;
   /** TODO */
-  onBeforeRender?: Function;
+  onBeforeRender?: () => void;
   /** TODO */
-  onAfterRender?: Function;
+  onAfterRender?: () => void;
   /** TODO */
   smartRendering?: boolean;
 }
@@ -61,8 +61,8 @@ export class RenderView implements ViewParameters {
   public backgroundColor: Color;
   public backgroundAlpha: number;
   public composer: EffectComposer;
-  private _onBeforeRender: Function;
-  private _onAfterRender: Function;
+  private _onBeforeRender: () => void;
+  private _onAfterRender: () => void;
   private _rendererSize: Vector2;
   public smartRendering: boolean; //TODO internal
 
