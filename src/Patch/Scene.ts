@@ -14,7 +14,7 @@ Scene.prototype.__smartRendering = false;
 Scene.prototype.__dropTargets = new DistinctTargetArray();
 
 export function addDropTargetToScene(dropTarget: Object3D): void {
-    if ((dropTarget as Scene).isScene) return;
+    if ((dropTarget as unknown as Scene).isScene) return; //todo remove unknown
 
     const scene = Utils.getSceneFromObj(dropTarget);
     if (!dropTarget.parent) { //sta roba non va TODO FIX

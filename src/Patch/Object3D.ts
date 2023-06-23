@@ -4,16 +4,17 @@ import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { EventsCache } from "../Events/MiscEventsManager";
-import { Utils } from "../Utils/Utils";
 import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
 import { applyQuaternionPatch } from "./Quaternion";
 import { applyVector3Patch } from "./Vector3";
 
+/** @internal */
 export interface Object3DExtInternalPrototype {
-    /** @internal */ __eventsDispatcher: EventsDispatcher;
-    /** @internal */ __boundCallbacks: BindingCallback[];
-    /** @internal */ __manualDetection: boolean;
+    __eventsDispatcher: EventsDispatcher;
+    __scene: Scene;
+    __boundCallbacks: BindingCallback[];
+    __manualDetection: boolean;
 }
 
 export interface Object3DExtPrototype {
@@ -82,9 +83,8 @@ Object.defineProperty(Object3D.prototype, "activableObj", {
 });
 
 Object3D.prototype.needsRender = function (this: Object3D) {
-    const scene = Utils.getSceneFromObj(this); //TODO Cache
-    if (scene !== undefined) {
-        scene.__needsRender = true;
+    if (this.__scene !== undefined) {
+        this.__scene.__needsRender = true;
     }
 };
 
@@ -163,22 +163,41 @@ Object3D.prototype.unbindProperty = function (property) {
 const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
     addBase.call(this, ...arguments);
-    if (arguments.length === 1 && object !== this && object?.isObject3D === true) {
-        // if ((this as Scene).isScene === true) {
-
-        // }
+    if (arguments.length === 1 && object !== this && object?.isObject3D === true) {   
+        if ((this as unknown as Scene).isScene === true) {
+            this.__scene = this as unknown as Scene; //todo fix cast
+        }
+        if (this.__scene !== undefined) {
+            setSceneReference(object, this.__scene);
+        }
     }
     return this;
 };
+
+function setSceneReference(target: Object3D, scene: Scene) {
+    target.__scene = scene;
+    for (const object of target.children) {
+        setSceneReference(object, scene);
+    }
+}
 
 const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
-    if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
-        const scene = Utils.getSceneFromObj(this);
-        EventsCache.remove(object, scene);
-        //remove droptarget
-        //remove objlist
+    if (arguments.length == 1 && this.children.indexOf(object) !== -1) {  
+        if (this.__scene !== undefined) {
+            removeSceneReference(object);
+        }
     }
-    removeBase.call(this, ...arguments);
+    removeBase.call(this, ...arguments); //todo opt all call
     return this;
 };
+
+function removeSceneReference(target: Object3D) {
+    EventsCache.remove(target, target.__scene);
+    //remove objlist
+    //remove droptarget
+    target.__scene = undefined;
+    for (const object of target.children) {
+        removeSceneReference(object);
+    }
+}

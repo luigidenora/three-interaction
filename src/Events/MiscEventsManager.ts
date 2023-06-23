@@ -31,17 +31,12 @@ export class EventsCache {
       eventCache.push(target);
    }
 
-   public static remove(target: Object3D, scene: Scene): void { //can be opt if slow
+   public static remove(target: Object3D, scene: Scene): void {
       const sceneCache = this._events[scene?.id];
-      if (sceneCache) {
-         for (const key in sceneCache) {  //can be opt if slow
+      if (sceneCache !== undefined) {
+         for (const key in sceneCache) {
             const eventCache = sceneCache[key];
             eventCache.remove(target);
-         }
-      }
-      if (target.children) {
-         for (const child of target.children) {
-            this.remove(child, scene);
          }
       }
    }

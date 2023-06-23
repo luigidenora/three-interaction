@@ -1,11 +1,13 @@
 import { Object3D as Object3DBase } from "three/index";
 import { Events } from "../src/Events/Events";
-import { Object3DExtPrototype } from "../src/Patch/Object3D";
-import { EventsDispatcher } from "../src/index";
+import { Object3DExtInternalPrototype, Object3DExtPrototype } from "../src/Patch/Object3D";
 import { Cursor } from "../src/Events/CursorManager";
 import { BindingCallback } from "../src/Binding/Binding";
+import { Scene } from "three";
+import { EventsDispatcher } from "../src/Events/EventsDispatcher";
 
-export class Object3D extends Object3DBase implements Object3DExtPrototype {
+export class Object3D extends Object3DBase implements Object3DExtPrototype, Object3DExtInternalPrototype {
+    __scene: Scene;
     needsRender(): void;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;

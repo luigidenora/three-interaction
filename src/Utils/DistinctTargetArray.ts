@@ -16,11 +16,13 @@ export class DistinctTargetArray<T extends Object3D = Object3D> {
     }
 
     public remove(target: T): void {
-        const index = this.data.indexOf(target);
-        if (index !== -1) {
-            this.data.splice(index, 1);
+        if (this.has(target)) {
+            const index = this.data.indexOf(target);
+            if (index !== -1) {
+                this.data.splice(index, 1);
+            }
+            this._set.delete(target.id);
         }
-        this._set.delete(target.id);
     }
 
     public clear(): void {

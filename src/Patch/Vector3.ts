@@ -1,23 +1,17 @@
 import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3, Matrix4, Object3D, Quaternion, Spherical, Vector3 } from "three";
-import { Utils } from "../Utils/Utils";
 
 /** @internal */
 export function applyVector3Patch(parent: Object3D): void {
     patchVector(parent.position);
     (parent.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        const scene = Utils.getSceneFromObj(parent); //TODO fare solo se serve
-        if (scene !== undefined) {
-            scene.needsRender();
-        }
+        parent.needsRender(); //TODO fare solo se serve (se c'è smart rendering)
+
         parent.__eventsDispatcher.dispatchEvent("positionchange");
     };
 
     patchVector(parent.scale);
     (parent.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        const scene = Utils.getSceneFromObj(parent); //TODO fare solo se serve
-        if (scene !== undefined) {
-            scene.needsRender();
-        }
+        parent.needsRender(); //TODO fare solo se serve (se c'è smart rendering)
         parent.__eventsDispatcher.dispatchEvent("scalechange");
     };
 }
