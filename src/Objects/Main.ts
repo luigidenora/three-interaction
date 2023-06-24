@@ -28,9 +28,9 @@ export class Main {
     private _clock = new Clock();
     private _showStats: boolean;
 
-    public get activeScene(): Scene { return this.renderManager.activeScene };
-    public get activeCamera(): Camera { return this.renderManager.activeCamera };
-    public get activeComposer(): EffectComposer { return this.renderManager.activeComposer };
+    public get activeScene(): Scene { return this.renderManager.activeView.scene };
+    public get activeCamera(): Camera { return this.renderManager.activeView.camera };
+    public get activeComposer(): EffectComposer { return this.renderManager.activeView.composer };
 
     public get showStats(): boolean { return this._showStats }
     public set showStats(value: boolean) {
@@ -83,10 +83,10 @@ export class Main {
 
     public addScene(...scene: Scene[]): void {
         this.scenes.push(...scene);
-        if (this.activeScene === undefined) {  //TODO documenta
+        if (this.renderManager.views.length === 0 && this.renderManager.__defaultView === undefined) {  //TODO documenta
             for (const obj of scene[0].children) {
                 if ((obj as unknown as Camera).isCamera === true) {
-                    this.setActiveScene(scene[0], obj as unknown as Camera);
+                    this.createDefaultRenderView(scene[0], obj as unknown as Camera);
                     break;
                 }
             }
@@ -96,17 +96,17 @@ export class Main {
     private setAnimationLoop(): void {
         this.renderer.setAnimationLoop((time, frame) => {
             Main.ticks++;
-    
+
             this.interactionManager.update();
-            
+
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {
                 EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
             }
-            
+
             this.animate(time, frame);
-            const rendered = this.renderManager.render(this.activeScene, this.activeCamera, this.activeComposer);
-            
+            const rendered = this.renderManager.render();
+
             for (const scene of visibleScenes) {
                 scene.__needsRender = !scene.__smartRendering;
             }
@@ -126,8 +126,8 @@ export class Main {
     /**
      * Se non ci sono view TODO
      */
-    public setActiveScene(scene: Scene, camera: Camera, composer?: EffectComposer): void {
-        this.renderManager.setActiveScene(scene, camera, composer);
+    public createDefaultRenderView(scene: Scene, camera: Camera, composer?: EffectComposer): void {
+        this.renderManager.createDefaultRenderView(scene, camera, composer);
     }
 
 }

@@ -21,14 +21,15 @@ export class RaycasterManager {
     public getIntersections(event: PointerEvent, isDragging: boolean, excluded?: Object3D): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this._pointer.set(event.offsetX, event.offsetY);
-        this._renderManager.getNormalizedMouse(this._pointer, this._pointerNormalized);
-        const scene = this._renderManager.activeScene;
-        const camera = this._renderManager.activeCamera;
-        this.raycaster.setFromCamera(this._pointerNormalized, camera);
-        if (isDragging === false || excluded !== undefined) {
-            this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections, excluded) : this.raycastObjects(scene as unknown as Object3D, intersections, excluded);
+        if (this._renderManager.getNormalizedMouse(this._pointer, this._pointerNormalized) === true) {
+            const scene = this._renderManager.activeView.scene;
+            const camera = this._renderManager.activeView.camera;
+            this.raycaster.setFromCamera(this._pointerNormalized, camera);
+            if (isDragging === false || excluded !== undefined) {
+                this.raycastGPU ? this.raycastObjectsGPU(scene, camera as any, intersections, excluded) : this.raycastObjects(scene as unknown as Object3D, intersections, excluded);
+            }
+            intersections.sort(this.intersectionSortComparer);
         }
-        intersections.sort(this.intersectionSortComparer);
         return intersections;
     }
 

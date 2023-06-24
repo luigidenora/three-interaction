@@ -160,11 +160,11 @@ export class InteractionManager {
         this._lastPointerMove[event.pointerId] = event;
         this.raycastScene(event);
         if (this._dragManager.isDragging) {
-            this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeCamera, this.intersectionDropTarget);
+            this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, this.intersectionDropTarget);
         } else {
             this.pointerOutOver(event);
             const target = this.intersection[event.pointerId]?.object;
-            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeCamera, target)) {
+            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, target)) {
                 this.triggerAncestorPointer("pointermove", event, target);
             }
         }
@@ -175,7 +175,7 @@ export class InteractionManager {
             if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDrop) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
-                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeCamera, this.intersectionDropTarget);
+                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, this.intersectionDropTarget);
             }
         } else if (this.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {

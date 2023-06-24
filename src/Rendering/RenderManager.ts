@@ -9,38 +9,29 @@ import { DistinctTargetArray } from "../index";
 export class RenderManager {
   public renderer: WebGLRenderer;
   public views: RenderView[] = [];
-  public activeView: RenderView;
+  private _activeView: RenderView;
+  /** @internal */ public __defaultView: RenderView;
   private _visibleScenes = new DistinctTargetArray<Scene>();
   private _rendererSize = new Vector2();
   private _fullscreen: boolean; // TODO editable?
-  private _activeScene: Scene;
-  private _activeCamera: Camera;
-  private _activeComposer: EffectComposer;
   private _backgroundColor: Color;
   private _backgroundAlpha: number;
 
-  /** todo */
-  public get activeScene(): Scene { return this.activeView?.scene ?? this._activeScene };
+  public get activeView(): RenderView { return this._activeView || this.__defaultView }
 
   /** todo */
-  public get activeCamera(): Camera { return this.activeView?.camera ?? this._activeCamera };
-
-  /** todo */
-  public get activeComposer(): EffectComposer { return this.activeView?.composer ?? this._activeComposer };
-
-  /** todo */
-  public get backgroundColor(): Color { return this._backgroundColor };
+  public get backgroundColor(): Color { return this._backgroundColor }
   public set backgroundColor(value: Color | number) {
     this._backgroundColor = typeof value === "number" ? new Color(value) : value;
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
-  };
+  }
 
   /** todo */
-  public get backgroundAlpha(): number { return this._backgroundAlpha };
+  public get backgroundAlpha(): number { return this._backgroundAlpha }
   public set backgroundAlpha(value: number) {
     this._backgroundAlpha = value;
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
-  };
+  }
 
   /**
    * @param renderer - The WebGL renderer used for rendering.
@@ -122,7 +113,7 @@ export class RenderManager {
   }
 
   /**
-   * Returns an array of visible scenes.
+   * Returns an array of visible scenes. CACHE
    */
   public getVisibleScenes(): Scene[] {
     if (this.views.length === 0) return undefined;
@@ -139,7 +130,7 @@ export class RenderManager {
    * Updates the active view based on the mouse position.
    */
   public updateActiveView(mouse: Vector2): void {
-    this.activeView = this.getViewByMouse(mouse);
+    this._activeView = this.getViewByMouse(mouse);
   }
 
   /**
@@ -158,14 +149,13 @@ export class RenderManager {
   /**
    * Retrieves the ray origin based on the mouse position.
    */
-  public getNormalizedMouse(mouse: Vector2, target: Vector2): Vector2 {
+  public getNormalizedMouse(mouse: Vector2, target: Vector2): boolean {
     this.updateActiveView(mouse);
-    if (this.activeView !== undefined) {
-      const viewport = this.activeView.viewport;
-      return target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
-    } else {
-      return target.set(mouse.x / this.renderer.domElement.clientWidth * 2 - 1, mouse.y / this.renderer.domElement.clientHeight * -2 + 1);
-    }
+    if (this.activeView === undefined) return false;
+    const viewport = this.activeView.viewport;
+    target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
+    return true;
+
   }
 
   /**
@@ -173,7 +163,7 @@ export class RenderManager {
    * If there are active views, each view is rendered individually.
    * If there are no active views, the scene is rendered using the provided scene and camera.
    */
-  public render(scene?: Scene, camera?: Camera, composer?: EffectComposer): boolean {
+  public render(): boolean {
     let rendered = false;
     if (this.views.length > 0) {
       for (const view of this.views) {
@@ -190,7 +180,7 @@ export class RenderManager {
         }
       }
     } else {
-      this.executeRender(scene, camera, composer);
+      this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
       rendered ||= true;
     }
     return rendered;
@@ -221,10 +211,10 @@ export class RenderManager {
     this.renderer.getSize(this._rendererSize);
   }
 
-  public setActiveScene(scene: Scene, camera: Camera, composer?: EffectComposer) {
-    this._activeScene = scene;
-    this._activeCamera = camera;
-    this._activeComposer = composer;
+  public createDefaultRenderView(scene: Scene, camera: Camera, composer?: EffectComposer) {
+    this.__defaultView = new RenderView({ scene, camera, composer }, this._rendererSize);
   }
+
+  //TODO metodo per settare unica scena visibile
 
 }

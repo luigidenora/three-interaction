@@ -41,8 +41,8 @@ export interface ViewParameters {
   onBeforeRender?: () => void;
   /** TODO */
   onAfterRender?: () => void;
-  /** TODO */
-  smartRendering?: boolean;
+    /** TODO */
+    smartRendering?: boolean;
 }
 
 /**
@@ -64,7 +64,7 @@ export class RenderView implements ViewParameters {
   private _onBeforeRender: () => void;
   private _onAfterRender: () => void;
   private _rendererSize: Vector2;
-  public smartRendering: boolean; //TODO internal
+  public smartRendering: boolean; //TODO internal RIMUOVERE
 
   constructor(parameters: ViewParameters, rendererSize: Vector2) {
     this._rendererSize = rendererSize;

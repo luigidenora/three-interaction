@@ -7,6 +7,7 @@ import { Cursor } from "../src/Events/CursorManager";
 import { BindingCallback } from "../src/Binding/Binding";
 
 export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
+    __scene: Scene;
     __smartRendering: boolean;
     __needsRender: boolean;
     needsRender(): void;
