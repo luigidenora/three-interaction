@@ -63,7 +63,6 @@
             scene.plane = new Mesh(new PlaneGeometry(10, 15), new MeshLambertMaterial({ color: 0x66ff66 })).translateX(-10)
         );
 
-        scene.plane.interceptByRaycaster = false; // intercept only as drop target
         scene.sphere.draggable = true;
 
         scene.box.userData.className = "blink active-box";

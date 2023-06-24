@@ -82,11 +82,11 @@ export class InteractionManager {
             this._primaryIdentifier = event.pointerId;
         }
         if (this._dragManager.isDragging) {
-            const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.findDropTarget);
+            const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.findDropTarget === true ? this._dragManager.target : undefined);
             this.intersectionDropTarget = intersections[0];
         } else {
             this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
-            const intersections = this.raycasterManager.getIntersections(event, false, false);
+            const intersections = this.raycasterManager.getIntersections(event, false);
             this.intersection[event.pointerId] = intersections[0];
         }
     }

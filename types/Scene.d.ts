@@ -19,7 +19,6 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;
-    __dropTargets: DistinctTargetArray;
     override parent: Object3D;
     override children: Object3D[];
     draggable: boolean;

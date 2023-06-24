@@ -186,8 +186,8 @@ Object3D.prototype.remove = function (object: Object3D) {
 
 function setSceneReference(target: Object3D, scene: Scene) {
     target.__scene = scene;
+    EventsCache.update(target);
     object3DList[target.id] = target;
-    // scene.__dropTargets.push(dropTarget); solo se droptarget
     for (const object of target.children) {
         setSceneReference(object, scene);
     }
@@ -196,7 +196,6 @@ function setSceneReference(target: Object3D, scene: Scene) {
 function removeSceneReference(target: Object3D) {
     EventsCache.remove(target, target.__scene);
     object3DList[target.id] = undefined;
-    target.__scene.__dropTargets.remove(target);
     target.__scene = undefined;
     for (const object of target.children) {
         removeSceneReference(object);

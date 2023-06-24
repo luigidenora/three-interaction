@@ -1,5 +1,4 @@
 import { Object3D, Scene } from "three";
-import { Utils } from "../Utils/Utils";
 import { Events } from "./Events";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
@@ -10,18 +9,22 @@ export class EventsCache {
    private static _events: { [x: number]: SceneEventsCache } = {};
 
    public static push(type: keyof Events, target: Object3D): void {
-      if (this._allowedEventsSet.has(type)) {
-         let scene = Utils.getSceneFromObj(target);
-         if (scene) {
-            this.pushScene(scene, type, target);
-         } else {
-            const event = () => {
-               scene = Utils.getSceneFromObj(target);
-               this.pushScene(scene, type, target);
-               target.removeEventListener("added", event);
-            };
-            target.addEventListener("added", event)
-         }
+      const scene = target.__scene;
+      if (scene !== undefined && this._allowedEventsSet.has(type)) {
+         this.pushScene(scene, type, target);
+      }
+   }
+
+   public static update(target: Object3D): void {
+      let scene = target.__scene;
+      if (target.__eventsDispatcher.listeners["rendererresize"]?.length > 0) {
+         this.pushScene(scene, "rendererresize", target);
+      }
+      if (target.__eventsDispatcher.listeners["framerendering"]?.length > 0) {
+         this.pushScene(scene, "framerendering", target);
+      }
+      if (target.__eventsDispatcher.listeners["animate"]?.length > 0) {
+         this.pushScene(scene, "animate", target);
       }
    }
 
@@ -31,6 +34,7 @@ export class EventsCache {
       eventCache.push(target);
    }
 
+   //TODO chiama after remove event listner
    public static remove(target: Object3D, scene: Scene): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache !== undefined) {

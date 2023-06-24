@@ -3,44 +3,41 @@ import { InteractionEvents, Events } from "./Events";
 import { EventsCache } from "./MiscEventsManager";
 import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/Object3D";
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
-import { addDropTargetToScene } from "../Patch/Scene";
 
 export class EventsDispatcher {  //TODO union with events dispatcher?
-    private _listeners: { [x: string]: ((args?: any) => void)[] } = {};
+    public listeners: { [x: string]: ((args?: any) => void)[] } = {};
 
     constructor(public parent: Object3D | InstancedMeshSingle) { }
 
     public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
-        if (!this._listeners[type]) {
-            this._listeners[type] = [];
+        if (this.listeners[type] === undefined) {
+            this.listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
                 EventsCache.push(type, this.parent as Object3D);
                 if (type === "positionchange" || type === "scalechange") { //todo move
                     applyObject3DVector3Patch(this.parent as Object3D);
                 } else if (type === "rotationchange") {
                     applyObject3DRotationPatch(this.parent as Object3D);
-                } else if (type === "drop" || type === "dragenter" || type === "dragleave" || type === "dragover") {
-                    addDropTargetToScene(this.parent as Object3D);
                 }
             }
         }
-        if (this._listeners[type].indexOf(listener) === -1) {
-            this._listeners[type].push(listener);
+        if (this.listeners[type].indexOf(listener) === -1) {
+            this.listeners[type].push(listener);
         }
         return listener;
     }
 
     public hasEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
-        if (this._listeners[type]?.indexOf(listener) ?? -1 !== -1) {
+        if (this.listeners[type]?.indexOf(listener) ?? -1 !== -1) {
             return true;
         }
         return false;
     }
 
     public removeEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
-        const index = this._listeners[type]?.indexOf(listener) ?? -1;
+        const index = this.listeners[type]?.indexOf(listener) ?? -1;
         if (index !== -1) {
-            this._listeners[type].splice(index, 1);
+            this.listeners[type].splice(index, 1);
         }
     }
 
@@ -54,10 +51,10 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
     }
 
     private _dispatchDOMEvent<K extends keyof InteractionEvents>(type: K, event: InteractionEvents[K]): void {
-        if (!this._listeners[type]) return;
+        if (!this.listeners[type]) return;
         const target = event.currentTarget = this.parent as Object3D;
         // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
-        for (const callback of this._listeners[type]) {
+        for (const callback of this.listeners[type]) {
             if (event._stoppedImmediatePropagation) break;
             callback.call(target, event);
         }
@@ -77,9 +74,9 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
     }
 
     public dispatchEvent(type: keyof Events, args?: any): void {
-        if (!this._listeners[type]) return;
+        if (!this.listeners[type]) return;
         // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
-        for (const callback of this._listeners[type]) {
+        for (const callback of this.listeners[type]) {
             callback.call(this.parent, args);
         }
     }
