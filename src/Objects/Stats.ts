@@ -16,7 +16,7 @@ export class Stats {
 		}, false);
 
 		if (self.performance && (self.performance as any).memory) {
-			const memPanel = this.addPanel(new Panel('MB', '#f08', '#201'));
+			this.memPanel = this.addPanel(new Panel('MB', '#f08', '#201'));
 		}
 
 		this.showPanel(0);

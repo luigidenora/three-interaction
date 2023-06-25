@@ -282,6 +282,7 @@ export class InteractionManager {
             }
 
             this.activeObject = activableObj;
+            this._renderManager.activeView.scene.__needsRender = true;
         }
     }
 }

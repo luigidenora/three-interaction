@@ -23,11 +23,9 @@ export interface Object3DExtPrototype {
     clicked: boolean;
     activable: boolean; // default true
     active: boolean;
-    activeUntilParent: boolean; //TODO Handle
     hovered: boolean;
     enabled: boolean; //TODO Handle
     enabledUntilParent: boolean; //TODO Handle
-    visibleUntilParent: boolean; //TODO Handle
     cursorOnHover: Cursor;
     cursorOnDrag: Cursor;
     interceptByRaycaster?: boolean; // default true
@@ -68,9 +66,26 @@ Object3D.prototype.clicked = false;
 Object3D.prototype.dragging = false;
 Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;
-Object3D.prototype.enabled = true;
 Object3D.prototype.interceptByRaycaster = true;
+// Object3D.prototype.__visible = true;
+Object3D.prototype.__enabled = true;
 Object3D.prototype.__manualDetection = false;
+
+// Object.defineProperty(Object3D.prototype, "visible", {
+//     get: function (this: Object3D) { return this.__visible },
+//     set: function(this: Object3D, value: boolean) {
+//         this.__visible = value;
+//         this.needsRender();
+//     }
+// });
+
+Object.defineProperty(Object3D.prototype, "enabled", {
+    get: function (this: Object3D) { return this.__enabled },
+    set: function(this: Object3D, value: boolean) {
+        this.__enabled = value;
+        this.needsRender();
+    }
+});
 
 Object.defineProperty(Object3D.prototype, "activableObj", {
     get: function (this: Object3D) {

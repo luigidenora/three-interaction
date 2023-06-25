@@ -32,7 +32,7 @@
         const scene = new Scene().add(
             new OrthographicCamera(20).translateZ(10),
             new DirectionalLight(0xffffff).translateZ(10),
-        );
+        ).activeSmartRendering();
 
         const materialDP = [new MeshBasicMaterial({ color: 0xffffff }), new MeshBasicMaterial({ color: 0x666666 })];
         const geometryDP = new PlaneGeometry(2, 2);

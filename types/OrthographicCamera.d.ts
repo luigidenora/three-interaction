@@ -22,11 +22,9 @@ export class OrthographicCamera extends OrthographicCameraBase implements Object
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;
-    activeUntilParent: boolean;
     hovered: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
-    visibleUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     cursorOnHover: Cursor;

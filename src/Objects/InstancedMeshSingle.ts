@@ -14,13 +14,10 @@ export class InstancedMeshSingle extends EventDispatcher {
     public quaternion = new Quaternion();
     public activable = false;
     public active = false;
-    public activeUntilParent = false;
     public hovered = false;
     public enabled = true; // TODO
     public enabledUntilParent: boolean; // TODO
-    public visibleUntilParent: boolean; // TODO
-    /** @internal */
-    public __eventsDispatcher: EventsDispatcher;
+    /** @internal */ public __eventsDispatcher: EventsDispatcher;
 
     public get activableObj(): Object3D {
         return this.activable ? this as unknown as Object3D : this.parent.activableObj;
