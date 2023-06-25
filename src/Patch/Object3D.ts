@@ -81,7 +81,7 @@ Object3D.prototype.__manualDetection = false;
 
 Object.defineProperty(Object3D.prototype, "enabled", {
     get: function (this: Object3D) { return this.__enabled },
-    set: function(this: Object3D, value: boolean) {
+    set: function (this: Object3D, value: boolean) {
         this.__enabled = value;
         this.needsRender();
     }
@@ -140,7 +140,7 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
 
 /** @Internal */
 export function applyObject3DVector3Patch(target: Object3D): void {
-    if (!target.__vec3Patched) {
+    if (target.__vec3Patched === undefined) {
         applyVector3Patch(target);
         applyMatrix4Patch(target);
         target.__vec3Patched = true;
@@ -149,7 +149,7 @@ export function applyObject3DVector3Patch(target: Object3D): void {
 
 /** @Internal */
 export function applyObject3DRotationPatch(target: Object3D): void {
-    if (!target.__rotationPatched) {
+    if (target.__rotationPatched === undefined) {
         applyQuaternionPatch(target);
         applyEulerPatch(target);
         target.__rotationPatched = true;
@@ -206,6 +206,12 @@ export function setSceneReference(target: Object3D, scene: Scene) {
     target.__scene = scene;
     EventsCache.update(target);
     object3DList[target.id] = target;
+
+    if (target.__scene.__smartRendering === true) {
+        applyObject3DVector3Patch(target);
+        applyObject3DRotationPatch(target);
+    }
+
     setVector3SmartRendering(target, target.__scene.__smartRendering);
     setQuaternionSmartRendering(target, target.__scene.__smartRendering);
     setEulerSmartRendering(target, target.__scene.__smartRendering);

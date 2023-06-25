@@ -16,12 +16,10 @@ export function applyVector3Patch(target: Object3D): void {
 
 /** @internal */
 export function setVector3SmartRendering(target: Object3D, value: boolean): void {
-    if (target.__vec3Patched === true) {
-        if (value === true) {
-            setSmartRenderingChangeCallback(target);
-        } else {
-            setDefaultChangeCallback(target);
-        }
+    if (value === true) {
+        setSmartRenderingChangeCallback(target);
+    } else if (target.__vec3Patched === undefined) {
+        setDefaultChangeCallback(target);
     }
 }
 
