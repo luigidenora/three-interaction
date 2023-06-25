@@ -1,16 +1,36 @@
 import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3, Matrix4, Object3D, Quaternion, Spherical, Vector3 } from "three";
 
 /** @internal */
-export function applyVector3Patch(parent: Object3D): void {
-    patchVector(parent.position);
-    patchVector(parent.scale);
+export function applyVector3Patch(target: Object3D): void {
+    patchVector(target.position);
+    patchVector(target.scale);
 
-    if (parent.__scene?.__smartRendering === true) {
-        setSmartRenderingChangeCallback(parent);
+    if (target.__scene === undefined) return;
+
+    if (target.__scene.__smartRendering === true) {
+        setSmartRenderingChangeCallback(target);
     } else {
-        setDefaultChangeCallback(parent);
+        setDefaultChangeCallback(target);
     }
+}
 
+/** @internal */
+export function setVector3SmartRendering(target: Object3D, value: boolean): void {
+    if (target.__vec3Patched === true) {
+        if (value === true) {
+            setSmartRenderingChangeCallback(target);
+        } else {
+            setDefaultChangeCallback(target);
+        }
+    }
+}
+
+/** @internal */
+export function removeVector3Callback(target: Object3D): void {
+    if (target.__vec3Patched === true) {
+        (target.position as unknown as Vector3Ext)._onChangeCallback = () => { };
+        (target.scale as unknown as Vector3Ext)._onChangeCallback = () => { };
+    }
 }
 
 function patchVector(vec3: any): void {
@@ -47,12 +67,12 @@ function patchVector(vec3: any): void {
 
 function setSmartRenderingChangeCallback(target: Object3D): void {
     (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.needsRender();
+        target.__scene.__needsRender = true;
         target.__eventsDispatcher.dispatchEvent("positionchange");
     };
-    
+
     (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.needsRender();
+        target.__scene.__needsRender = true;
         target.__eventsDispatcher.dispatchEvent("scalechange");
     };
 }

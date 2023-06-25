@@ -1,5 +1,5 @@
 import { Camera, Clock, Color, Scene, WebGLRenderer, WebGLRendererParameters } from "three";
-import Stats from "three/examples/jsm/libs/stats.module";
+import { Stats } from "../Objects/Stats";
 import { InteractionManager } from "../Events/InteractionManager";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsCache } from "../Events/MiscEventsManager";
@@ -14,6 +14,7 @@ export interface MainParameters {
     disableContextMenu?: boolean;
     backgroundColor?: Color | number;
     backgroundAlpha?: number;
+    // raycasting frequency
     // fps?: number;
 }
 
@@ -111,8 +112,8 @@ export class Main {
                 scene.__needsRender = !scene.__smartRendering;
             }
 
-            if (this._showStats === true && rendered === true) {
-                this._stats.update();
+            if (this._showStats === true) {
+                this._stats.update(rendered);
             }
         });
     }

@@ -4,10 +4,10 @@ import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { EventsCache } from "../Events/MiscEventsManager";
-import { applyEulerPatch } from "./Euler";
+import { applyEulerPatch, removeEulerCallback, setEulerSmartRendering } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
-import { applyQuaternionPatch } from "./Quaternion";
-import { applyVector3Patch } from "./Vector3";
+import { applyQuaternionPatch, removeQuaternionCallback, setQuaternionSmartRendering } from "./Quaternion";
+import { applyVector3Patch, removeVector3Callback, setVector3SmartRendering } from "./Vector3";
 
 /** @internal */
 export interface Object3DExtInternalPrototype {
@@ -168,6 +168,7 @@ Object3D.prototype.add = function (object: Object3D) {
         }
         if (this.__scene !== undefined) {
             setSceneReference(object, this.__scene);
+            this.__scene.__needsRender = true;
         }
     }
     return this;
@@ -178,16 +179,22 @@ Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
         if (this.__scene !== undefined) {
             removeSceneReference(object);
+            this.__scene.__needsRender = true;
         }
     }
     removeBase.call(this, ...arguments); //todo opt all call
     return this;
 };
 
-function setSceneReference(target: Object3D, scene: Scene) {
+/** @internal */
+export function setSceneReference(target: Object3D, scene: Scene) {
     target.__scene = scene;
     EventsCache.update(target);
     object3DList[target.id] = target;
+    setVector3SmartRendering(target, target.__scene.__smartRendering);
+    setQuaternionSmartRendering(target, target.__scene.__smartRendering);
+    setEulerSmartRendering(target, target.__scene.__smartRendering);
+
     for (const object of target.children) {
         setSceneReference(object, scene);
     }
@@ -196,7 +203,11 @@ function setSceneReference(target: Object3D, scene: Scene) {
 function removeSceneReference(target: Object3D) {
     EventsCache.remove(target, target.__scene);
     object3DList[target.id] = undefined;
+    removeVector3Callback(target);
+    removeQuaternionCallback(target);
+    removeEulerCallback(target);
     target.__scene = undefined;
+
     for (const object of target.children) {
         removeSceneReference(object);
     }

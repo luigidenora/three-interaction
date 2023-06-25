@@ -12,5 +12,3 @@ Scene.prototype.activeSmartRendering = function (this: Scene) {
     this.__smartRendering = true;
     return this;
 };
-
-//dispose smart rendering
