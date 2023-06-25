@@ -41,8 +41,6 @@ export interface ViewParameters {
   onBeforeRender?: () => void;
   /** TODO */
   onAfterRender?: () => void;
-    /** TODO */
-    smartRendering?: boolean;
 }
 
 /**
@@ -64,7 +62,6 @@ export class RenderView implements ViewParameters {
   private _onBeforeRender: () => void;
   private _onAfterRender: () => void;
   private _rendererSize: Vector2;
-  public smartRendering: boolean; //TODO internal RIMUOVERE
 
   constructor(parameters: ViewParameters, rendererSize: Vector2) {
     this._rendererSize = rendererSize;
@@ -78,9 +75,7 @@ export class RenderView implements ViewParameters {
     this.backgroundColor = typeof parameters.backgroundColor === "number" ? new Color(parameters.backgroundColor) : parameters.backgroundColor;
     this._onBeforeRender = parameters.onBeforeRender;
     this._onAfterRender = parameters.onAfterRender;
-    this.smartRendering = parameters.smartRendering;
 
-    this.scene.__smartRendering ||= this.smartRendering;
     this.scene.add(this.camera); // useful to trigger camera resize event
     this.update();
   }

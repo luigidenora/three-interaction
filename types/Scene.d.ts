@@ -1,15 +1,16 @@
 import { Object3D } from "three";
 import { Scene as SceneBase } from "three/index";
+import { BindingCallback } from "../src/Binding/Binding";
+import { Cursor } from "../src/Events/CursorManager";
 import { Events } from "../src/Events/Events";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
-import { DistinctTargetArray, EventsDispatcher, SceneExtPrototype } from "../src/index";
-import { Cursor } from "../src/Events/CursorManager";
-import { BindingCallback } from "../src/Binding/Binding";
+import { EventsDispatcher, SceneExtPrototype } from "../src/index";
 
 export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
+    /** @internal */ __needsRender: boolean;
+    /** @internal */ __smartRendering: boolean;
+    activeSmartRendering(): this;
     __scene: Scene;
-    __smartRendering: boolean;
-    __needsRender: boolean;
     needsRender(): void;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;

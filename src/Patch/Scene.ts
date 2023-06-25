@@ -1,11 +1,16 @@
-import { Object3D, Scene } from "three";
-import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
+import { Scene } from "three";
 
 export interface SceneExtPrototype {
-    /** @internal */ __needsRender: boolean;
-    /** @internal */ __smartRendering: boolean;
+    activeSmartRendering(): this;
 }
 
 Scene.prototype.activable = false;
 Scene.prototype.__needsRender = true;
 Scene.prototype.__smartRendering = false;
+
+Scene.prototype.activeSmartRendering = function (this: Scene) {
+    this.__smartRendering = true;
+    return this;
+};
+
+//dispose smart rendering

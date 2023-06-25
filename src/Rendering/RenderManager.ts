@@ -130,7 +130,10 @@ export class RenderManager {
    * Updates the active view based on the mouse position.
    */
   public updateActiveView(mouse: Vector2): void {
-    this._activeView = this.getViewByMouse(mouse);
+    const activeView = this.getViewByMouse(mouse);
+    if (activeView !== undefined) {
+      this._activeView = activeView;
+    }
   }
 
   /**
@@ -180,8 +183,11 @@ export class RenderManager {
         }
       }
     } else {
-      this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
-      rendered ||= true;
+      const scene = this.__defaultView.scene;
+      if (scene.__needsRender === true) {
+        this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
+        rendered ||= true;
+      }
     }
     return rendered;
   }

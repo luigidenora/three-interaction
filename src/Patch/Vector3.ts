@@ -3,17 +3,14 @@ import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3,
 /** @internal */
 export function applyVector3Patch(parent: Object3D): void {
     patchVector(parent.position);
-    (parent.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        parent.needsRender(); //TODO fare solo se serve (se c'è smart rendering)
-
-        parent.__eventsDispatcher.dispatchEvent("positionchange");
-    };
-
     patchVector(parent.scale);
-    (parent.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        parent.needsRender(); //TODO fare solo se serve (se c'è smart rendering)
-        parent.__eventsDispatcher.dispatchEvent("scalechange");
-    };
+
+    if (parent.__scene?.__smartRendering === true) {
+        setSmartRenderingChangeCallback(parent);
+    } else {
+        setDefaultChangeCallback(parent);
+    }
+
 }
 
 function patchVector(vec3: any): void {
@@ -48,7 +45,29 @@ function patchVector(vec3: any): void {
     });
 }
 
-/** Updated to r152 */
+function setSmartRenderingChangeCallback(target: Object3D): void {
+    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.needsRender();
+        target.__eventsDispatcher.dispatchEvent("positionchange");
+    };
+    
+    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.needsRender();
+        target.__eventsDispatcher.dispatchEvent("scalechange");
+    };
+}
+
+function setDefaultChangeCallback(target: Object3D): void {
+    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.__eventsDispatcher.dispatchEvent("positionchange");
+    };
+
+    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.__eventsDispatcher.dispatchEvent("scalechange");
+    };
+}
+
+/** Updated to r153 */
 class Vector3Ext {
     public _x: number;
     public _y: number;
