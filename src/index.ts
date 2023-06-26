@@ -16,9 +16,10 @@ export * from './Objects/InstancedMeshSingle';
 export * from './Objects/Line2';
 export * from './Objects/LinkedLine';
 export * from './Objects/LoadingMaterial';
-export * from './Objects/Main';
 export * from './Objects/OrthographicCamera';
 export * from './Objects/PerspectiveCamera';
+
+export * from './Core/Main';
 
 export * from './Patch/Euler';
 export * from './Patch/Matrix4';
@@ -33,3 +34,4 @@ export * from './Rendering/RenderView';
 
 export * from './Utils/Animation';
 export * from './Utils/DistinctTargetArray';
+export * from './Utils/Stats';

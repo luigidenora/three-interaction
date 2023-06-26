@@ -4,10 +4,11 @@ import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { EventsCache } from "../Events/MiscEventsManager";
-import { applyEulerPatch, removeEulerCallback, setEulerSmartRendering } from "./Euler";
+import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
-import { applyQuaternionPatch, removeQuaternionCallback, setQuaternionSmartRendering } from "./Quaternion";
-import { applyVector3Patch, removeVector3Callback, setVector3SmartRendering } from "./Vector3";
+import { applyQuaternionPatch } from "./Quaternion";
+import { applyVector3Patch } from "./Vector3";
+import { applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
 
 /** @internal */
 export interface Object3DExtInternalPrototype {
@@ -48,9 +49,9 @@ export interface Object3DExtPrototype {
      * Bind an expression to a property.
      * @param property Property name.
      * @param getCallback Callback that returns the value to bind.
-     * @param bindAfterParentAdded If true you can use 'parent' property in the getCallback, avoiding null exception. Default: true.
+     * @param renderOnChange TODO. Default: true.
      */
-    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     /**
      * Remove a property binding.
      * @param property Property name.
@@ -67,25 +68,8 @@ Object3D.prototype.dragging = false;
 Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;
 Object3D.prototype.interceptByRaycaster = true;
-// Object3D.prototype.__visible = true;
-Object3D.prototype.__enabled = true;
+Object3D.prototype.enabled = true;
 Object3D.prototype.__manualDetection = false;
-
-// Object.defineProperty(Object3D.prototype, "visible", {
-//     get: function (this: Object3D) { return this.__visible },
-//     set: function(this: Object3D, value: boolean) {
-//         this.__visible = value;
-//         this.needsRender();
-//     }
-// });
-
-Object.defineProperty(Object3D.prototype, "enabled", {
-    get: function (this: Object3D) { return this.__enabled },
-    set: function (this: Object3D, value: boolean) {
-        this.__enabled = value;
-        this.needsRender();
-    }
-});
 
 Object.defineProperty(Object3D.prototype, "activableObj", {
     get: function (this: Object3D) {
@@ -94,7 +78,7 @@ Object.defineProperty(Object3D.prototype, "activableObj", {
             obj = obj.parent;
         }
         return obj;
-    }
+    }, configurable: true
 });
 
 Object3D.prototype.needsRender = function (this: Object3D) {
@@ -133,14 +117,14 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
     set: function (value) {
         this.__eventsDispatcher = new EventsDispatcher(this);
         Object.defineProperty(this, "userData", { // hack to inject code in constructor
-            value, writable: true
+            value, writable: true, configurable: true
         });
-    }
+    }, configurable: true
 });
 
 /** @Internal */
 export function applyObject3DVector3Patch(target: Object3D): void {
-    if (target.__vec3Patched === undefined) {
+    if (target.__vec3Patched !== true) {
         applyVector3Patch(target);
         applyMatrix4Patch(target);
         target.__vec3Patched = true;
@@ -149,7 +133,7 @@ export function applyObject3DVector3Patch(target: Object3D): void {
 
 /** @Internal */
 export function applyObject3DRotationPatch(target: Object3D): void {
-    if (target.__rotationPatched === undefined) {
+    if (target.__rotationPatched !== true) {
         applyQuaternionPatch(target);
         applyEulerPatch(target);
         target.__rotationPatched = true;
@@ -164,8 +148,8 @@ Object3D.prototype.detectChanges = function () {
     Binding.detectChanges(this);
 };
 
-Object3D.prototype.bindProperty = function (property, getValue) {
-    Binding.bindProperty(property, this, getValue);
+Object3D.prototype.bindProperty = function (property, getValue, renderOnChange) {
+    Binding.bindProperty(property, this, getValue, renderOnChange);
     return this;
 };
 
@@ -206,15 +190,7 @@ export function setSceneReference(target: Object3D, scene: Scene) {
     target.__scene = scene;
     EventsCache.update(target);
     object3DList[target.id] = target;
-
-    if (target.__scene.__smartRendering === true) {
-        applyObject3DVector3Patch(target);
-        applyObject3DRotationPatch(target);
-    }
-
-    setVector3SmartRendering(target, target.__scene.__smartRendering);
-    setQuaternionSmartRendering(target, target.__scene.__smartRendering);
-    setEulerSmartRendering(target, target.__scene.__smartRendering);
+    applySmartRenderingPatch(target);
 
     for (const object of target.children) {
         setSceneReference(object, scene);
@@ -224,9 +200,7 @@ export function setSceneReference(target: Object3D, scene: Scene) {
 function removeSceneReference(target: Object3D) {
     EventsCache.remove(target, target.__scene);
     object3DList[target.id] = undefined;
-    removeVector3Callback(target);
-    removeQuaternionCallback(target);
-    removeEulerCallback(target);
+    removeSmartRenderingPatch(target);
     target.__scene = undefined;
 
     for (const object of target.children) {

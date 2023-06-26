@@ -1,5 +1,5 @@
 import { Camera, Clock, Color, Scene, WebGLRenderer, WebGLRendererParameters } from "three";
-import { Stats } from "../Objects/Stats";
+import { Stats } from "../Utils/Stats";
 import { InteractionManager } from "../Events/InteractionManager";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsCache } from "../Events/MiscEventsManager";

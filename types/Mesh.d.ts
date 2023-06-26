@@ -11,7 +11,7 @@ export class Mesh extends MeshBase  implements Object3DExtPrototype {
     needsRender(): void;
     setManualDetectionMode(): void;
     detectChanges(): void;
-    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
     __eventsDispatcher: EventsDispatcher;
     override parent: Object3D;

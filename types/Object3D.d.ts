@@ -13,13 +13,14 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype, Obje
     __manualDetection: boolean;
     setManualDetectionMode(): void;
     detectChanges(): void;
-    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];
     __eventsDispatcher: EventsDispatcher;
     __vec3Patched: boolean;
     __rotationPatched: boolean;
+    __smartRenderingPatched: boolean;
     /** @internal */ __enabled: boolean;
     /** @internal */ __visible: boolean;
     draggable: boolean;

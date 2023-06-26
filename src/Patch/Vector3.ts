@@ -4,31 +4,36 @@ import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3,
 export function applyVector3Patch(target: Object3D): void {
     patchVector(target.position);
     patchVector(target.scale);
-
     if (target.__scene === undefined) return;
-
     if (target.__scene.__smartRendering === true) {
-        setSmartRenderingChangeCallback(target);
+        setVector3SmartRenderingChangeCallback(target);
     } else {
-        setDefaultChangeCallback(target);
+        setVector3DefaultChangeCallback(target);
     }
 }
 
 /** @internal */
-export function setVector3SmartRendering(target: Object3D, value: boolean): void {
-    if (value === true) {
-        setSmartRenderingChangeCallback(target);
-    } else if (target.__vec3Patched === undefined) {
-        setDefaultChangeCallback(target);
-    }
+export function setVector3SmartRenderingChangeCallback(target: Object3D): void {
+    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.__scene.__needsRender = true;
+        target.__eventsDispatcher.dispatchEvent("positionchange");
+    };
+
+    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.__scene.__needsRender = true;
+        target.__eventsDispatcher.dispatchEvent("scalechange");
+    };
 }
 
 /** @internal */
-export function removeVector3Callback(target: Object3D): void {
-    if (target.__vec3Patched === true) {
-        (target.position as unknown as Vector3Ext)._onChangeCallback = () => { };
-        (target.scale as unknown as Vector3Ext)._onChangeCallback = () => { };
-    }
+export function setVector3DefaultChangeCallback(target: Object3D): void {
+    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.__eventsDispatcher.dispatchEvent("positionchange");
+    };
+
+    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.__eventsDispatcher.dispatchEvent("scalechange");
+    };
 }
 
 function patchVector(vec3: any): void {
@@ -61,28 +66,6 @@ function patchVector(vec3: any): void {
             }
         }
     });
-}
-
-function setSmartRenderingChangeCallback(target: Object3D): void {
-    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__scene.__needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("positionchange");
-    };
-
-    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__scene.__needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("scalechange");
-    };
-}
-
-function setDefaultChangeCallback(target: Object3D): void {
-    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__eventsDispatcher.dispatchEvent("positionchange");
-    };
-
-    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__eventsDispatcher.dispatchEvent("scalechange");
-    };
 }
 
 /** Updated to r153 */

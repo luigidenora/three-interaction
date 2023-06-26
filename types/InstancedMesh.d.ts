@@ -10,7 +10,7 @@ export class InstancedMesh extends InstancedMeshBase implements Object3DExtProto
     __manualDetection: boolean;
     setManualDetectionMode(): void;
     detectChanges(): void;
-    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], bindAfterParentAdded?: boolean): this;
+    bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
     needsRender(): void;
     __eventsDispatcher: EventsDispatcher;
