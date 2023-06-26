@@ -14,26 +14,32 @@ export function applySmartRenderingPatch(target: Object3D): void {
         setQuaternionSmartRenderingChangeCallback(target);
         setEulerSmartRenderingChangeCallback(target);
 
-        target.__visible = target.visible;
-        target.__enabled = target.enabled;
+        //if visible is bound
+        const visibleDescr = Object.getOwnPropertyDescriptor(target, "visible");
+        if (visibleDescr !== undefined && visibleDescr.get === undefined) {
+            target.__visible = target.visible;
+            Object.defineProperty(target, "visible", {
+                get: function (this: Object3D) { return this.__visible },
+                set: function (this: Object3D, value: boolean) {
+                    this.__visible = value;
+                    this.needsRender();
+                },
+                configurable: true
+            });
+        }
 
-        Object.defineProperty(target, "visible", {
-            get: function (this: Object3D) { return this.__visible },
-            set: function (this: Object3D, value: boolean) {
-                this.__visible = value;
-                this.needsRender();
-            },
-            configurable: true
-        });
-
-        Object.defineProperty(target, "enabled", {
-            get: function (this: Object3D) { return this.__enabled },
-            set: function (this: Object3D, value: boolean) {
-                this.__enabled = value;
-                this.needsRender();
-            },
-            configurable: true
-        });
+        const enabledDescr = Object.getOwnPropertyDescriptor(target, "enabled");
+        if (enabledDescr !== undefined && enabledDescr.get === undefined) {
+            target.__enabled = target.enabled;
+            Object.defineProperty(target, "enabled", {
+                get: function (this: Object3D) { return this.__enabled },
+                set: function (this: Object3D, value: boolean) {
+                    this.__enabled = value;
+                    this.needsRender();
+                },
+                configurable: true
+            });
+        }
 
         target.__smartRenderingPatched = true;
     }
