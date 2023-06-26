@@ -9,6 +9,9 @@ import { EventsDispatcher, SceneExtPrototype } from "../src/index";
 export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
     /** @internal */ __needsRender: boolean;
     /** @internal */ __smartRendering: boolean;
+    __smartRenderingPatched: boolean;
+    /** @internal */ __enabled: boolean;
+    /** @internal */ __visible: boolean;
     activeSmartRendering(): this;
     __scene: Scene;
     needsRender(): void;

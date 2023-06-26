@@ -93,6 +93,7 @@ export class RenderView implements ViewParameters {
       this.viewport.width = this._rendererSize.x;
       this.viewport.height = this._rendererSize.y;
     }
+    this.scene.__needsRender = true;
   }
 
   public onBeforeRender(): void {

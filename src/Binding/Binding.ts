@@ -90,6 +90,7 @@ export class Binding {
     const privateKey = `__bound__${key}`;
     let setValue: () => void;
     if (renderOnChange === true) {
+      
       setValue = () => {
         const value = getValue();
         if (value !== (target as any)[privateKey]) {
@@ -97,9 +98,12 @@ export class Binding {
           target.__scene.__needsRender = true;
         }
       };
+
     } else {
+
       setValue = () => { (target as any)[privateKey] = getValue() };
     }
+    
     boundCallbacks.push({ key, setValue });
     if (target.__manualDetection === true) {
       setValue();

@@ -202,6 +202,8 @@ export class RenderManager {
 
   private onResize(): void {
     this.updateRenderSize();
+    this.__defaultView?.update();
+
     for (const view of this.views) {
       view.update();
     }
