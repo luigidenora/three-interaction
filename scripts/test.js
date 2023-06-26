@@ -1,5 +1,5 @@
 import { Mesh, MeshBasicMaterial, Scene as SceneBase, SphereGeometry } from "three";
-import { Main, OrthographicCamera } from "../../src/index";
+import { Main, OrthographicCamera } from "./bundle.js";
 
 class Scene extends SceneBase {
     constructor() {
