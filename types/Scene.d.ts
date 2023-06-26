@@ -4,9 +4,12 @@ import { BindingCallback } from "../src/Binding/Binding";
 import { Cursor } from "../src/Events/CursorManager";
 import { Events } from "../src/Events/Events";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
-import { EventsDispatcher, SceneExtPrototype } from "../src/index";
+import { DistinctTargetArray } from "../src/Utils/DistinctTargetArray";
+import { SceneExtPrototype } from "../src/Patch/Scene";
+import { EventsDispatcher } from "../src/Events/EventsDispatcher";
 
 export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtPrototype {
+    /** @internal */ __boundObjects: DistinctTargetArray;
     /** @internal */ __needsRender: boolean;
     /** @internal */ __smartRendering: boolean;
     __smartRenderingPatched: boolean;

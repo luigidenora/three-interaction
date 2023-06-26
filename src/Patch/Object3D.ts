@@ -3,12 +3,11 @@ import { Binding, BindingCallback } from "../Binding/Binding";
 import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
-import { EventsCache } from "../Events/MiscEventsManager";
 import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
 import { applyQuaternionPatch } from "./Quaternion";
 import { applyVector3Patch } from "./Vector3";
-import { applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
+import { removeSceneReference, setSceneReference } from "./Scene";
 
 /** @internal */
 export interface Object3DExtInternalPrototype {
@@ -162,7 +161,7 @@ const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
     addBase.call(this, ...arguments);
     if (arguments.length === 1 && object !== this && object?.isObject3D === true) {
-        if ((this as unknown as Scene).isScene === true) {
+        if ((this as unknown as Scene).isScene === true) { //TODO provare ad isolare questa parte
             this.__scene = this as unknown as Scene; //todo fix cast
         }
         if (this.__scene !== undefined) {
@@ -184,26 +183,3 @@ Object3D.prototype.remove = function (object: Object3D) {
     removeBase.call(this, ...arguments); //todo opt all call
     return this;
 };
-
-/** @internal */
-export function setSceneReference(target: Object3D, scene: Scene) {
-    target.__scene = scene;
-    EventsCache.update(target);
-    object3DList[target.id] = target;
-    applySmartRenderingPatch(target);
-
-    for (const object of target.children) {
-        setSceneReference(object, scene);
-    }
-}
-
-function removeSceneReference(target: Object3D) {
-    EventsCache.remove(target, target.__scene);
-    object3DList[target.id] = undefined;
-    removeSmartRenderingPatch(target);
-    target.__scene = undefined;
-
-    for (const object of target.children) {
-        removeSceneReference(object);
-    }
-}

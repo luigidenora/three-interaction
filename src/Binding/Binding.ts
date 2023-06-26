@@ -1,4 +1,4 @@
-import { Object3D } from "three";
+import { Object3D, Scene } from "three";
 import { Main } from "../Core/Main";
 
 /** @internal */
@@ -8,9 +8,9 @@ export interface BindingCallback {
 }
 
 /** @internal */
-export class Binding {
+export class Binding { //TODO remove as class
 
-  public static bindProperty(key: string, target: Object3D, getValue: () => any, renderOnChange?: boolean): void { //TODO parametro ricalcolo solo quando richiamata altrimenti sempre
+  public static bindProperty(key: string, target: Object3D, getValue: () => any, renderOnChange?: boolean): void {
     if (this.getIndexByKey(target, key) !== -1) {
       console.error("Cannot override property already bound.");
       return;
@@ -19,6 +19,9 @@ export class Binding {
     const getValueBinded = getValue.bind(target);
     this.defineProperty(key, getValueBinded, target, renderOnChange);
     this.addToBoundCallbacks(key, getValueBinded, target, renderOnChange);
+    if (target.__scene !== undefined) {
+      this.bindToScene(target);
+    }
   }
 
   private static getIndexByKey(target: Object3D, key: string): number {
@@ -110,6 +113,16 @@ export class Binding {
     }
   }
 
+  /** @internal */
+  public static bindToScene(target: Object3D): void {
+    target.__scene.__boundObjects.push(target);
+  }
+
+  /** @internal */
+  public static unbindFromScene(target: Object3D): void {
+    target.__scene.__boundObjects.remove(target);
+  }
+
   public static detectChanges(target: Object3D): void { //TODO add recursive method
     for (const bindingCallback of target.__boundCallbacks) {
       bindingCallback.setValue();
@@ -128,6 +141,10 @@ export class Binding {
         value: (target as any)[privateKey], writable: true, configurable: true
       });
 
+      if (target.__scene !== undefined) {
+        this.unbindFromScene(target);
+      }
+
       delete (target as any)[privateKey];
       delete (target as any)[lastTickKey];
     }
@@ -144,4 +161,15 @@ export class Binding {
 
     target.__manualDetection = true;
   }
+
+  public static compute(scene: Scene): void {
+    for (const object of scene.__boundObjects.data) {
+      if (object.__boundCallbacks !== undefined) {
+        for (const test of object.__boundCallbacks) {
+          (object as any)[test.key];
+        }
+      }
+    }
+  }
+
 }

@@ -5,6 +5,7 @@ import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { EventsCache } from "../Events/MiscEventsManager";
 import { RenderManager } from "../Rendering/RenderManager";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { Binding } from "../Binding/Binding";
 
 export interface MainParameters {
     fullscreen?: boolean;
@@ -100,12 +101,14 @@ export class Main {
 
             this.interactionManager.update();
 
+            this.animate(time, frame);
+
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {
                 EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
+                Binding.compute(scene);
             }
 
-            this.animate(time, frame);
             const rendered = this.renderManager.render();
 
             for (const scene of visibleScenes) {
