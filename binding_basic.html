@@ -22,6 +22,7 @@
                 "three": "https://unpkg.com/three/build/three.module.min.js",
                 "three/examples/": "https://unpkg.com/three/examples/",
                 "lil-gui": "https://unpkg.com/lil-gui@0.18.1/dist/lil-gui.esm.min"
+                "../src/index": "./bundle.js",
             }
         }
     </script>
@@ -29,60 +30,68 @@
     <script type="module">
 
         import { BoxGeometry, Color, DirectionalLight, Mesh, MeshLambertMaterial, Scene, SphereGeometry, Vector3, Sphere, Box3 } from "three";
-        import { OrthographicCamera, Main } from "./bundle.js";
-        import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+        import { OrthographicCamera, Main } from "../src/index";
         import GUI from "lil-gui";
 
         const colorVisibility = [true, true, true, true];
         let boxVisibility = true;
         let sphereVisibility = true;
 
-        const scene = new Scene();
-        scene.interceptByRaycaster = false; //todo migliora
-        scene.add(
-            scene.camera = new OrthographicCamera(25).translateZ(10),
-            scene.light = new DirectionalLight(0xffffff).translateZ(10),
-        );
+        const scene = new Scene().activeSmartRendering().add(new DirectionalLight(0xffffff).translateZ(10));
 
         const spheres = [];
         const boxes = [];
-        const geometries = [new SphereGeometry(1), new BoxGeometry(2, 2, 2)];
-        const sphereMaterial = [
+        const sphereGeometry = new SphereGeometry(1);
+        const boxGeometry = new BoxGeometry(2, 2, 2);
+        const materials = [
             new MeshLambertMaterial({ color: 0x00ff00 }), new MeshLambertMaterial({ color: 0xffffff }),
             new MeshLambertMaterial({ color: 0x0000ff }), new MeshLambertMaterial({ color: 0xff0000 })
         ];
 
-        for (let i = 0; i < 20; i++) {
-            const mesh = new Mesh(geometries[Math.trunc(i / 10)]);
-            scene.add(mesh);
-            mesh.isBox = i >= 10;
-            mesh.isBox ? boxes.push(mesh) : spheres.push(mesh);
-            mesh.materialIndex = i % 3;
-            mesh.moveDir = mesh.isBox ? new Vector3(1) : new Vector3(0, -1);
-            mesh.isBox ? mesh.position.set(-11, 9 - i % 10 * 2) : mesh.position.set(-9 + i * 2, 11);
-            mesh.origin = mesh.position.clone();
+        for (let i = 0; i < 10; i++) {
+            const sphere = new Mesh(sphereGeometry);
+            spheres.push(sphere);
+            sphere.materialIndex = i % 3;
+            sphere.moveDir = new Vector3(0, -1);
+            sphere.position.set(-9 + i * 2, 11);
+            sphere.origin = sphere.position.clone();
 
-            mesh.bindProperty("material", () => sphereMaterial[mesh.isColliding ? 3 : mesh.materialIndex]);
+            sphere.bindProperty("material", () => materials[sphere.isColliding ? 3 : sphere.materialIndex]);
+            sphere.bindProperty("visible", () => sphereVisibility && colorVisibility[sphere.isColliding ? 3 : sphere.materialIndex]);
 
-            if (mesh.isBox) {
-                mesh.bindProperty("visible", () => boxVisibility && colorVisibility[mesh.isColliding ? 3 : mesh.materialIndex]);
-                mesh.geometry.computeBoundingBox();
-            } else {
-                mesh.bindProperty("visible", () => sphereVisibility && colorVisibility[mesh.isColliding ? 3 : mesh.materialIndex]);
-                mesh.geometry.computeBoundingSphere();
-            }
-
-            mesh.bindEvent("animate", (e) => { //make this with tween
-                mesh.isColliding = false;
-                mesh.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i % 10 + 1))) * 20 || 1e-5);
-                mesh.position.addVectors(mesh.origin, mesh.moveDir);
+            sphere.bindEvent("animate", (e) => { //make this with tween
+                sphere.isColliding = false;
+                sphere.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
+                sphere.position.addVectors(sphere.origin, sphere.moveDir);
             });
         }
 
-        // opt
+        for (let i = 0; i < 10; i++) {
+            const box = new Mesh(boxGeometry);
+            boxes.push(box);
+            box.materialIndex = i % 3;
+            box.moveDir = new Vector3(1);
+            box.position.set(-11, 9 - i * 2);
+            box.origin = box.position.clone();
+
+            box.bindProperty("material", () => materials[box.isColliding ? 3 : box.materialIndex]);
+            box.bindProperty("visible", () => boxVisibility && colorVisibility[box.isColliding ? 3 : box.materialIndex]);
+
+            box.bindEvent("animate", (e) => {
+                box.isColliding = false;
+                box.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
+                box.position.addVectors(box.origin, box.moveDir);
+            });
+        }
+
+        scene.add(...spheres, ...boxes);
+
         const sphereCollider = new Sphere();
         const boxCollider = new Box3();
-        scene.bindEvent("animate", (e) => {
+        boxGeometry.computeBoundingBox();
+        sphereGeometry.computeBoundingSphere();
+
+        scene.bindEvent("animate", (e) => { //todo add afterAnimate event?
             for (let i = 0; i < spheres.length; i++) {
                 sphereCollider.copy(spheres[i].geometry.boundingSphere).applyMatrix4(spheres[i].matrixWorld);
                 for (let j = 0; j < boxes.length; j++) {
@@ -95,6 +104,7 @@
         });
 
         const main = new Main({ scenes: [scene] }, { antialias: true });
+        main.renderManager.add({ scene, camera: new OrthographicCamera(25).translateZ(10), enabled: false });
 
         const layers = {
             "toggle green": colorVisibility[0],
