@@ -12,6 +12,10 @@
 	"Rendering": [
 		"rendering_multi"
 	],
+	"Binding": [
+		"binding_basic",
+		"binding_smartRendering"
+	],
 	"Showcase": [
 		"showcase_bubble"
 	]

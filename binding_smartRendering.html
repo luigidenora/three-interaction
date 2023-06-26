@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three-ag binding</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="shortcut icon" href="files/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="files/main.css">
+</head>
+
+<body>
+    <div id="info">
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> -
+        binding and smart rendering<br>
+        visibility bound to a divisor.
+    </div>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "../src/index": "./bundle.js",
+                "three": "https://unpkg.com/three/build/three.module.min.js",
+                "three/examples/": "https://unpkg.com/three/examples/",
+                "lil-gui": "https://unpkg.com/lil-gui@0.18.1/dist/lil-gui.esm.min"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import { Scene as SceneBase, DirectionalLight, Mesh, SphereGeometry, MeshLambertMaterial } from "three";
+        import { OrthographicCamera, Main } from "../src/index";
+        import GUI from "lil-gui";
+
+        let divisor = 1;
+
+        class Sphere extends Mesh {
+            static geometry = new SphereGeometry(1);
+            constructor(row, column) {
+                super(Sphere.geometry, new MeshLambertMaterial({ color: Math.random() * 0xffffff }));
+                const index = row * 10 + column;
+                this.position.setX(column * 2 - 10).setY(row * 2 - 10);
+                this.bindProperty("visible", () => index % divisor === 0, true);
+            }
+        }
+
+        class Scene extends SceneBase {
+            constructor() {
+                super();
+                this.activeSmartRendering();
+                // this.interceptByRaycaster = false; //TODO FIX
+                this.add(new OrthographicCamera(25).translateZ(10));
+                this.add(new DirectionalLight(0xffffff).translateZ(10));
+
+                for (let i = 0; i < 10; i++) {
+                    for (let j = 0; j < 10; j++) {
+                        this.add(new Sphere(i, j));
+                    }
+                }
+            }
+        }
+
+        const main = new Main({ scenes: [new Scene()] }, { antialias: true });
+
+        const gui = new GUI();
+        const layers = { "divisor": divisor };
+        gui.add(layers, "divisor", 1, 20, 1).onChange((value) => divisor = value);
+
+    </script>
+</body>
+
+</html>

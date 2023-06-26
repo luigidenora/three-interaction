@@ -17,6 +17,7 @@
     <script type="importmap">
         {
             "imports": {
+                "../src/index": "./bundle.js",
                 "three": "https://unpkg.com/three/build/three.module.min.js",
                 "three/examples/": "https://unpkg.com/three/examples/"
             }
@@ -26,7 +27,7 @@
     <script type="module">
 
         import { BoxGeometry, Color, DirectionalLight, DynamicDrawUsage, Mesh, MeshPhongMaterial, Scene, SphereGeometry, InstancedMesh, Matrix4, Vector3 } from "three";
-        import { LoadingMaterial, PerspectiveCamera, Main } from "./bundle.js";
+        import { LoadingMaterial, PerspectiveCamera, Main } from "../src/index";
 
         const scene = new Scene();
         scene.add(

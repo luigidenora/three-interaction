@@ -18,6 +18,7 @@
     <script type="importmap">
         {
             "imports": {
+                "../src/index": "./bundle.js",
                 "three": "https://unpkg.com/three/build/three.module.min.js",
                 "three/examples/": "https://unpkg.com/three/examples/"
             }
@@ -27,9 +28,9 @@
     <script type="module">
 
         import { DirectionalLight, Mesh, MeshLambertMaterial, MeshBasicMaterial, Scene, SphereGeometry, PlaneGeometry, Color } from "three";
-        import { OrthographicCamera, Main, DragEventExt } from "./bundle.js";
+        import { OrthographicCamera, Main, DragEventExt } from "../src/index";
 
-        const scene = new Scene().add(
+        const scene = new Scene().activeSmartRendering().add(
             new OrthographicCamera(20).translateZ(10),
             new DirectionalLight(0xffffff).translateZ(10),
         );
@@ -39,7 +40,8 @@
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 6; j++) {
                 const dropTarget = new Mesh(geometryDP, materialDP[(i + j) % 2]).translateX(-9 + j * 2).translateY(-7 + i * 2);
-                dropTarget.interceptByRaycaster = false;
+                dropTarget.activable = false;
+
                 scene.add(dropTarget);
 
                 dropTarget.bindEvent("dragenter", function (e) {

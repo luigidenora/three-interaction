@@ -18,6 +18,7 @@
     <script type="importmap">
         {
             "imports": {
+                "../src/index": "./bundle.js",
                 "three": "https://unpkg.com/three/build/three.module.min.js",
                 "three/examples/": "https://unpkg.com/three/examples/"
             }
@@ -27,7 +28,7 @@
     <script type="module">
 
         import { BoxGeometry, Mesh, MeshBasicMaterial, Scene, SphereGeometry } from "three";
-        import { PerspectiveCamera, Main, LinkedLine } from "./bundle.js";
+        import { PerspectiveCamera, Main, LinkedLine } from "../src/index";
 
         const scene = new Scene().add(new PerspectiveCamera(70, 1, 10000).translateZ(10));
         scene.interceptByRaycaster = false;

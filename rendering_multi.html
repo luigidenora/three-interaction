@@ -19,6 +19,7 @@
     <script type="importmap">
         {
             "imports": {
+                "../src/index": "./bundle.js",
                 "three": "https://unpkg.com/three/build/three.module.min.js",
                 "three/examples/": "https://unpkg.com/three/examples/"
             }
@@ -28,7 +29,7 @@
     <script type="module">
 
         import { AmbientLight, Mesh, MeshLambertMaterial, Scene, BoxGeometry, SphereGeometry } from "three";
-        import { OrthographicCamera, Main, RenderView } from "./bundle.js";
+        import { OrthographicCamera, Main, RenderView } from "../src/index";
 
         const scene = new Scene().add(new AmbientLight(0xaaaaaa));
 
