@@ -11,7 +11,7 @@ class Scene extends SceneBase {
 
 class Sphere extends Mesh {
     constructor() {
-        super(new SphereGeometry(2), new MeshBasicMaterial({ color: 0xff0000 }));
+        super(new SphereGeometry(2), new MeshBasicMaterial({ color: 0xffff00 }));
         this.draggable = true;
     }
 }
