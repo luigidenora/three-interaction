@@ -15,7 +15,7 @@ export function applySmartRenderingPatch(target: Object3D): void {
         setEulerSmartRenderingChangeCallback(target);
 
         //if visible is bound
-        const visibleDescr = Object.getOwnPropertyDescriptor(target, "visible");
+        const visibleDescr = Object.getOwnPropertyDescriptor(target, "visible"); //TODO check performance
         if (visibleDescr !== undefined && visibleDescr.get === undefined) {
             target.__visible = target.visible;
             Object.defineProperty(target, "visible", {

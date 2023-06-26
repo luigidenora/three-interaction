@@ -36,8 +36,6 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype, Obje
     objectsToRaycast: Object3D[];
     cursorOnHover: Cursor;
     cursorOnDrag: Cursor;
-    // frustumNeedsUpdate: boolean; //todo REMOVE
-    // isInFrustum: boolean; //todo REMOVE
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

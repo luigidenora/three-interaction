@@ -542,8 +542,6 @@ class Vector3Ext {
 
     }
 
-    // TODO lengthSquared?
-
     lengthSq() {
 
         return this._x * this._x + this._y * this._y + this._z * this._z;
@@ -600,7 +598,7 @@ class Vector3Ext {
 
     cross(v: Vector3) {
 
-        return this.crossVectors(this as any, v); // TODO avoid to user getter
+        return this.crossVectors(this as any, v);
 
     }
 

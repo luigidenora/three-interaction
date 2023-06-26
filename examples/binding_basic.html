@@ -55,13 +55,13 @@
             sphere.position.set(-9 + i * 2, 11);
             sphere.origin = sphere.position.clone();
 
-            sphere.bindProperty("material", () => materials[sphere.isColliding ? 3 : sphere.materialIndex], true);
-            sphere.bindProperty("visible", () => sphereVisibility && colorVisibility[sphere.isColliding ? 3 : sphere.materialIndex], true);
+            sphere.bindProperty("material", () => materials[sphere.isColliding ? 3 : sphere.materialIndex]);
+            sphere.bindProperty("visible", () => sphereVisibility && colorVisibility[sphere.isColliding ? 3 : sphere.materialIndex]);
 
             sphere.bindEvent("animate", (e) => { //make this with tween
                 sphere.isColliding = false;
-                // sphere.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
-                // sphere.position.addVectors(sphere.origin, sphere.moveDir);
+                sphere.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
+                sphere.position.addVectors(sphere.origin, sphere.moveDir);
             });
         }
 
@@ -73,13 +73,13 @@
             box.position.set(-11, 9 - i * 2);
             box.origin = box.position.clone();
 
-            box.bindProperty("material", () => materials[box.isColliding ? 3 : box.materialIndex], true);
-            box.bindProperty("visible", () => boxVisibility && colorVisibility[box.isColliding ? 3 : box.materialIndex], true);
+            box.bindProperty("material", () => materials[box.isColliding ? 3 : box.materialIndex]);
+            box.bindProperty("visible", () => boxVisibility && colorVisibility[box.isColliding ? 3 : box.materialIndex]);
 
             box.bindEvent("animate", (e) => {
                 box.isColliding = false;
-                // box.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
-                // box.position.addVectors(box.origin, box.moveDir);
+                box.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
+                box.position.addVectors(box.origin, box.moveDir);
             });
         }
 
