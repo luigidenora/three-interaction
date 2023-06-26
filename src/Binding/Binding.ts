@@ -10,7 +10,7 @@ export interface BindingCallback {
 /** @internal */
 export class Binding {
 
-  public static bindProperty(key: string, target: Object3D, getValue: () => any, renderOnChange?: boolean): void {
+  public static bindProperty(key: string, target: Object3D, getValue: () => any, renderOnChange?: boolean): void { //TODO parametro ricalcolo solo quando richiamata altrimenti sempre
     if (this.getIndexByKey(target, key) !== -1) {
       console.error("Cannot override property already bound.");
       return;
@@ -90,7 +90,7 @@ export class Binding {
     const privateKey = `__bound__${key}`;
     let setValue: () => void;
     if (renderOnChange === true) {
-      
+
       setValue = () => {
         const value = getValue();
         if (value !== (target as any)[privateKey]) {
@@ -103,14 +103,14 @@ export class Binding {
 
       setValue = () => { (target as any)[privateKey] = getValue() };
     }
-    
+
     boundCallbacks.push({ key, setValue });
     if (target.__manualDetection === true) {
       setValue();
     }
   }
 
-  public static detectChanges(target: Object3D): void {
+  public static detectChanges(target: Object3D): void { //TODO add recursive method
     for (const bindingCallback of target.__boundCallbacks) {
       bindingCallback.setValue();
     }

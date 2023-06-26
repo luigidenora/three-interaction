@@ -14,7 +14,7 @@
 	],
 	"Binding": [
 		"binding_basic",
-		"binding_decorator"
+		"binding_smartRendering"
 	],
 	"Showcase": [
 		"showcase_bubble"
