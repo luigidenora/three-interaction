@@ -31,7 +31,7 @@ export class BubbleMaterial extends ShaderMaterial {
       float y = (point2D.y - 0.5) * 2.0 * radius;
       float z = sqrt(max(0.0, radius * radius - x * x - y * y));
           return vec3(x, y, z); 
-      }
+    }
   
   
     void main() {
@@ -45,9 +45,6 @@ export class BubbleMaterial extends ShaderMaterial {
       vec2 center = vec2(0.5,0.5);
       float distance = distance(center,vUv);
   
-      if(distance > 0.495){
-          gl_FragColor = vec4(0.0,0.0,0.0,0.1);
-      } else {
         vec3 refractVecR = refract(vNormal,normal,iorRatioR);
         vec3 refractVecG = refract(vNormal,normal,iorRatioG);
         vec3 refractVecB = refract(vNormal,normal,iorRatioB);
@@ -56,12 +53,16 @@ export class BubbleMaterial extends ShaderMaterial {
         color.g = texture2D(map, uv.xy + refractVecG.xy).g;
         color.b = texture2D(map, uv.xy + refractVecB.xy).b;
         color.a = 1.0;
+
+        if (distance > 0.495) {
+            color = color + vec4(0.2, 0.2, 0.2, 0.0);
+        }
+
         gl_FragColor = color;
-      }
+      
 
       #include <colorspace_fragment>
-
-      }`;
+    }`;
 
     constructor(params?: BubbleMaterialParameters) {
         super({
