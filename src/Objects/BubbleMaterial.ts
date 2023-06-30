@@ -55,7 +55,7 @@ export class BubbleMaterial extends ShaderMaterial {
         color.a = 1.0;
 
         if (distance > 0.495) {
-            color = color + vec4(0.2, 0.2, 0.2, 0.0);
+            color = color + vec4(0.1, 0.1, 0.1, 0.0);
         }
 
         gl_FragColor = color;
