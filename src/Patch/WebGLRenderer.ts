@@ -15,7 +15,7 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
         handleRendererResize(this, scene);
 
         if (!this.__isGPUPicking) {
-            // EventsCache.dispatchEvent(scene, "framerendering"); metterlo quando c'è multirenderer
+            //
         } else {
             this.__isGPUPicking = false;
         }

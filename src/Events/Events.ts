@@ -14,8 +14,9 @@ export interface UpdateEvents {
 
 export interface MiscEvents {
   rendererresize: RendererResizeEvent;
+  beforeanimate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
   animate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
-  framerendering: never; //todo
+  afteranimate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
 }
 
 export interface InteractionEvents {

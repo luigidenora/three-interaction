@@ -54,56 +54,81 @@
 
     <script type="module">
 
-        import html2canvas from 'html2canvas';
-        import { CanvasTexture, CircleGeometry, Mesh, Scene as SceneBase } from 'three';
-        import { Main, PerspectiveCamera, BubbleMaterial } from "../src/index";
+        import { WebGLRenderTarget, CircleGeometry, Mesh, Scene as SceneBase, MeshBasicMaterial } from 'three';
+        import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+        import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
+        import { Main, OrthographicCamera, BubbleMaterial } from "../src/index";
 
-        document.querySelector('body').innerHTML = "<h1>Lorem ipsum</h1>";
+        // let isCapturingMode = false;
+        const pickingTexture = new WebGLRenderTarget();
 
         class Bubble extends Mesh {
             static material = new BubbleMaterial();
-            static geometry = new CircleGeometry(1, 128, 128);
+            static geometry = new CircleGeometry(5, 128, 128);
 
             constructor() {
                 super(Bubble.geometry, Bubble.material);
                 this.theta = Math.random() * Math.PI * 2 - Math.PI * 2;
                 this.phi = Math.random() * Math.PI * 2 - Math.PI * 2;
+
+                Bubble.material.setTexture(pickingTexture.texture);
+
                 this.bindEvent('animate', (args) => {
-                    this.position.setFromSphericalCoords(4, this.theta + args.total / 2, this.phi + args.total / 2);
-                    this.position.y /= 2;
+                    this.position.setFromSphericalCoords(4, this.theta + args.total / 2, this.phi + args.total / 2).setZ(5);
                 });
-                this.bindProperty('visible', () => this.material.uniforms.map?.value !== undefined);
+
+                // this.bindProperty("visible", () => !isCapturingMode); recursive detect changes
             }
         }
 
         class Scene extends SceneBase {
 
-            constructor() {
+            constructor(renderer) {
                 super();
-                this.add(new PerspectiveCamera(75).translateZ(10));
+                this.add(this.camera = new OrthographicCamera(20).translateZ(10));
 
-                for (let i = 0; i < 10; i++) {
-                    this.add(new Bubble());
+                const loader = new FontLoader();
+
+                loader.load("fonts/helvetiker_regular.typeface.json", (font) => {
+                    const textGeo = new TextGeometry("Luigi Denora", { font, size: 3, height: 1 });
+                    textGeo.computeBoundingBox();
+                    this.add(
+                        new Mesh(textGeo, new MeshBasicMaterial({ color: 0x0000ff }))
+                            .translateX(-0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x)));
+                });
+
+                this.bubbles = [];
+                for (let i = 0; i < 1; i++) {
+                    this.add(this.bubbles[i] = new Bubble());
                 }
 
-                this.bindEvent('rendererresize', async (args) => {
-                    const page = await this.initPage()
-                    Bubble.material.setTexture(new CanvasTexture(page));
+                this.bindEvent("rendererresize", async (args) => {
+                    pickingTexture.setSize(args.width, args.height);
                     Bubble.material.setResolution(args.width * window.devicePixelRatio, args.height * window.devicePixelRatio);
                 });
-                this.bindEvent('animate', (args) => {
+
+                this.bindEvent("animate", (args) => {
                     Bubble.material.setTime(args.total);
                 });
-            }
 
-            initPage() {
-                return html2canvas(document.body, {
-                    ignoreElements: (element) => element === document.querySelector('canvas'),
+                this.bindEvent("afteranimate", () => {
+                    for (let i = 0; i < this.bubbles.length; i++) {
+                        this.bubbles[i].visible = false;
+                    }
+
+                    renderer.setRenderTarget(pickingTexture);
+                    renderer.render(this, this.camera);
+                    renderer.setRenderTarget(null);
+
+                    for (let i = 0; i < this.bubbles.length; i++) {
+                        this.bubbles[i].visible = true;
+                    }
                 });
             }
         }
 
-        const main = new Main({ scenes: [new Scene()], backgroundAlpha: 0 });
+        const main = new Main({ backgroundColor: 0xffffff }, { antialias: true });
+        main.addScene(new Scene(main.renderer));
 
     </script>
 </body>

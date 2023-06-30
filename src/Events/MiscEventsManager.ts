@@ -5,7 +5,7 @@ import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 type SceneEventsCache = { [x: string]: DistinctTargetArray };
 
 export class EventsCache {
-   private static _allowedEventsSet = new Set(["rendererresize", "framerendering", "animate"] as (keyof Events)[]);
+   private static _allowedEventsSet = new Set(["rendererresize", "beforeanimate", "animate", "afteranimate"] as (keyof Events)[]);
    private static _events: { [x: number]: SceneEventsCache } = {};
 
    public static push(type: keyof Events, target: Object3D): void {
@@ -16,15 +16,15 @@ export class EventsCache {
    }
 
    public static update(target: Object3D): void {
-      let scene = target.__scene;
-      if (target.__eventsDispatcher.listeners["rendererresize"]?.length > 0) {
-         this.pushScene(scene, "rendererresize", target);
-      }
-      if (target.__eventsDispatcher.listeners["framerendering"]?.length > 0) {
-         this.pushScene(scene, "framerendering", target);
-      }
-      if (target.__eventsDispatcher.listeners["animate"]?.length > 0) {
-         this.pushScene(scene, "animate", target);
+      this.updateEvent(target, "rendererresize");
+      this.updateEvent(target, "beforeanimate");
+      this.updateEvent(target, "animate");
+      this.updateEvent(target, "afteranimate");
+   }
+
+   private static updateEvent(target: Object3D, name: keyof Events): void {
+      if (target.__eventsDispatcher.listeners[name]?.length > 0) {
+         this.pushScene(target.__scene, name, target);
       }
    }
 
@@ -53,4 +53,5 @@ export class EventsCache {
          }
       }
    }
+
 }

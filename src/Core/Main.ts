@@ -57,7 +57,9 @@ export class Main {
         this.appendCanvas(rendererParameters);
         this.handleContextMenu(parameters.disableContextMenu);
         this.showStats = parameters.showStats ?? true;
-        this.addScene(...parameters.scenes);
+        if (parameters.scenes) {
+            this.addScene(...parameters.scenes);
+        }
         this.setAnimationLoop();
         this.backgroundColor = parameters.backgroundColor ?? 0x000000;
         this.backgroundAlpha = parameters.backgroundAlpha ?? 1;
@@ -103,9 +105,14 @@ export class Main {
 
             this.animate(time, frame);
 
+            const delta = this._clock.getDelta();
+            const total = this._clock.getElapsedTime();
+
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {
-                EventsCache.dispatchEvent(scene, "animate", { delta: this._clock.getDelta(), total: this._clock.getElapsedTime() });
+                EventsCache.dispatchEvent(scene, "beforeanimate", { delta, total });
+                EventsCache.dispatchEvent(scene, "animate", { delta, total });
+                EventsCache.dispatchEvent(scene, "afteranimate", { delta, total });
                 Binding.compute(scene);
             }
 
