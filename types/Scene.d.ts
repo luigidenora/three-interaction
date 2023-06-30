@@ -21,7 +21,7 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
     setManualDetectionMode(): void;
-    detectChanges(): void;
+    detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
     __eventsDispatcher: EventsDispatcher;

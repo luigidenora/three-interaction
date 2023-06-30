@@ -123,9 +123,16 @@ export class Binding { //TODO remove as class
     target.__scene.__boundObjects.remove(target);
   }
 
-  public static detectChanges(target: Object3D): void { //TODO add recursive method
-    for (const bindingCallback of target.__boundCallbacks) {
-      bindingCallback.setValue();
+  public static detectChanges(target: Object3D, resursive: boolean): void {
+    if (target.__boundCallbacks !== undefined) {
+      for (const bindingCallback of target.__boundCallbacks) {
+        bindingCallback.setValue();
+      }
+    }
+    if (resursive === true) {
+      for (const child of target.children) {
+        this.detectChanges(child, true);
+      }
     }
   }
 

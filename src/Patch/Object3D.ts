@@ -41,9 +41,9 @@ export interface Object3DExtPrototype {
      * If 'manual' you need to call detectChanges() manually. Used to increase performance. Default: auto. */
     setManualDetectionMode(): void;
     /**
-     * Executes all callbacks bound to this object (children excluded). 
+     * Executes all callbacks bound to this object. 
      */
-    detectChanges(): void;
+    detectChanges(recursive?: boolean): void;
     /**
      * Bind an expression to a property.
      * @param property Property name.
@@ -143,8 +143,8 @@ Object3D.prototype.setManualDetectionMode = function () {
     Binding.setManualDetectionMode(this);
 };
 
-Object3D.prototype.detectChanges = function () {
-    Binding.detectChanges(this);
+Object3D.prototype.detectChanges = function (recursive = false) {
+    Binding.detectChanges(this, recursive);
 };
 
 Object3D.prototype.bindProperty = function (property, getValue, renderOnChange) {

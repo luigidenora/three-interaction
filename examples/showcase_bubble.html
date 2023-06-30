@@ -59,7 +59,7 @@
         import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
         import { Main, OrthographicCamera, BubbleMaterial } from "../src/index";
 
-        // let isCapturingMode = false;
+        let isCapturingMode = false;
         const pickingTexture = new WebGLRenderTarget();
 
         class Bubble extends Mesh {
@@ -68,16 +68,18 @@
 
             constructor() {
                 super(Bubble.geometry, Bubble.material);
+
+                this.setManualDetectionMode();
+                Bubble.material.setTexture(pickingTexture.texture);
+
                 this.theta = Math.random() * Math.PI * 2 - Math.PI * 2;
                 this.phi = Math.random() * Math.PI * 2 - Math.PI * 2;
-
-                Bubble.material.setTexture(pickingTexture.texture);
 
                 this.bindEvent('animate', (args) => {
                     this.position.setFromSphericalCoords(4, this.theta + args.total / 2, this.phi + args.total / 2).setZ(5);
                 });
 
-                // this.bindProperty("visible", () => !isCapturingMode); recursive detect changes
+                this.bindProperty("visible", () => !isCapturingMode);
             }
         }
 
@@ -90,16 +92,15 @@
                 const loader = new FontLoader();
 
                 loader.load("fonts/helvetiker_regular.typeface.json", (font) => {
-                    const textGeo = new TextGeometry("Luigi Denora", { font, size: 3, height: 1 });
+                    const textGeo = new TextGeometry("three-keko", { font, size: 3, height: 1 });
                     textGeo.computeBoundingBox();
                     this.add(
                         new Mesh(textGeo, new MeshBasicMaterial({ color: 0x0000ff }))
                             .translateX(-0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x)));
                 });
 
-                this.bubbles = [];
                 for (let i = 0; i < 1; i++) {
-                    this.add(this.bubbles[i] = new Bubble());
+                    this.add(new Bubble());
                 }
 
                 this.bindEvent("rendererresize", async (args) => {
@@ -111,18 +112,14 @@
                     Bubble.material.setTime(args.total);
                 });
 
-                this.bindEvent("afteranimate", () => {
-                    for (let i = 0; i < this.bubbles.length; i++) {
-                        this.bubbles[i].visible = false;
-                    }
-
+                this.bindEvent("afteranimate", (args) => {
+                    isCapturingMode = true;
+                    this.detectChanges(true);
                     renderer.setRenderTarget(pickingTexture);
                     renderer.render(this, this.camera);
                     renderer.setRenderTarget(null);
-
-                    for (let i = 0; i < this.bubbles.length; i++) {
-                        this.bubbles[i].visible = true;
-                    }
+                    isCapturingMode = false;
+                    this.detectChanges(true);
                 });
             }
         }
