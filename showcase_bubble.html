@@ -27,13 +27,16 @@
     <script type="module">
 
         import { WebGLRenderTarget, CircleGeometry, Mesh, Scene as SceneBase, MeshLambertMaterial, DirectionalLight, SphereGeometry, Vector3, PlaneGeometry, Group } from 'three';
+        import { Main, PerspectiveCamera, BubbleMaterial, InstancedMeshSingle, InstancedMesh } from "../src/index";
         import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
         import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
-        import { Main, PerspectiveCamera, BubbleMaterial, InstancedMeshSingle, InstancedMesh } from "../src/index";
+        import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
         class Text extends Mesh {
             constructor(text) {
-                super(undefined, new MeshLambertMaterial({ color: 0xffff55 }));
+                super(undefined, new MeshLambertMaterial({ color: 0xffff77 }));
                 const loader = new FontLoader();
                 this.interceptByRaycaster = false;
 
@@ -62,11 +65,12 @@
             constructor() {
                 super();
                 this.setManualDetectionMode();
-                
+
                 this.add(this.plane = new Mesh(new PlaneGeometry(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), new MeshLambertMaterial({ visible: false })));
                 this.plane.bindEvent("pointermove", (e) => this.bubble.position.copy(e.intersection.point));
-                
-                this.add(this.bubble = new Mesh(new CircleGeometry(1.5, 64, 64), new BubbleMaterial()));
+                this.plane.cursorOnHover = 'none';
+
+                this.add(this.bubble = new Mesh(new CircleGeometry(2, 64, 64), new BubbleMaterial()));
                 this.bubble.interceptByRaycaster = false;
 
                 this.bindEvent("rendererresize", async (args) => {
@@ -94,8 +98,8 @@
         }
 
         class Particles extends InstancedMesh {
-            constructor(parent, index, color) {
-                super(new SphereGeometry(0.03, 10, 10), new MeshLambertMaterial(), 5000, Particle);
+            constructor(count) {
+                super(new SphereGeometry(0.03, 10, 10), new MeshLambertMaterial(), count, Particle);
                 this.interceptByRaycaster = false;
             }
         }
@@ -112,13 +116,20 @@
                     new DirectionalLight(0xffffff, 0.7).translateZ(10),
                     this.bubble = new Bubble(),
                     new Text("three-keko"),
-                    new Particles(),
+                    new Particles(5000),
                 );
 
                 this.bubble.bubble.material.setTexture(this.renderTarget.texture); //TODO sceneadd event?
 
+                const renderScene = new RenderPass(this, this.camera);
+                const bloomPass = new UnrealBloomPass(undefined, 2, 1, 0);
+                this.composer = new EffectComposer(renderer);
+                this.composer.addPass(renderScene);
+                this.composer.addPass(bloomPass);
+
                 this.bindEvent("rendererresize", async (args) => {
                     this.renderTarget.setSize(args.width, args.height);
+                    this.composer.setSize(args.width, args.height);
                 });
 
                 this.bindEvent("afteranimate", (args) => {
@@ -133,8 +144,10 @@
             }
         }
 
-        const main = new Main({ backgroundColor: 0xffffff }, { antialias: true });
-        main.addScene(new Scene(main.renderer));
+        const main = new Main({}, { antialias: true });
+        const scene = new Scene(main.renderer);
+        main.addScene(scene);
+        main.renderManager.add({ scene: scene, camera: scene.camera, composer: scene.composer });
 
     </script>
 </body>
