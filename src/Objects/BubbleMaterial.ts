@@ -14,7 +14,7 @@ export class BubbleMaterial extends ShaderMaterial {
     uniform float time;
   
     void main() {
-      vec3 noise = vec3(abs(sin(time / 2.0 + position.x)) * 0.1, abs(cos(time / 2.0 + position.x)) * 0.1 ,0.0);
+      vec3 noise = vec3(abs(sin(time * 5. + position.x * 5.)) * 0.1, abs(cos(time * 5. + position.x * 5.)) * 0.1 ,0.0);
       vUv = uv;
       vNormal = vec3(0.0 , 0.0,-1.0);
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position + noise, 1.0);
@@ -39,9 +39,9 @@ export class BubbleMaterial extends ShaderMaterial {
   
       vec3 normal =  getNormal(vUv,1.0);
 
-      float iorRatioR = 0.9900;
-      float iorRatioG = 0.9910;
-      float iorRatioB = 0.9920;
+      float iorRatioR = 0.9800;
+      float iorRatioG = 0.9810;
+      float iorRatioB = 0.9820;
       vec2 center = vec2(0.5,0.5);
       float distance = distance(center,vUv);
   
