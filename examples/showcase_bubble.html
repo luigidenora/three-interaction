@@ -54,29 +54,31 @@
 
     <script type="module">
 
-        import { WebGLRenderTarget, CircleGeometry, Mesh, Scene as SceneBase, MeshBasicMaterial } from 'three';
+        import { WebGLRenderTarget, CircleGeometry, Mesh, Scene as SceneBase, MeshLambertMaterial, DirectionalLight, SRGBColorSpace } from 'three';
         import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
         import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
-        import { Main, OrthographicCamera, BubbleMaterial } from "../src/index";
+        import { Main, PerspectiveCamera, BubbleMaterial } from "../src/index";
 
         let isCapturingMode = false;
-        const pickingTexture = new WebGLRenderTarget();
+        const pickingTexture = new WebGLRenderTarget(1, 1, { colorSpace: SRGBColorSpace });
 
         class Bubble extends Mesh {
             static material = new BubbleMaterial();
-            static geometry = new CircleGeometry(5, 128, 128);
+            static geometry = new CircleGeometry(2, 128, 128);
 
             constructor() {
                 super(Bubble.geometry, Bubble.material);
 
                 this.setManualDetectionMode();
                 Bubble.material.setTexture(pickingTexture.texture);
+                Bubble.material.uniforms.map.colorSpace = SRGBColorSpace;
 
                 this.theta = Math.random() * Math.PI * 2 - Math.PI * 2;
                 this.phi = Math.random() * Math.PI * 2 - Math.PI * 2;
 
                 this.bindEvent('animate', (args) => {
-                    this.position.setFromSphericalCoords(4, this.theta + args.total / 2, this.phi + args.total / 2).setZ(5);
+                    this.position.setFromSphericalCoords(3, this.theta + args.total / 2, this.phi + args.total / 2);
+                    this.position.x *= 3;
                 });
 
                 this.bindProperty("visible", () => !isCapturingMode);
@@ -87,21 +89,20 @@
 
             constructor(renderer) {
                 super();
-                this.add(this.camera = new OrthographicCamera(20).translateZ(10));
+                this.add(this.camera = new PerspectiveCamera(20).translateZ(40), new DirectionalLight(0xffffff, 0.5).translateZ(10));
 
                 const loader = new FontLoader();
 
                 loader.load("fonts/helvetiker_regular.typeface.json", (font) => {
-                    const textGeo = new TextGeometry("three-keko", { font, size: 3, height: 1 });
+                    const textGeo = new TextGeometry("three-keko", { font, size: 4, height: 1 });
                     textGeo.computeBoundingBox();
                     this.add(
-                        new Mesh(textGeo, new MeshBasicMaterial({ color: 0x0000ff }))
-                            .translateX(-0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x)));
+                        new Mesh(textGeo, new MeshLambertMaterial({ color: 0x0000ff }))
+                            .translateX(-0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x))
+                            .translateZ(-5));
                 });
 
-                for (let i = 0; i < 1; i++) {
-                    this.add(new Bubble());
-                }
+                this.add(new Bubble());
 
                 this.bindEvent("rendererresize", async (args) => {
                     pickingTexture.setSize(args.width, args.height);

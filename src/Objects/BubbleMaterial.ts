@@ -38,10 +38,7 @@ export class BubbleMaterial extends ShaderMaterial {
       vec2 uv = gl_FragCoord.xy / resolution.xy;
   
       vec3 normal =  getNormal(vUv,1.0);
-  
-      // gl_FragColor = vec4(0.0 ,vUv.x,0.0,1.0);
-      // return;
-  
+
       float iorRatioR = 0.9900;
       float iorRatioG = 0.9910;
       float iorRatioB = 0.9920;
@@ -50,20 +47,20 @@ export class BubbleMaterial extends ShaderMaterial {
   
       if(distance > 0.495){
           gl_FragColor = vec4(0.0,0.0,0.0,0.1);
-          return;
+      } else {
+        vec3 refractVecR = refract(vNormal,normal,iorRatioR);
+        vec3 refractVecG = refract(vNormal,normal,iorRatioG);
+        vec3 refractVecB = refract(vNormal,normal,iorRatioB);
+        vec4 color = vec4(0.0);
+        color.r = texture2D(map, uv.xy + refractVecR.xy).r;
+        color.g = texture2D(map, uv.xy + refractVecG.xy).g;
+        color.b = texture2D(map, uv.xy + refractVecB.xy).b;
+        color.a = 1.0;
+        gl_FragColor = color;
       }
-  
-      
-  
-      vec3 refractVecR = refract(vNormal,normal,iorRatioR);
-      vec3 refractVecG = refract(vNormal,normal,iorRatioG);
-      vec3 refractVecB = refract(vNormal,normal,iorRatioB);
-      vec4 color = vec4(0.0);
-      color.r = texture2D(map, uv.xy + refractVecR.xy).r;
-      color.g = texture2D(map, uv.xy + refractVecG.xy).g;
-      color.b = texture2D(map, uv.xy + refractVecB.xy).b;
-      color.a = 1.0;
-      gl_FragColor = color;
+
+      #include <colorspace_fragment>
+
       }`;
 
     constructor(params?: BubbleMaterialParameters) {
