@@ -31,7 +31,7 @@ export class Scene extends SceneBase  implements Object3DExtPrototype, SceneExtP
     override children: Object3D[];
     draggable: boolean;
     dragging: boolean;
-    clicked: boolean;
+    clicking: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;

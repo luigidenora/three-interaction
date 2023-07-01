@@ -75,7 +75,7 @@ export class InteractionManager {
         }
         this.pointerIntersection();
         this._cursorManager.update(this._dragManager.target, this.intersection[this._primaryIdentifier]?.object); //todo creare hoveredobj?
-        this.needsUpdate = false;
+        // this.needsUpdate = false; TODO decomment when implement 20 fps raycasting
     }
 
     private raycastScene(event: PointerEvent): void {
@@ -150,7 +150,7 @@ export class InteractionManager {
 
         if (target) {
             //todo handle if pointer cancel
-            target.clicked = this.isMainClick(event);
+            target.clicking = this.isMainClick(event);
         }
 
         if (!pointerDownEvent?._defaultPrevented) {
@@ -232,7 +232,7 @@ export class InteractionManager {
         this._lastClick = this.dblClick(event, lastClick, target);
 
         if (lastPointerDownTarget && this.isMainClick(event)) {
-            lastPointerDownTarget.clicked = false;
+            lastPointerDownTarget.clicking = false;
         }
     }
 

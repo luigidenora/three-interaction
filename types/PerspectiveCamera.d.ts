@@ -18,7 +18,7 @@ export class PerspectiveCamera extends PerspectiveCameraBase implements Object3D
     override children: Object3D[];
     draggable: boolean;
     dragging: boolean;
-    clicked: boolean;
+    clicking: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;

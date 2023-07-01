@@ -37,7 +37,7 @@ export class DragAndDropManager {
     }
 
     public startDragging(event: PointerEvent, raycaster: Raycaster, camera: Camera, target: Object3D): boolean {
-        if (event.isPrimary && target && target.draggable && target.clicked) {
+        if (event.isPrimary && target && target.draggable && target.clicking) {
             this._target = target;
             target.dragging = true;
             this._startPosition.copy(target.position);

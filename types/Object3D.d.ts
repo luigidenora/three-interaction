@@ -25,7 +25,7 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype, Obje
     /** @internal */ __visible: boolean;
     draggable: boolean;
     dragging: boolean;
-    clicked: boolean;
+    clicking: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;

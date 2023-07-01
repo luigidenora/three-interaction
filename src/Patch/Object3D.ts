@@ -18,13 +18,13 @@ export interface Object3DExtInternalPrototype {
 }
 
 export interface Object3DExtPrototype {
-    draggable: boolean;
+    draggable: boolean; // default false
     dragging: boolean;
-    clicked: boolean;
+    clicking: boolean;
     activable: boolean; // default true
     active: boolean;
     hovered: boolean;
-    enabled: boolean; //TODO Handle
+    enabled: boolean; //TODO Handle default true
     enabledUntilParent: boolean; //TODO Handle
     cursorOnHover: Cursor;
     cursorOnDrag: Cursor;
@@ -62,7 +62,7 @@ export const object3DList: { [x: number]: Object3D } = {};
 
 Object3D.prototype.activable = true;
 Object3D.prototype.active = false;
-Object3D.prototype.clicked = false;
+Object3D.prototype.clicking = false;
 Object3D.prototype.dragging = false;
 Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;

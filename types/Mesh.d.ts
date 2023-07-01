@@ -18,7 +18,7 @@ export class Mesh extends MeshBase  implements Object3DExtPrototype {
     override children: Object3D[];
     draggable: boolean;
     dragging: boolean;
-    clicked: boolean;
+    clicking: boolean;
     activable: boolean;
     get activableObj(): Object3D;
     active: boolean;
