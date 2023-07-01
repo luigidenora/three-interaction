@@ -68,7 +68,7 @@
 
                 this.add(this.plane = new Mesh(new PlaneGeometry(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), new MeshLambertMaterial({ visible: false })));
                 this.plane.bindEvent("pointermove", (e) => this.bubble.position.copy(e.intersection.point));
-                this.plane.cursorOnHover = 'none';
+                this.plane.cursor = 'none';
 
                 this.add(this.bubble = new Mesh(new CircleGeometry(2, 64, 64), new BubbleMaterial()));
                 this.bubble.interceptByRaycaster = false;

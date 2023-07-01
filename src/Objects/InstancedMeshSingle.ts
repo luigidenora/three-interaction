@@ -19,8 +19,8 @@ export class InstancedMeshSingle extends EventDispatcher {
     public enabledUntilParent: boolean; // TODO
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
 
-    public get activableObj(): Object3D {
-        return this.activable ? this as unknown as Object3D : this.parent.activableObj;
+    public get firstActivable(): Object3D {
+        return this.activable ? this as unknown as Object3D : this.parent.firstActivable;
     }
     
     constructor(parent: InstancedMesh, index: number, color?: Color) {

@@ -9,28 +9,20 @@ import { applyQuaternionPatch } from "./Quaternion";
 import { applyVector3Patch } from "./Vector3";
 import { removeSceneReference, setSceneReference } from "./Scene";
 
-/** @internal */
-export interface Object3DExtInternalPrototype {
-    __eventsDispatcher: EventsDispatcher;
-    __scene: Scene;
-    __boundCallbacks: BindingCallback[];
-    __manualDetection: boolean;
-}
-
 export interface Object3DExtPrototype {
-    draggable: boolean; // default false
-    dragging: boolean;
-    clicking: boolean;
-    activable: boolean; // default true
-    active: boolean;
-    hovered: boolean;
     enabled: boolean; //TODO Handle default true
     enabledUntilParent: boolean; //TODO Handle
-    cursorOnHover: Cursor;
+    interceptByRaycaster: boolean; // default true
+    objectsToRaycast: Object3D[]; //TODO handle hitbox
+    activable: boolean; // default true
+    draggable: boolean; // default false
+    hovered: boolean;
+    active: boolean;
+    clicking: boolean;
+    dragging: boolean;
+    cursor: Cursor;
     cursorOnDrag: Cursor;
-    interceptByRaycaster?: boolean; // default true
-    objectsToRaycast?: Object3D[];
-    get activableObj(): Object3D; //TODO cache
+    get firstActivable(): Object3D;
     needsRender(): void;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
@@ -70,7 +62,7 @@ Object3D.prototype.interceptByRaycaster = true;
 Object3D.prototype.enabled = true;
 Object3D.prototype.__manualDetection = false;
 
-Object.defineProperty(Object3D.prototype, "activableObj", {
+Object.defineProperty(Object3D.prototype, "firstActivable", {
     get: function (this: Object3D) {
         let obj = this;
         while (obj && !obj.activable) {

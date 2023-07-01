@@ -262,7 +262,7 @@ export class InteractionManager {
 
     private focus(event: PointerEvent, target: Object3D): void { //TODO creare possibilità di settare focus manulamente
         if (!event.isPrimary) return;
-        const activableObj = target?.activableObj;
+        const activableObj = target?.firstActivable;
         if (this.activeObject !== activableObj) {
 
             if (!this.disactiveWhenClickOut && !activableObj) return;

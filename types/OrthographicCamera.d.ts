@@ -20,14 +20,14 @@ export class OrthographicCamera extends OrthographicCameraBase implements Object
     dragging: boolean;
     clicking: boolean;
     activable: boolean;
-    get activableObj(): Object3D;
+    get firstActivable(): Object3D;
     active: boolean;
     hovered: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
-    cursorOnHover: Cursor;
+    cursor: Cursor;
     cursorOnDrag: Cursor;
     bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
