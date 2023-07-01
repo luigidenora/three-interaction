@@ -56,7 +56,7 @@ export class InstancedMeshSingle extends EventDispatcher {
         this.parent.instanceMatrix.needsUpdate = true;
     }
 
-    public bindEvent<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
+    public on<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (typeof (types) === "string") {
             return this.__eventsDispatcher.addEventListener(types, listener);
         }
@@ -66,15 +66,15 @@ export class InstancedMeshSingle extends EventDispatcher {
         return listener;
     }
 
-    public hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
+    public hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
         return this.__eventsDispatcher.hasEventListener(type, listener);
     }
 
-    public unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
+    public off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
         this.__eventsDispatcher.removeEventListener(type, listener);
     }
 
-    public triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void {
+    public trigger<K extends keyof Events>(type: K, args: Events[K]): void {
         this.__eventsDispatcher.dispatchEvent(type, args);
     }
 }

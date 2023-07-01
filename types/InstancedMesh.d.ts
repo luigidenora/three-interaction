@@ -29,9 +29,9 @@ export class InstancedMesh extends InstancedMeshBase implements Object3DExtProto
     objectsToRaycast: Object3D[];
     cursor: Cursor;
     cursorOnDrag: Cursor;
-    bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
-    hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
-    unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
-    triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
-    triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
+    on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
+    hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
+    off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
+    trigger<K extends keyof Events>(type: K, args: Events[K]): void;
+    triggerAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
 }

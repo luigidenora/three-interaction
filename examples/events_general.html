@@ -71,36 +71,36 @@
         scene.sphere.userData.className = "blink active-sphere";
         scene.plane.userData.className = "blink active-plane";
 
-        scene.bindEvent(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection", "click", "dblclick",
+        scene.on(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection", "click", "dblclick",
             "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend", "drop", "dragenter", "dragleave", "dragover", "dragcancel"],
             (event) => blink(document.getElementById(event.type), event.target.userData.className));
 
-        scene.box.bindEvent("rotationchange", () => blink(document.getElementById("rotationchange"), scene.box.userData.className));
-        scene.sphere.bindEvent("positionchange", () => blink(document.getElementById("positionchange"), scene.sphere.userData.className));
-        scene.sphere.bindEvent("scalechange", () => blink(document.getElementById("scalechange"), scene.sphere.userData.className));
-        scene.bindEvent("rendererresize", () => blink(document.getElementById("rendererresize"), scene.sphere.userData.className));
+        scene.box.on("rotationchange", () => blink(document.getElementById("rotationchange"), scene.box.userData.className));
+        scene.sphere.on("positionchange", () => blink(document.getElementById("positionchange"), scene.sphere.userData.className));
+        scene.sphere.on("scalechange", () => blink(document.getElementById("scalechange"), scene.sphere.userData.className));
+        scene.on("rendererresize", () => blink(document.getElementById("rendererresize"), scene.sphere.userData.className));
 
-        scene.box.bindEvent("animate", function (e) {
+        scene.box.on("animate", function (e) {
             if (this.hovered) {
                 this.rotation.y += e.delta;
                 this.rotation.x += e.delta * 1.5;
             }
         });
 
-        scene.bindEvent("focus", (e) => {
+        scene.on("focus", (e) => {
             e.target.material.emissive.set(0xcccc00);
             e.relatedTarget?.material.emissive.set(0);
         });
 
-        scene.sphere.bindEvent("dragstart", function (e) {
+        scene.sphere.on("dragstart", function (e) {
             e.preventDefault(); // now will search for dropTarget
         });
 
-        scene.plane.bindEvent(["dragenter", "dragleave", "drop", "dragcancel"], function (e) {
+        scene.plane.on(["dragenter", "dragleave", "drop", "dragcancel"], function (e) {
             this.material.emissive.set(e.type === "dragenter" ? 0xcccc00 : 0);
         });
 
-        scene.sphere.bindEvent(["pointerover", "pointerout"], function (e) {
+        scene.sphere.on(["pointerover", "pointerout"], function (e) {
             this.scale.multiplyScalar(e.type === "pointerover" ? 1.2 : 1 / 1.2);
         });
 

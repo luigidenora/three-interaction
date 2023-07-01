@@ -36,7 +36,7 @@
         scene.add(scene.box = new Mesh(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 })));
         scene.box.draggable = true;
         scene.box.position.setX(-1);
-        scene.box.bindEvent("animate", function (e) {
+        scene.box.on("animate", function (e) {
             this.rotation.x += e.delta;
             this.rotation.y += e.delta * 1.5;
         });

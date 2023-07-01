@@ -59,7 +59,7 @@
             sphere.bindProperty("material", () => materials[sphere.isColliding ? 3 : sphere.materialIndex]);
             sphere.bindProperty("visible", () => sphereVisibility && colorVisibility[sphere.isColliding ? 3 : sphere.materialIndex]);
 
-            sphere.bindEvent("animate", (e) => { //make this with tween
+            sphere.on("animate", (e) => { //make this with tween
                 sphere.isColliding = false;
                 sphere.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
                 sphere.position.addVectors(sphere.origin, sphere.moveDir);
@@ -77,7 +77,7 @@
             box.bindProperty("material", () => materials[box.isColliding ? 3 : box.materialIndex]);
             box.bindProperty("visible", () => boxVisibility && colorVisibility[box.isColliding ? 3 : box.materialIndex]);
 
-            box.bindEvent("animate", (e) => {
+            box.on("animate", (e) => {
                 box.isColliding = false;
                 box.moveDir.setLength(Math.abs(Math.sin(e.total / 10 * (i + 1))) * 20 || 1e-5);
                 box.position.addVectors(box.origin, box.moveDir);
@@ -91,7 +91,7 @@
         boxGeometry.computeBoundingBox();
         sphereGeometry.computeBoundingSphere();
 
-        scene.bindEvent("animate", (e) => { //todo add afterAnimate event?
+        scene.on("animate", (e) => { //todo add afterAnimate event?
             for (let i = 0; i < spheres.length; i++) {
                 sphereCollider.copy(spheres[i].geometry.boundingSphere).applyMatrix4(spheres[i].matrixWorld);
                 for (let j = 0; j < boxes.length; j++) {

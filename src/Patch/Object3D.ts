@@ -24,29 +24,14 @@ export interface Object3DExtPrototype {
     cursorOnDrag: Cursor;
     get firstActivable(): Object3D;
     needsRender(): void;
-    bindEvent<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
-    hasBoundEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
-    unbindEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
-    triggerEvent<K extends keyof Events>(type: K, args: Events[K]): void;
-    triggerEventAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
-    /**
-     * If 'manual' you need to call detectChanges() manually. Used to increase performance. Default: auto. */
+    on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
+    hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
+    off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
+    trigger<K extends keyof Events>(type: K, args: Events[K]): void;
+    triggerAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
     setManualDetectionMode(): void;
-    /**
-     * Executes all callbacks bound to this object. 
-     */
     detectChanges(recursive?: boolean): void;
-    /**
-     * Bind an expression to a property.
-     * @param property Property name.
-     * @param getCallback Callback that returns the value to bind.
-     * @param renderOnChange TODO. Default: true.
-     */
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
-    /**
-     * Remove a property binding.
-     * @param property Property name.
-     */
     unbindProperty<T extends keyof this>(property: T): this;
 }
 
@@ -78,7 +63,7 @@ Object3D.prototype.needsRender = function (this: Object3D) {
     }
 };
 
-Object3D.prototype.bindEvent = function (this: Object3D, types: any, listener) {
+Object3D.prototype.on = function (this: Object3D, types: any, listener) {
     if (typeof (types) === "string") {
         return this.__eventsDispatcher.addEventListener(types as any, listener);
     }
@@ -88,19 +73,19 @@ Object3D.prototype.bindEvent = function (this: Object3D, types: any, listener) {
     return listener;
 };
 
-Object3D.prototype.hasBoundEvent = function (type: any, listener) {
+Object3D.prototype.hasEvent = function (type: any, listener) {
     return this.__eventsDispatcher.hasEventListener(type, listener);
 }
 
-Object3D.prototype.unbindEvent = function (type: any, listener) {
+Object3D.prototype.off = function (type: any, listener) {
     this.__eventsDispatcher.removeEventListener(type, listener);
 }
 
-Object3D.prototype.triggerEvent = function (type: any, args) {
+Object3D.prototype.trigger = function (type: any, args) {
     this.__eventsDispatcher.dispatchDOMEvent(type, args);
 }
 
-Object3D.prototype.triggerEventAncestor = function (type: any, args) { //TODO Cambare nome
+Object3D.prototype.triggerAncestor = function (type: any, args) { //TODO Cambare nome
     this.__eventsDispatcher.dispatchDOMEventAncestor(type, args);
 }
 

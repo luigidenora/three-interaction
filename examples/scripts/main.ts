@@ -9,7 +9,7 @@
 //         super(new SphereGeometry(0.1, 10, 10), new MeshPhongMaterial(), 5000, Sphere, new Color(0xffffff));
 //         this.instanceMatrix.setUsage(DynamicDrawUsage);
 
-//         this.bindEvent("animate", () => {
+//         this.on("animate", () => {
 //             (this as any).computeBoundingSphere(); //TODO fix ref 
 //         });
 //     }
@@ -24,12 +24,12 @@
 //         const angleX = Math.random() * Math.PI * 2;
 //         const angleY = Math.random() * Math.PI * 2;
 
-//         this.bindEvent("animate", (e) => {
+//         this.on("animate", (e) => {
 //             this.position.setFromSphericalCoords(5, angleX * e.total / 10, angleY * e.total / 10);
 //             this.updateMatrix();
 //         });
 
-//         this.bindEvent("pointerintersection", (e) => {
+//         this.on("pointerintersection", (e) => {
 //             if (!this.actived) {
 //                 this.setColor(new Color().setHex(0xff0000));
 //                 this.actived = true;
@@ -47,7 +47,7 @@
 //         super(new BoxGeometry(0.2, 10, 1), new LoadingMaterial(10, 0xff0000, 0x00ff00));
 //         this.position.setX(-10);
 
-//         this.bindEvent("animate", () => {
+//         this.on("animate", () => {
 //             this.material.uniforms.time.value = performance.now() / 1000;
 //         });
 //     }
@@ -95,7 +95,7 @@
 //         this.lookAt(this.position.clone().add(faceNormal));
 //         this.bindProperty("visible", () => showImpact);
 
-//         this.bindEvent("animate", (e) => {
+//         this.on("animate", (e) => {
 //             this.material.opacity -= e.delta * timeSpeed / 4;
 //             this.scale.setScalar(this.material.opacity)
 //             if (this.material.opacity <= 0) {

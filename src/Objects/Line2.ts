@@ -8,7 +8,7 @@ export class Line2 extends Line2Base {
     constructor(material = new LineMaterial()) {
         super(new LineGeometry(), material);
 
-        (this as any).bindEvent("rendererresize", (e: any) => {
+        this.on("rendererresize", (e: any) => {
             this.material.resolution.set(e.width, e.height);
         });
     }

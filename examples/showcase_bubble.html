@@ -49,7 +49,7 @@
 
                     const rotationCenter = this.position.clone();
                     const rotationAxis = new Vector3(0, 1, 0);
-                    this.bindEvent("animate", (e) => {
+                    this.on("animate", (e) => {
                         const oldAngleY = this.rotation.y;
                         const oldAngleX = this.rotation.x;
                         this.rotation.y = Math.sin(e.total) * 0.2;
@@ -67,16 +67,16 @@
                 this.setManualDetectionMode();
 
                 this.add(this.plane = new Mesh(new PlaneGeometry(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), new MeshLambertMaterial({ visible: false })));
-                this.plane.bindEvent("pointermove", (e) => this.bubble.position.copy(e.intersection.point));
+                this.plane.on("pointermove", (e) => this.bubble.position.copy(e.intersection.point));
                 this.plane.cursor = 'none';
 
                 this.add(this.bubble = new Mesh(new CircleGeometry(2, 64, 64), new BubbleMaterial()));
                 this.bubble.interceptByRaycaster = false;
 
-                this.bindEvent("rendererresize", async (args) => {
+                this.on("rendererresize", async (args) => {
                     this.bubble.material.setResolution(args.width * window.devicePixelRatio, args.height * window.devicePixelRatio);
                 });
-                this.bindEvent("animate", (args) => this.bubble.material.setTime(args.total));
+                this.on("animate", (args) => this.bubble.material.setTime(args.total));
                 this.bindProperty("visible", () => !this.parent?.isTextureRendering);
             }
         }
@@ -90,7 +90,7 @@
                 this.scale.setScalar(2 * Math.random());
                 this.setColor(Math.random() * 0xffffff);
 
-                this.bindEvent("animate", (e) => {
+                this.on("animate", (e) => {
                     this.position.setFromSphericalCoords(10, angleX + Math.sin(e.total / 5 * multiplier), angleY + Math.sin(e.total / 5 * multiplier));
                     this.updateMatrix();
                 });
@@ -127,12 +127,12 @@
                 this.composer.addPass(renderScene);
                 this.composer.addPass(bloomPass);
 
-                this.bindEvent("rendererresize", async (args) => {
+                this.on("rendererresize", async (args) => {
                     this.renderTarget.setSize(args.width, args.height);
                     this.composer.setSize(args.width, args.height);
                 });
 
-                this.bindEvent("afteranimate", (args) => {
+                this.on("afteranimate", (args) => {
                     this.isTextureRendering = true;
                     this.detectChanges(true);
                     renderer.setRenderTarget(this.renderTarget);

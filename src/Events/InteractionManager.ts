@@ -96,14 +96,14 @@ export class InteractionManager {
     private triggerPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D): void {
         if (target) {
             const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], relatedTarget);
-            target.triggerEvent(type, pointerEvent);
+            target.trigger(type, pointerEvent);
         }
     }
 
     private triggerAncestorPointer(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, relatedTarget?: Object3D, cancelable?: boolean): PointerEventExt {
         if (target) {
             const pointerEvent = new PointerEventExt(event, this.intersection[event.pointerId], relatedTarget, cancelable);
-            target.triggerEventAncestor(type, pointerEvent);
+            target.triggerAncestor(type, pointerEvent);
             return pointerEvent;
         }
     }
@@ -111,14 +111,14 @@ export class InteractionManager {
     private triggerAncestorWheel(event: WheelEvent, intersection: IntersectionExt): void {
         if (intersection) {
             const wheelEvent = new WheelEventExt(event, intersection);
-            intersection.object.triggerEventAncestor("wheel", wheelEvent);
+            intersection.object.triggerAncestor("wheel", wheelEvent);
         }
     }
 
     private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
         if (this.activeObject) {
             const keyboardEvent = new KeyboardEventExt(event, cancelable);
-            this.activeObject.triggerEventAncestor(type, keyboardEvent);
+            this.activeObject.triggerAncestor(type, keyboardEvent);
             return keyboardEvent;
         }
     }
@@ -186,7 +186,7 @@ export class InteractionManager {
                 this.pointerOutOver(event);
             }
             const intersection = this.intersection[this._primaryIdentifier];
-            intersection?.object.triggerEventAncestor("pointerintersection", new PointerIntersectionEvent(intersection));
+            intersection?.object.triggerAncestor("pointerintersection", new PointerIntersectionEvent(intersection));
         }
     }
 
@@ -272,15 +272,15 @@ export class InteractionManager {
 
             if (oldActiveObj) {
                 oldActiveObj.active = false;
-                oldActiveObj.triggerEventAncestor("blur", event);
-                oldActiveObj.triggerEvent("focusout", event);
+                oldActiveObj.triggerAncestor("blur", event);
+                oldActiveObj.trigger("focusout", event);
             }
 
             if (activableObj) {
                 activableObj.active = true
                 event.relatedTarget = oldActiveObj;
-                activableObj.triggerEventAncestor("focus", event);
-                activableObj.triggerEvent("focusin", event);
+                activableObj.triggerAncestor("focus", event);
+                activableObj.trigger("focusin", event);
             }
 
             this.activeObject = activableObj;

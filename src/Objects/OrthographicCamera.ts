@@ -9,7 +9,7 @@ export class OrthographicCamera extends OrthographicCameraBase {
     constructor(frustumSize = 100, near?: number, far?: number) {
         super(undefined, undefined, undefined, undefined, near, far);
 
-        this.bindEvent("rendererresize", (e) => {
+        this.on("rendererresize", (e) => {
             const aspect = e.width / e.height;
             this.left = -0.5 * frustumSize * aspect;
             this.right = 0.5 * frustumSize * aspect;

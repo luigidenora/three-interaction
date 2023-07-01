@@ -41,19 +41,19 @@
         let activatedSpheres = 0;
         scene.spheres.instanceMatrix.setUsage(DynamicDrawUsage);
         scene.loadingBar.interceptByRaycaster = false;
-        scene.loadingBar.bindEvent("animate", (e) => { scene.loadingBar.material.uniforms.time.value = e.total });
-        scene.spheres.bindEvent("animate", function (e) { this.computeBoundingSphere() });
+        scene.loadingBar.on("animate", (e) => { scene.loadingBar.material.uniforms.time.value = e.total });
+        scene.spheres.on("animate", function (e) { this.computeBoundingSphere() });
 
         for (const sphere of scene.spheres.instances) {
             sphere.angleX = Math.random() * Math.PI * 2;
             sphere.angleY = Math.random() * Math.PI * 2;
 
-            sphere.bindEvent("animate", function (e) {
+            sphere.on("animate", function (e) {
                 this.position.setFromSphericalCoords(5, this.angleX * e.total / 10, this.angleY * e.total / 10);
                 this.updateMatrix();
             });
 
-            sphere.bindEvent("pointerintersection", function (e) {
+            sphere.on("pointerintersection", function (e) {
                 if (!this.activated) {
                     this.setColor(0xff0000);
                     this.activated = true;

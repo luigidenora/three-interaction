@@ -44,13 +44,13 @@
 
                 scene.add(dropTarget);
 
-                dropTarget.bindEvent("dragenter", function (e) {
+                dropTarget.on("dragenter", function (e) {
                     if (!this.userData.droppedTarget || this.userData.droppedTarget === e.relatedTarget) {
                         e.relatedTarget.position.copy(this.position);
                     }
                 });
 
-                dropTarget.bindEvent("drop", function (e) {
+                dropTarget.on("drop", function (e) {
                     if (e.relatedTarget.userData.dropTarget) {
                         e.relatedTarget.userData.dropTarget.userData.droppedTarget = undefined;
                     }
@@ -69,24 +69,24 @@
             sphere.draggable = true;
             scene.add(sphere);
 
-            sphere.bindEvent("dragstart", function (e) {
+            sphere.on("dragstart", function (e) {
                 e.preventDefault(); // search for drop target
                 this.position.z = 1; // avoid artifact
             });
 
-            sphere.bindEvent("drag", function (e) {
+            sphere.on("drag", function (e) {
                 const validDropTarget = e.relatedTarget && !e.relatedTarget.userData.droppedTarget;
                 this.material.opacity = validDropTarget ? 1 : 0.4;
                 if (validDropTarget) e.preventDefault(); // prevent set position by mouse
             });
 
-            sphere.bindEvent("dragend", function (e) {
+            sphere.on("dragend", function (e) {
                 this.material.opacity = 1;
                 if (!e.relatedTarget || e.relatedTarget.userData.droppedTarget !== this) {
                     e.preventDefault(); // cancel drag
                     const event = new DragEventExt();
                     event.relatedTarget = this; //TODO params in constructor
-                    this.userData.dropTarget?.triggerEventAncestor("drop", event);
+                    this.userData.dropTarget?.triggerAncestor("drop", event);
                 }
             });
         }

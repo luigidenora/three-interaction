@@ -20,13 +20,13 @@ export class InstancedMesh extends InstancedMeshBase {
             this.instances.push(new singleInstanceType(this, i, color));
         }
 
-        this.bindEvent("pointerintersection", (e) => {
-            this.instances[e.intersection.instanceId].triggerEvent("pointerintersection", e);
+        this.on("pointerintersection", (e) => {
+            this.instances[e.intersection.instanceId].trigger("pointerintersection", e);
         });
 
-        this.bindEvent("animate", (e) => {
+        this.on("animate", (e) => {
             for (let i = 0; i < this.count; i++) { //opt with array sorted and don't include id > count
-                this.instances[i].triggerEvent("animate", e);
+                this.instances[i].trigger("animate", e);
             }
         });
     }

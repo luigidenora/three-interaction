@@ -38,7 +38,7 @@
             const point = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 0xffffff * Math.random() }));
             points.push(point);
             scene.add(point);
-            point.bindEvent("animate", (e) => point.position.set(-Math.cos(e.total / 10 * (i + 1)) * 5, Math.sin(e.total / 10 * (i + 1)) * 5));
+            point.on("animate", (e) => point.position.set(-Math.cos(e.total / 10 * (i + 1)) * 5, Math.sin(e.total / 10 * (i + 1)) * 5));
         }
 
         for (let i = 0; i < points.length - 1; i++) {

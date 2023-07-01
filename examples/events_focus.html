@@ -46,20 +46,20 @@
             mesh.angleX = Math.random() * 2 * Math.PI - Math.PI;
             mesh.angleY = Math.random() * 2 * Math.PI - Math.PI;
 
-            mesh.bindEvent("animate", function (e) {
+            mesh.on("animate", function (e) {
                 this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 5, this.angleY + e.total / 5);
                 this.rotation.x += e.delta * this.angleX;
                 this.rotation.y += e.delta * this.angleY;
             });
         }
 
-        scene.bindEvent("pointerdown", (e) => {
+        scene.on("pointerdown", (e) => {
             if (e.button !== 0) e.preventDefault(); // prevent focus if you don't left click.
         });
 
         scene.light.matrixAutoUpdate = false;
 
-        scene.bindEvent("focus", (e) => {
+        scene.on("focus", (e) => {
             e.target.material.emissive.set(0xaaaa00);
             e.relatedTarget?.material.emissive.set(0);
             scene.light.color.copy(e.target.material.color);

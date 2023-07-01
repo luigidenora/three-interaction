@@ -26,7 +26,7 @@ export class DragAndDropManager {
         raycaster.ray.intersectPlane(this._plane, this._intersection)
         this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
 
-        const dragEvent = this.triggerEvent("drag", event, this._target, true, this._intersection, dropTargetIntersection?.object, dropTargetIntersection);
+        const dragEvent = this.trigger("drag", event, this._target, true, this._intersection, dropTargetIntersection?.object, dropTargetIntersection);
 
         if (!dragEvent._defaultPrevented && !this._target.position.equals(this._intersection)) {
             this._target.position.copy(this._intersection);
@@ -41,7 +41,7 @@ export class DragAndDropManager {
             this._target = target;
             target.dragging = true;
             this._startPosition.copy(target.position);
-            const dragEvent = this.triggerEvent("dragstart", event, target, true);
+            const dragEvent = this.trigger("dragstart", event, target, true);
 
             target.updateMatrixWorld(); //if transform target in dragstart event
             this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
@@ -63,13 +63,13 @@ export class DragAndDropManager {
         if (this._target) {
             this._target.dragging = false;
 
-            const cancelEvent = this.triggerEvent("dragcancel", event, this._target, true, undefined, this._lastDropTarget);
+            const cancelEvent = this.trigger("dragcancel", event, this._target, true, undefined, this._lastDropTarget);
             if (!cancelEvent._defaultPrevented && !this._target.position.equals(this._startPosition)) {
                 this._target.position.copy(this._startPosition);
             }
 
             if (this._lastDropTarget) {
-                this.triggerEvent("dragcancel", event, this._lastDropTarget, false, undefined, this._target);
+                this.trigger("dragcancel", event, this._lastDropTarget, false, undefined, this._target);
             }
 
             this.dragEnd(event);
@@ -82,7 +82,7 @@ export class DragAndDropManager {
         this._target.dragging = false;
 
         if (this._lastDropTarget) {
-            this.triggerEvent("drop", event, this._lastDropTarget, false, undefined, this._target);
+            this.trigger("drop", event, this._lastDropTarget, false, undefined, this._target);
         }
 
         this.dragEnd(event);
@@ -91,7 +91,7 @@ export class DragAndDropManager {
     }
 
     private dragEnd(event: PointerEvent): void {
-        const dragEvent = this.triggerEvent("dragend", event, this._target, true, undefined, this._lastDropTarget);
+        const dragEvent = this.trigger("dragend", event, this._target, true, undefined, this._lastDropTarget);
         if (dragEvent._defaultPrevented) {
             this._target.position.copy(this._startPosition);
         }
@@ -104,10 +104,10 @@ export class DragAndDropManager {
         this._findDropTarget = false;
     }
 
-    private triggerEvent(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, cancelable: boolean, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt): DragEventExt {
+    private trigger(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, cancelable: boolean, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt): DragEventExt {
         if (target) {
             const dragEvent = new DragEventExt(event, cancelable, this._dataTransfer, position, relatedTarget, intersection);
-            target.triggerEventAncestor(type, dragEvent);
+            target.triggerAncestor(type, dragEvent);
             return dragEvent;
         }
     }
@@ -123,12 +123,12 @@ export class DragAndDropManager {
             // dropTarget && (dropTarget.target = this._target);
 
             if (dropTarget !== lastDropTarget) { //documenta che il related target è sempre l'oggetto che stai draggando
-                this.triggerEvent("dragleave", event, lastDropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
-                this.triggerEvent("dragenter", event, dropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
+                this.trigger("dragleave", event, lastDropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
+                this.trigger("dragenter", event, dropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
             }
 
             if (dropTarget) {
-                this.triggerEvent("dragover", event, dropTargetIntersection.object, false, dropTargetIntersection.point, this._target, dropTargetIntersection);
+                this.trigger("dragover", event, dropTargetIntersection.object, false, dropTargetIntersection.point, this._target, dropTargetIntersection);
             }
         }
     }

@@ -7,15 +7,15 @@ export class LinkedLine extends Line2 {
     constructor(targetA: Object3D, targetB: Object3D) {
         super();
 
-        targetA.bindEvent("positionchange", () => {
+        targetA.on("positionchange", () => {
             this._needsUpdate = true;
         });
 
-        targetB.bindEvent("positionchange", () => {
+        targetB.on("positionchange", () => {
             this._needsUpdate = true;
         });
 
-        this.bindEvent("animate", () => {
+        this.on("animate", () => {
             if (this._needsUpdate) {
                 this.setPoints([targetA.position, targetB.position]); // todo could  be opt
                 this._needsUpdate = false;
