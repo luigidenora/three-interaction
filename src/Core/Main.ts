@@ -57,13 +57,15 @@ export class Main {
         this.appendCanvas(rendererParameters);
         this.handleContextMenu(parameters.disableContextMenu);
         this.showStats = parameters.showStats ?? true;
-        if (parameters.scenes) {
+        if (parameters.scenes !== undefined) {
             this.addScene(...parameters.scenes);
         }
         this.setAnimationLoop();
         this.backgroundColor = parameters.backgroundColor ?? 0x000000;
         this.backgroundAlpha = parameters.backgroundAlpha ?? 1;
         this._animate = parameters.animate;
+
+        // setInterval(() => { this.interactionManager.needsUpdate = true }, 1000 / 20); //TODO in future
     }
 
     private initRenderer(fullscreen = true, rendererParameters: WebGLRendererParameters): void {

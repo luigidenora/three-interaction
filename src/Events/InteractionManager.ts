@@ -1,13 +1,14 @@
-import { Camera, Object3D, Scene, Vector2, WebGLRenderer } from "three";
+import { Object3D, WebGLRenderer } from "three";
+import { RenderManager } from "../Rendering/RenderManager";
 import { CursorHandler } from "./CursorManager";
 import { DragAndDropManager } from "./DragAndDropManager";
 import { FocusEventExt, InteractionEvents, IntersectionExt, KeyboardEventExt, PointerEventExt, PointerIntersectionEvent, WheelEventExt } from "./Events";
 import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
-import { RenderManager } from "../Rendering/RenderManager";
 
 export class InteractionManager {
     public enabled = true;
+    public needsUpdate = true;
     public continousRaycasting = true; //for intersection event
     public continousRaycastingDrop = true; //for trigger drag without moving
     public disactiveWhenClickOut = false;
@@ -67,13 +68,14 @@ export class InteractionManager {
 
     public update(): void { //todo user active scene?
         //TODO check se canvas ha perso focus
-        if (!this.enabled) return;
+        if (this.enabled !== true || this.needsUpdate === false) return;
         this._primaryRaycasted = false;
         for (const event of this._queue.dequeue()) {
             this.computeQueuedEvent(event);
         }
         this.pointerIntersection();
         this._cursorManager.update(this._dragManager.target, this.intersection[this._primaryIdentifier]?.object); //todo creare hoveredobj?
+        this.needsUpdate = false;
     }
 
     private raycastScene(event: PointerEvent): void {
