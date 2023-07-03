@@ -1,28 +1,28 @@
 import { Object3D, Scene } from "three";
-import { Binding, BindingCallback } from "../Binding/Binding";
+import { Binding } from "../Binding/Binding";
 import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
 import { applyQuaternionPatch } from "./Quaternion";
-import { applyVector3Patch } from "./Vector3";
 import { removeSceneReference, setSceneReference } from "./Scene";
+import { applyVector3Patch } from "./Vector3";
 
 export interface Object3DExtPrototype {
     enabled: boolean; //TODO Handle default true
     enabledUntilParent: boolean; //TODO Handle
     interceptByRaycaster: boolean; // default true
     objectsToRaycast: Object3D[]; //TODO handle hitbox
-    activable: boolean; // default true
+    focusable: boolean; // default true
     draggable: boolean; // default false
     hovered: boolean;
-    active: boolean;
+    focused: boolean;
     clicking: boolean;
     dragging: boolean;
     cursor: Cursor;
     cursorOnDrag: Cursor;
-    get firstActivable(): Object3D;
+    get firstFocusable(): Object3D;
     needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
@@ -37,8 +37,8 @@ export interface Object3DExtPrototype {
 
 export const object3DList: { [x: number]: Object3D } = {};
 
-Object3D.prototype.activable = true;
-Object3D.prototype.active = false;
+Object3D.prototype.focusable = true;
+Object3D.prototype.focused = false;
 Object3D.prototype.clicking = false;
 Object3D.prototype.dragging = false;
 Object3D.prototype.draggable = false;
@@ -47,10 +47,10 @@ Object3D.prototype.interceptByRaycaster = true;
 Object3D.prototype.enabled = true;
 Object3D.prototype.__manualDetection = false;
 
-Object.defineProperty(Object3D.prototype, "firstActivable", {
+Object.defineProperty(Object3D.prototype, "firstFocusable", {
     get: function (this: Object3D) {
         let obj = this;
-        while (obj && !obj.activable) {
+        while (obj && !obj.focusable) {
             obj = obj.parent;
         }
         return obj;

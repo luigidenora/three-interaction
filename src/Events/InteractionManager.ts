@@ -11,10 +11,10 @@ export class InteractionManager {
     public needsUpdate = true;
     public continousRaycasting = true; //for intersection event
     public continousRaycastingDrop = true; //for trigger drag without moving
-    public disactiveWhenClickOut = false;
+    public blurOnClickOut = false;
     public intersection: { [x: string]: IntersectionExt } = {};
     public intersectionDropTarget: IntersectionExt;
-    public activeObject: Object3D;
+    public focusedObject: Object3D;
     public raycasterManager: RaycasterManager;
     private _renderManager: RenderManager;
     private _cursorManager: CursorHandler;
@@ -116,9 +116,9 @@ export class InteractionManager {
     }
 
     private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
-        if (this.activeObject) {
+        if (this.focusedObject) {
             const keyboardEvent = new KeyboardEventExt(event, cancelable);
-            this.activeObject.triggerAncestor(type, keyboardEvent);
+            this.focusedObject.triggerAncestor(type, keyboardEvent);
             return keyboardEvent;
         }
     }
@@ -262,28 +262,28 @@ export class InteractionManager {
 
     private focus(event: PointerEvent, target: Object3D): void { //TODO creare possibilità di settare focus manulamente
         if (!event.isPrimary) return;
-        const activableObj = target?.firstActivable;
-        if (this.activeObject !== activableObj) {
+        const focusableObj = target?.firstFocusable;
+        if (this.focusedObject !== focusableObj) {
 
-            if (!this.disactiveWhenClickOut && !activableObj) return;
+            if (!this.blurOnClickOut && !focusableObj) return;
 
-            const event = new FocusEventExt(activableObj);
-            const oldActiveObj = this.activeObject;
+            const event = new FocusEventExt(focusableObj);
+            const oldFocusedObj = this.focusedObject;
 
-            if (oldActiveObj) {
-                oldActiveObj.active = false;
-                oldActiveObj.triggerAncestor("blur", event);
-                oldActiveObj.trigger("focusout", event);
+            if (oldFocusedObj) {
+                oldFocusedObj.focused = false;
+                oldFocusedObj.triggerAncestor("blur", event);
+                oldFocusedObj.trigger("focusout", event);
             }
 
-            if (activableObj) {
-                activableObj.active = true
-                event.relatedTarget = oldActiveObj;
-                activableObj.triggerAncestor("focus", event);
-                activableObj.trigger("focusin", event);
+            if (focusableObj) {
+                focusableObj.focused = true
+                event.relatedTarget = oldFocusedObj;
+                focusableObj.triggerAncestor("focus", event);
+                focusableObj.trigger("focusin", event);
             }
 
-            this.activeObject = activableObj;
+            this.focusedObject = focusableObj;
             this._renderManager.activeView.scene.__needsRender = true;
         }
     }

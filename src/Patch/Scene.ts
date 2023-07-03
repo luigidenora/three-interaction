@@ -9,7 +9,7 @@ export interface SceneExtPrototype {
     activeSmartRendering(): this;
 }
 
-Scene.prototype.activable = false;
+Scene.prototype.focusable = false;
 Scene.prototype.__needsRender = true;
 Scene.prototype.__smartRendering = false;
 Scene.prototype.__boundObjects = new DistinctTargetArray();

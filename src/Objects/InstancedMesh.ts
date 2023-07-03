@@ -2,7 +2,7 @@ import { BufferGeometry, Color, InstancedMesh as InstancedMeshBase, Material, Ma
 import { InstancedMeshSingle } from "./InstancedMeshSingle";
 
 export class InstancedMesh extends InstancedMeshBase {
-    public activeId: number;
+    public focusedId: number;
     public hoveredId: number;
     public instances: InstancedMeshSingle[] = [];
     /** @internal */ public _tempMatrix = new Matrix4();

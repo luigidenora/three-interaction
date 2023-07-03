@@ -40,7 +40,7 @@
             constructor(row, column) {
                 super(Sphere.geometry, new MeshLambertMaterial({ color: Math.random() * 0xffffff }));
                 const index = row * 10 + column;
-                this.position.setX(column * 2 - 10, row * 2 - 10, 0);
+                this.position.set(column * 2 - 10, row * 2 - 10, 0);
                 this.bindProperty("visible", () => index % divisor === 0, true);
             }
         }

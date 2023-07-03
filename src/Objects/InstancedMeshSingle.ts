@@ -12,15 +12,15 @@ export class InstancedMeshSingle extends EventDispatcher {
     public position = new Vector3();
     public scale = new Vector3(1, 1, 1);
     public quaternion = new Quaternion();
-    public activable = false;
-    public active = false;
+    public focusable = false;
+    public focused = false;
     public hovered = false;
     public enabled = true; // TODO
     public enabledUntilParent: boolean; // TODO
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
 
-    public get firstActivable(): Object3D {
-        return this.activable ? this as unknown as Object3D : this.parent.firstActivable;
+    public get firstFocusable(): Object3D {
+        return this.focusable ? this as unknown as Object3D : this.parent.firstFocusable;
     }
     
     constructor(parent: InstancedMesh, index: number, color?: Color) {

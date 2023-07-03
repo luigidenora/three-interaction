@@ -40,7 +40,7 @@
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 6; j++) {
                 const dropTarget = new Mesh(geometryDP, materialDP[(i + j) % 2]).translateX(-9 + j * 2).translateY(-7 + i * 2);
-                dropTarget.activable = false;
+                dropTarget.focusable = false;
 
                 scene.add(dropTarget);
 
