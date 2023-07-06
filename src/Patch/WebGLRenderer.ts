@@ -3,22 +3,14 @@ import { RendererResizeEvent } from "../Events/Events";
 import { EventsCache } from "../Events/MiscEventsManager";
 
 const viewportSize = new Vector4();
-const lastViewportSize = new Vector4();
+const lastViewportSize = new Vector4(); //todo aggiungere controllo sulla scena
 
 export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
 
     const baseRender = renderer.render.bind(renderer);
     renderer.render = function (scene: Scene, camera: Camera) {
-        //TODO smart rendering
-        
         this.getViewport(viewportSize);
         handleRendererResize(this, scene);
-
-        if (!this.__isGPUPicking) {
-            //
-        } else {
-            this.__isGPUPicking = false;
-        }
         baseRender(scene, camera);
     }
 }

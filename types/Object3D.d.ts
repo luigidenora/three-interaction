@@ -30,6 +30,8 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
+    override parent: Object3D;
+    override children: Object3D[];
     /** @internal */ __scene: Scene;
     /** @internal */ __boundCallbacks: BindingCallback[];
     /** @internal */ __manualDetection: boolean;

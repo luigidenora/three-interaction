@@ -4,7 +4,6 @@ export * from "./Object3D";
 export * from "./OrthographicCamera";
 export * from "./PerspectiveCamera";
 export * from "./Scene";
-export * from "./WebGLRenderer";
 
 // @ts-ignore
 export * from 'three/index';
