@@ -2,11 +2,17 @@
 
 TODO:
 
-droptarget
 tween
-multi rendering
-smart rendering
-gpu raycasting
-main
 history
 limits
+
+features:
+
+events
+binding
+smart rendering
+raycasting (continuo)
+hitbox
+focus
+drag and drop
+droptarget
