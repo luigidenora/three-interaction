@@ -1,7 +1,7 @@
 import { Camera, Color, Scene, Vector2, WebGLRenderer } from "three";
 import { RenderView, ViewParameters } from "./RenderView";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { DistinctTargetArray } from "../index";
+import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
 /**
  * The RenderManager class manages the rendering of views and provides methods for manipulating views and their parameters.
@@ -147,18 +147,6 @@ export class RenderManager {
         return view;
       }
     }
-  }
-
-  /**
-   * Retrieves the ray origin based on the mouse position.
-   */
-  public getNormalizedMouse(mouse: Vector2, target: Vector2): boolean {
-    this.updateActiveView(mouse);
-    if (this.activeView === undefined) return false;
-    const viewport = this.activeView.computedViewport;
-    target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
-    return true;
-
   }
 
   /**

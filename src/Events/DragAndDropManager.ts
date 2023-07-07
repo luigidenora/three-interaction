@@ -4,7 +4,7 @@ import { DragEventExt, InteractionEvents, IntersectionExt } from "./Events";
 //todo check multitouch e isprimary
 export class DragAndDropManager {
     private _plane = new Plane();
-    private _offset = new Vector3();
+    private _offset = new Vector3(); //TODO ricalcolare se muove cam
     private _intersection = new Vector3();
     private _worldPosition = new Vector3();
     private _inverseMatrix = new Matrix4();
@@ -114,13 +114,9 @@ export class DragAndDropManager {
 
     private dropTargetEvent(event: PointerEvent, dropTargetIntersection: IntersectionExt): void {
         if (this._findDropTarget) {
-
             const dropTarget = dropTargetIntersection?.object;
             const lastDropTarget = this._lastDropTarget;
             this._lastDropTarget = dropTarget;
-
-            // lastDropTarget && (lastDropTarget.target = undefined);
-            // dropTarget && (dropTarget.target = this._target);
 
             if (dropTarget !== lastDropTarget) { //documenta che il related target è sempre l'oggetto che stai draggando
                 this.trigger("dragleave", event, lastDropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);

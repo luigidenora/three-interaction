@@ -6,7 +6,7 @@ export class RaycasterManager {
     public raycaster = new Raycaster();
     public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => a.distance - b.distance;
     private _pointer = new Vector2();
-    private _pointerNormalized = new Vector2();
+    private _computedPointer = new Vector2();
     private _renderManager: RenderManager;
 
     constructor(renderManager: RenderManager) {
@@ -16,16 +16,30 @@ export class RaycasterManager {
     public getIntersections(event: PointerEvent, isDragging: boolean, excluded?: Object3D): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this._pointer.set(event.offsetX, event.offsetY);
-        if (this._renderManager.getNormalizedMouse(this._pointer, this._pointerNormalized) === true) {
+        if (this.getComputedMousePosition(this._pointer, this._computedPointer, isDragging) === true) {
             const scene = this._renderManager.activeView.scene;
             const camera = this._renderManager.activeView.camera;
-            this.raycaster.setFromCamera(this._pointerNormalized, camera);
+            this.raycaster.setFromCamera(this._computedPointer, camera);
             if (isDragging === false || excluded !== undefined) {
                 this.raycastObjects(scene as unknown as Object3D, intersections, excluded);
             }
             intersections.sort(this.intersectionSortComparer);
         }
         return intersections;
+    }
+
+    /**
+     * Retrieves the ray origin based on the mouse position.
+     */
+    public getComputedMousePosition(mouse: Vector2, target: Vector2, isDragging: boolean): boolean {
+        if (!isDragging) {
+            this._renderManager.updateActiveView(mouse);
+        }
+        const activeView = this._renderManager.activeView;
+        if (activeView === undefined || activeView.enabled !== true) return false;
+        const viewport = activeView.computedViewport;
+        target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
+        return true;
     }
 
     private raycastObjects(object: Object3D, target: IntersectionExt[], excluded?: Object3D): IntersectionExt[] {
