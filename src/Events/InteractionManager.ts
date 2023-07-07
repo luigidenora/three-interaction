@@ -46,13 +46,14 @@ export class InteractionManager {
         renderer.domElement.addEventListener("pointermove", (e) => this._mouseDetected = e.pointerType === "mouse");
         renderer.domElement.addEventListener("pointerdown", (e) => this._isTapping = e.pointerType !== "mouse" && e.isPrimary);
         renderer.domElement.addEventListener("pointerup", (e) => this._isTapping &&= !e.isPrimary);
-        //todo pointercancel or leave?
+        //todo pointercancel
         this.bindEvents(renderer);
     }
 
     private bindEvents(renderer: WebGLRenderer): void {
         const domElement = renderer.domElement;
-        domElement.addEventListener("pointercancel", this.enqueue.bind(this));
+        // domElement.addEventListener("pointercancel", this.enqueue.bind(this));
+        domElement.addEventListener("pointerleave", this.enqueue.bind(this));
         domElement.addEventListener("pointerdown", this.enqueue.bind(this));
         domElement.addEventListener("pointermove", this.enqueue.bind(this));
         domElement.addEventListener("pointerup", this.enqueue.bind(this));
@@ -124,6 +125,7 @@ export class InteractionManager {
 
     private computeQueuedEvent(event: Event): void {
         switch (event.type) {
+            case "pointerleave": return this.pointerLeave(event as PointerEvent);
             case "pointermove": return this.pointerMove(event as PointerEvent);
             case "pointerdown": return this.pointerDown(event as PointerEvent);
             case "pointerup": return this.pointerUp(event as PointerEvent);
@@ -157,6 +159,10 @@ export class InteractionManager {
         }
     }
 
+    private pointerLeave(event: PointerEvent): void {
+        this._lastPointerMove[event.pointerId] = event;
+    }
+
     private pointerMove(event: PointerEvent): void {
         this._lastPointerMove[event.pointerId] = event;
         this.raycastScene(event);
@@ -165,7 +171,7 @@ export class InteractionManager {
         } else {
             this.pointerOutOver(event);
             const target = this.intersection[event.pointerId]?.object;
-            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, target)) {
+            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, target)) {
                 this.triggerAncestorPointer("pointermove", event, target);
             }
         }
@@ -176,7 +182,7 @@ export class InteractionManager {
             if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDrop) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
-                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, this.intersectionDropTarget);
+                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, this.intersectionDropTarget);
             }
         } else if (this.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {

@@ -91,8 +91,8 @@ export class Main {
         this.scenes.push(...scene);
         if (this.renderManager.views.length === 0 && this.renderManager.__defaultView === undefined) {  //TODO documenta
             for (const obj of scene[0].children) {
-                if ((obj as unknown as Camera).isCamera === true) {
-                    this.createDefaultRenderView(scene[0], obj as unknown as Camera);
+                if ((obj as Camera).isCamera === true) {
+                    this.createDefaultRenderView(scene[0], obj as Camera);
                     break;
                 }
             }

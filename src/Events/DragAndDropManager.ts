@@ -20,7 +20,7 @@ export class DragAndDropManager {
     public get target(): Object3D { return this._target }
 
     public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, dropTargetIntersection: IntersectionExt): void {
-        if (!event.isPrimary) return;
+        if (!event.isPrimary || !camera) return;
 
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._targetMatrixWorld));
         raycaster.ray.intersectPlane(this._plane, this._intersection)

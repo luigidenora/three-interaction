@@ -21,7 +21,7 @@ export class RaycasterManager {
             const camera = this._renderManager.activeView.camera;
             this.raycaster.setFromCamera(this._computedPointer, camera);
             if (isDragging === false || excluded !== undefined) {
-                this.raycastObjects(scene as unknown as Object3D, intersections, excluded);
+                this.raycastObjects(scene, intersections, excluded);
             }
             intersections.sort(this.intersectionSortComparer);
         }

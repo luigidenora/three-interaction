@@ -18,10 +18,6 @@ export class InstancedMeshSingle extends EventDispatcher {
     public enabled = true; // TODO
     public enabledUntilParent: boolean; // TODO
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
-
-    public get firstFocusable(): Object3D {
-        return this.focusable ? this as unknown as Object3D : this.parent.firstFocusable;
-    }
     
     constructor(parent: InstancedMesh, index: number, color?: Color) {
         super();

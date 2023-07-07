@@ -27,7 +27,7 @@ export interface InteractionEvents {
   pointermove: PointerEventExt;
   pointerdown: PointerEventExt;
   pointerup: PointerEventExt;
-  pointercancel: PointerEventExt;
+  // pointercancel: PointerEventExt;
   pointerintersection: PointerIntersectionEvent;
   click: PointerEventExt;
   dblclick: PointerEventExt;

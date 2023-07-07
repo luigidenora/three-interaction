@@ -17,7 +17,7 @@ export class RenderManager {
   private _backgroundColor: Color;
   private _backgroundAlpha: number;
 
-  public get activeView(): RenderView { return this._activeView || this.__defaultView }
+  public get activeView(): RenderView { return this.views.length > 0 ? this._activeView : this.__defaultView }
 
   /** todo */
   public get backgroundColor(): Color { return this._backgroundColor }
@@ -130,10 +130,7 @@ export class RenderManager {
    * Updates the active view based on the mouse position.
    */
   public updateActiveView(mouse: Vector2): void {
-    const activeView = this.getViewByMouse(mouse);
-    if (activeView !== undefined) {
-      this._activeView = activeView; //todo indaga
-    }
+    this._activeView = this.getViewByMouse(mouse);
   }
 
   /**

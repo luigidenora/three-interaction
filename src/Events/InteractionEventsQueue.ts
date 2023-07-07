@@ -15,7 +15,7 @@ export class InteractionEventsQueue {
                   // console.log("useless pointermove skipped");
                   return;
                }
-               if (type === "pointercancel" || type === "pointerdown" || type === "pointerout" || type === "pointerover" || type === "pointerup") break;
+               if (/* type === "pointercancel" ||  */type === "pointerdown" || type === "pointerout" || type === "pointerover" || type === "pointerup") break;
             }
          }
       }
