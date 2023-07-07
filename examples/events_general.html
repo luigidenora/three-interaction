@@ -15,6 +15,8 @@
         <div>
             <span class="blink" id="pointerover">pointerover</span>
             <span class="blink" id="pointerout">pointerout</span>
+            <span class="blink" id="pointerenter">pointerenter</span>
+            <span class="blink" id="pointerleave">pointerleave</span>
             <span class="blink" id="pointermove">pointermove</span>
             <span class="blink" id="pointerdown">pointerdown</span>
             <span class="blink" id="pointerup">pointerup</span>
@@ -24,6 +26,8 @@
             <span class="blink" id="wheel">wheel</span>
             <span class="blink" id="focus">focus</span>
             <span class="blink" id="blur">blur</span>
+            <span class="blink" id="focusin">focusin</span>
+            <span class="blink" id="focusout">focusout</span>
             <span class="blink" id="keydown">keydown</span>
             <span class="blink" id="keyup">keyup</span>
             <span class="blink" id="drag">drag</span>
@@ -75,6 +79,15 @@
             "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend", "drop", "dragenter", "dragleave", "dragover", "dragcancel"],
             (event) => blink(document.getElementById(event.type), event.target.userData.className));
 
+        scene.box.on(["focusin", "focusout", "pointerenter", "pointerleave"],
+            (event) => blink(document.getElementById(event.type), event.target.userData.className));
+
+        scene.sphere.on(["focusin", "focusout", "pointerenter", "pointerleave"],
+            (event) => blink(document.getElementById(event.type), event.target.userData.className));
+
+        scene.sphere.on(["focusin", "focusout", "pointerenter", "pointerleave"],
+            (event) => blink(document.getElementById(event.type), event.target.userData.className));
+
         scene.box.on("rotationchange", () => blink(document.getElementById("rotationchange"), scene.box.userData.className));
         scene.sphere.on("positionchange", () => blink(document.getElementById("positionchange"), scene.sphere.userData.className));
         scene.sphere.on("scalechange", () => blink(document.getElementById("scalechange"), scene.sphere.userData.className));
@@ -104,7 +117,7 @@
             this.scale.multiplyScalar(e.type === "pointerover" ? 1.2 : 1 / 1.2);
         });
 
-        window.main = new Main({ scenes: [scene] }, { antialias: true });
+        const main = new Main({ scenes: [scene] }, { antialias: true });
 
         function blink(element, className) {
             clearTimeout(element.timer);
@@ -112,7 +125,7 @@
             element.timer = setTimeout(() => element.className = "blink", 200);
         }
 
-        // missing : focusin, focusout, pointercancel, pointerenter, pointerleave
+        // missing : pointercancel
 
     </script>
 </body>
