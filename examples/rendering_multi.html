@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>three-ag drag & drop</title>
+    <title>three-keko views</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="files/favicon.ico" />
@@ -11,9 +11,7 @@
 
 <body>
     <div id="info">
-        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - drag &
-        drop<br>
-        Press ESC to cancel a drag.
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">three-keko</a> - views
     </div>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
@@ -21,39 +19,150 @@
             "imports": {
                 "../src/index": "./bundle.js",
                 "three": "https://unpkg.com/three/build/three.module.min.js",
-                "three/examples/": "https://unpkg.com/three/examples/"
+                "three/examples/": "https://unpkg.com/three/examples/",
+                "lil-gui": "https://unpkg.com/lil-gui@0.18.1/dist/lil-gui.esm.min"
             }
         }
     </script>
 
     <script type="module">
 
-        import { AmbientLight, Mesh, MeshLambertMaterial, Scene, BoxGeometry, SphereGeometry } from "three";
-        import { OrthographicCamera, Main, RenderView } from "../src/index";
+        import { DirectionalLight, Mesh, MeshLambertMaterial, Scene as SceneBase, BoxGeometry, SphereGeometry } from "three";
+        import { OrthographicCamera, Main as MainBase, RenderView } from "../src/index";
+        import GUI from "lil-gui";
 
-        const scene = new Scene().add(new AmbientLight(0xaaaaaa));
+        class CustomMesh extends Mesh {
+            constructor(geometry, material, wireframeCamera) {
+                super(geometry, material);
+                this.wireframeCamera = wireframeCamera;
+            }
 
-        scene.add(scene.box = new Mesh(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 })));
-        scene.box.draggable = true;
-        scene.box.position.setX(-1);
-        scene.box.on("animate", function (e) {
-            this.rotation.x += e.delta;
-            this.rotation.y += e.delta * 1.5;
+            onBeforeRender(renderer, scene, camera, geometry, material, group) {
+                if (camera === this.wireframeCamera) {
+                    this.material.wireframe = true;
+                }
+            }
+
+            onAfterRender(renderer, scene, camera, geometry, material, group) {
+                this.material.wireframe = false;
+            }
+        }
+
+        class Box extends CustomMesh {
+            constructor(wireframeCamera) {
+                super(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 }), wireframeCamera);
+                this.translateX(2);
+                this.draggable = true;
+
+                this.on("animate", function (e) {
+                    this.rotation.x += e.delta;
+                    this.rotation.y += e.delta * 1.5;
+                });
+            }
+        }
+
+        class Sphere extends CustomMesh {
+            constructor(wireframeCamera) {
+                super(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff }), wireframeCamera);
+                this.translateX(-2);
+            }
+        }
+
+        class Scene extends SceneBase {
+            constructor(wireframeCamera) {
+                super();
+                this.add(
+                    new DirectionalLight(0xffffff, 0.7).translateZ(10),
+                    new DirectionalLight(0xffffff, 0.7).translateZ(-10),
+                    new Box(wireframeCamera),
+                    new Sphere(wireframeCamera)
+                );
+            }
+        }
+
+        class Main extends MainBase {
+            constructor() {
+                super({}, { antialias: true });
+                const wireframeCamera = new OrthographicCamera(10).translateZ(10);
+                this.addScene(new Scene(wireframeCamera));
+
+                this.leftView = this.renderManager.add({
+                    scene: this.scenes[0],
+                    camera: wireframeCamera,
+                    backgroundColor: 0x333333,
+                    viewport: { left: 0, bottom: 0, width: 0.5, height: 1 },
+                });
+
+                this.rightView = this.renderManager.add({
+                    scene: this.scenes[0],
+                    backgroundColor: 0x777777,
+                    camera: new OrthographicCamera(10).translateZ(-10).rotateY(Math.PI),
+                    viewport: { left: 0.5, bottom: 0, width: 0.5, height: 1 }
+                });
+            }
+        }
+
+        const main = new Main();
+
+        const gui = new GUI();
+
+        const leftViewGUI = gui.addFolder("Left View");
+        const layersLeftView = {
+            "visible": main.leftView.visible,
+            "enabled": main.leftView.enabled,
+            "left": main.leftView.viewport.left,
+            "bottom": main.leftView.viewport.bottom,
+            "width": main.leftView.viewport.width,
+            "height": main.leftView.viewport.height
+        };
+
+        leftViewGUI.add(layersLeftView, "visible").onChange((value) => main.leftView.visible = value);
+        leftViewGUI.add(layersLeftView, "enabled").onChange((value) => main.leftView.enabled = value);
+        leftViewGUI.add(layersLeftView, "left", 0, 1, 0.05).onChange((value) => {
+            main.leftView.viewport.left = value;
+            main.leftView.update();
+        });
+        leftViewGUI.add(layersLeftView, "bottom", 0, 1, 0.05).onChange((value) => {
+            main.leftView.viewport.bottom = value;
+            main.leftView.update();
+        });
+        leftViewGUI.add(layersLeftView, "width", 0, 1, 0.05).onChange((value) => {
+            main.leftView.viewport.width = value;
+            main.leftView.update();
+        });
+        leftViewGUI.add(layersLeftView, "height", 0, 1, 0.05).onChange((value) => {
+            main.leftView.viewport.height = value;
+            main.leftView.update();
         });
 
-        scene.add(scene.sphere = new Mesh(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff })));
-        scene.sphere.position.setX(1).setY(1);
+        const rightViewGUI = gui.addFolder("Right View");
+        const layersRightView = {
+            "visible": main.rightView.visible,
+            "enabled": main.rightView.enabled,
+            "left": main.rightView.viewport.left,
+            "bottom": main.rightView.viewport.bottom,
+            "width": main.rightView.viewport.width,
+            "height": main.rightView.viewport.height
+        };
 
-        const main = new Main({ scenes: [scene] }, { antialias: true });
-
-        main.renderManager.add({ name: "left",
-            scene, camera: new OrthographicCamera(20).translateZ(10), backgroundColor: 0x333333, viewport: { left: 0, bottom: 0, width: 0.5, height: 1 },
-            onBeforeRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = true; },
-            onAfterRender: () => { scene.box.material.wireframe = scene.sphere.material.wireframe = false; }
+        rightViewGUI.add(layersRightView, "visible").onChange((value) => main.rightView.visible = value);
+        rightViewGUI.add(layersRightView, "enabled").onChange((value) => main.rightView.enabled = value);
+        rightViewGUI.add(layersRightView, "left", 0, 1, 0.05).onChange((value) => {
+            main.rightView.viewport.left = value;
+            main.rightView.update();
         });
-        main.renderManager.add({ name: "Right", scene, camera: new OrthographicCamera(20).translateZ(-10).rotateY(Math.PI), viewport: { left: 0.5, bottom: 0, width: 0.5, height: 1 } });
-
-        window.main = main;
+        rightViewGUI.add(layersRightView, "bottom", 0, 1, 0.05).onChange((value) => {
+            main.rightView.viewport.bottom = value;
+            main.rightView.update();
+        });
+        rightViewGUI.add(layersRightView, "width", 0, 1, 0.05).onChange((value) => {
+            main.rightView.viewport.width = value;
+            main.rightView.update();
+        });
+        rightViewGUI.add(layersRightView, "height", 0, 1, 0.05).onChange((value) => {
+            main.rightView.viewport.height = value;
+            main.rightView.update();
+        });
 
     </script>
 </body>

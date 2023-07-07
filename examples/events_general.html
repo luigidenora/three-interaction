@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>ag-three events</title>
+    <title>three-keko events</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="files/favicon.ico" />
@@ -11,8 +11,9 @@
 
 <body>
     <div id="info">
-        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - events
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">three-keko</a> - events
         <div>
+            <span class="blink" id="animate">animate</span>
             <span class="blink" id="pointerover">pointerover</span>
             <span class="blink" id="pointerout">pointerout</span>
             <span class="blink" id="pointerenter">pointerenter</span>
@@ -57,67 +58,85 @@
 
     <script type="module">
 
-        import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, SphereGeometry, PlaneGeometry } from "three";
+        import { Mesh, BoxGeometry, SphereGeometry, PlaneGeometry, MeshLambertMaterial, Scene as SceneBase, DirectionalLight } from "three";
         import { OrthographicCamera, Main } from "../src/index";
 
-        const scene = new Scene().activeSmartRendering();
-        scene.add(
-            new OrthographicCamera(20).translateZ(10),
-            new DirectionalLight(0xffffff, 0.7).translateZ(10),
-            scene.box = new Mesh(new BoxGeometry(5, 5, 5), new MeshLambertMaterial({ color: 0xff6666 })).translateZ(-5),
-            scene.sphere = new Mesh(new SphereGeometry(2), new MeshLambertMaterial({ color: 0x6666ff })).translateX(10),
-            scene.plane = new Mesh(new PlaneGeometry(10, 15), new MeshLambertMaterial({ color: 0x66ff66 })).translateX(-10)
-        );
+        class Box extends Mesh {
+            constructor() {
+                super(new BoxGeometry(5, 5, 5), new MeshLambertMaterial({ color: 0xff6666 }));
+                this.translateZ(-5);
+                this.className = "blink active-box";
 
-        scene.sphere.draggable = true;
+                this.on("animate", function (e) {
+                    blink(document.getElementById("animate"), this.className);
+                    if (!this.hovered) return;
+                    this.rotation.y += e.delta;
+                    this.rotation.x += e.delta * 1.5;
+                });
 
-        scene.box.userData.className = "blink active-box";
-        scene.sphere.userData.className = "blink active-sphere";
-        scene.plane.userData.className = "blink active-plane";
-
-        scene.on(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection", "click", "dblclick",
-            "wheel", "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend", "drop", "dragenter", "dragleave", "dragover", "dragcancel"],
-            (event) => blink(document.getElementById(event.type), event.target.userData.className));
-
-        scene.box.on(["focusin", "focusout", "pointerenter", "pointerleave"],
-            (event) => blink(document.getElementById(event.type), event.target.userData.className));
-
-        scene.sphere.on(["focusin", "focusout", "pointerenter", "pointerleave"],
-            (event) => blink(document.getElementById(event.type), event.target.userData.className));
-
-        scene.sphere.on(["focusin", "focusout", "pointerenter", "pointerleave"],
-            (event) => blink(document.getElementById(event.type), event.target.userData.className));
-
-        scene.box.on("rotationchange", () => blink(document.getElementById("rotationchange"), scene.box.userData.className));
-        scene.sphere.on("positionchange", () => blink(document.getElementById("positionchange"), scene.sphere.userData.className));
-        scene.sphere.on("scalechange", () => blink(document.getElementById("scalechange"), scene.sphere.userData.className));
-        scene.on("rendererresize", () => blink(document.getElementById("rendererresize"), scene.sphere.userData.className));
-
-        scene.box.on("animate", function (e) {
-            if (this.hovered) {
-                this.rotation.y += e.delta;
-                this.rotation.x += e.delta * 1.5;
+                this.on(["focusin", "focusout", "pointerenter", "pointerleave"], (e) => blink(document.getElementById(e.type), this.className));
+                this.on("rotationchange", () => blink(document.getElementById("rotationchange"), this.className));
+                this.on("rendererresize", () => blink(document.getElementById("rendererresize"), this.className));
             }
-        });
+        }
 
-        scene.on("focus", (e) => {
-            e.target.material.emissive.set(0xcccc00);
-            e.relatedTarget?.material.emissive.set(0);
-        });
+        class Sphere extends Mesh {
+            constructor() {
+                super(new SphereGeometry(2), new MeshLambertMaterial({ color: 0x6666ff }));
+                this.translateX(10);
+                this.className = "blink active-sphere";
+                this.draggable = true;
 
-        scene.sphere.on("dragstart", function (e) {
-            e.preventDefault(); // now will search for dropTarget
-        });
+                this.on(["pointerover", "pointerout"], function (e) {
+                    this.scale.multiplyScalar(e.type === "pointerover" ? 1.2 : 1 / 1.2);
+                });
 
-        scene.plane.on(["dragenter", "dragleave", "drop", "dragcancel"], function (e) {
-            this.material.emissive.set(e.type === "dragenter" ? 0xcccc00 : 0);
-        });
+                this.on("dragstart", function (e) {
+                    e.preventDefault(); // search for dropTarget
+                });
 
-        scene.sphere.on(["pointerover", "pointerout"], function (e) {
-            this.scale.multiplyScalar(e.type === "pointerover" ? 1.2 : 1 / 1.2);
-        });
+                this.on(["focusin", "focusout", "pointerenter", "pointerleave"], (e) => blink(document.getElementById(e.type), this.className));
+                this.on("positionchange", () => blink(document.getElementById("positionchange"), this.className));
+                this.on("scalechange", () => blink(document.getElementById("scalechange"), this.className));
+            }
+        }
 
-        const main = new Main({ scenes: [scene] }, { antialias: true });
+        class Plane extends Mesh {
+            constructor() {
+                super(new PlaneGeometry(10, 15), new MeshLambertMaterial({ color: 0x66ff66 }));
+                this.translateX(-10);
+                this.className = "blink active-plane";
+
+                this.on(["dragenter", "dragleave", "drop", "dragcancel"], function (e) {
+                    this.material.emissive.set(e.type === "dragenter" ? 0xcccc00 : 0);
+                });
+
+                this.on(["focusin", "focusout", "pointerenter", "pointerleave"], (e) => blink(document.getElementById(e.type), this.className));
+            }
+        }
+
+        class Scene extends SceneBase {
+            constructor() {
+                super();
+                this.activeSmartRendering();
+                this.add(
+                    new OrthographicCamera(20).translateZ(10),
+                    new DirectionalLight(0xffffff, 0.7).translateZ(10),
+                    new Sphere(),
+                    new Box(),
+                    new Plane()
+                );
+
+                this.on("focus", (e) => e.target.material.emissive.set(0xcccc00));
+                this.on("blur", (e) => e.target.material.emissive.set(0));
+
+                this.on(["pointerover", "pointerout", "pointermove", "pointerdown", "pointerup", "pointerintersection", "click", "dblclick", "wheel",
+                    "focus", "blur", "keydown", "keyup", "drag", "dragstart", "dragend", "drop", "dragenter", "dragleave", "dragover", "dragcancel"],
+                    (e) => blink(document.getElementById(e.type), e.target.className));
+            }
+        }
+
+        const main = new Main({ scenes: [new Scene()] }, { antialias: true });
 
         function blink(element, className) {
             clearTimeout(element.timer);

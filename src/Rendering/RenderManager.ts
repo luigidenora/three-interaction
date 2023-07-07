@@ -142,7 +142,7 @@ export class RenderManager {
   public getViewByMouse(mouse: Vector2): RenderView {
     for (let i = this.views.length - 1; i >= 0; i--) {
       const view = this.views[i];
-      const v = view.viewport;
+      const v = view.computedViewport;
       if (view.visible === true && v.left <= mouse.x && v.left + v.width >= mouse.x && v.bottom <= mouse.y && v.bottom + v.height >= mouse.y) {
         return view;
       }
@@ -155,7 +155,7 @@ export class RenderManager {
   public getNormalizedMouse(mouse: Vector2, target: Vector2): boolean {
     this.updateActiveView(mouse);
     if (this.activeView === undefined) return false;
-    const viewport = this.activeView.viewport;
+    const viewport = this.activeView.computedViewport;
     target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
     return true;
 
@@ -171,8 +171,8 @@ export class RenderManager {
     if (this.views.length > 0) {
       for (const view of this.views) {
         if (view.visible === true && view.scene.__needsRender === true) {
-          const v = view.viewport;
-          this.renderer.setScissorTest(view.viewportNormalized !== undefined);
+          const v = view.computedViewport;
+          this.renderer.setScissorTest(view.viewport !== undefined);
           this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
           this.renderer.setScissor(v.left, v.bottom, v.width, v.height);
           this.renderer.setClearColor(view.backgroundColor ?? this._backgroundColor, view.backgroundAlpha ?? this._backgroundAlpha);

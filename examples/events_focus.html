@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>three-ag focus</title>
+    <title>three-keko focus</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="files/favicon.ico" />
@@ -11,7 +11,7 @@
 
 <body>
     <div id="info">
-        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">ag-three</a> - focus<br>
+        <a href="https://github.com/agargaro/three-interaction" target="_blank" rel="noopener">three-keko</a> - focus<br>
         Spheres are draggable and not focusable. Boxes are focusable (only left click) and not draggable.
     </div>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -27,46 +27,67 @@
 
     <script type="module">
 
-        import { BoxGeometry, DirectionalLight, Mesh, MeshLambertMaterial, Scene, SphereGeometry, PointLight } from "three";
+        import { Mesh, BoxGeometry, SphereGeometry, MeshLambertMaterial, DirectionalLight, PointLight, Scene as SceneBase } from "three";
         import { PerspectiveCamera, Main } from "../src/index";
 
-        const scene = new Scene();
-        scene.add(
-            new PerspectiveCamera(70, 1, 10000).translateZ(5),
-            new DirectionalLight(0xffffff, 0.05).translateZ(20),
-            scene.light = new PointLight(0x000000, 2, 30)
-        );
+        class Box extends Mesh {
+            constructor() {
+                super(new BoxGeometry(1, 1, 1), new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
+                this.radius = Math.random() * 10 + 5;
+                this.angleX = Math.random() * 2 * Math.PI - Math.PI;
+                this.angleY = Math.random() * 2 * Math.PI - Math.PI;
 
-        const geometry = [new BoxGeometry(1, 1, 1), new SphereGeometry(0.5)];
-        for (let i = 0; i < 200; i++) {
-            const mesh = new Mesh(geometry[i % 2], new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
-            scene.add(mesh);
-            mesh.radius = Math.random() * 10 + 5;
-            mesh.interceptByRaycaster = i % 2 === 0; // raycaster will intersect only boxes, spheres cannot have focus.
-            mesh.angleX = Math.random() * 2 * Math.PI - Math.PI;
-            mesh.angleY = Math.random() * 2 * Math.PI - Math.PI;
-
-            mesh.on("animate", function (e) {
-                this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 5, this.angleY + e.total / 5);
-                this.rotation.x += e.delta * this.angleX;
-                this.rotation.y += e.delta * this.angleY;
-            });
+                this.on("animate", function (e) {
+                    this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 5, this.angleY + e.total / 5);
+                    this.rotation.x += e.delta * this.angleX;
+                    this.rotation.y += e.delta * this.angleY;
+                });
+            }
         }
 
-        scene.on("pointerdown", (e) => {
-            if (e.button !== 0) e.preventDefault(); // prevent focus if you don't left click.
-        });
+        class Sphere extends Mesh {
+            constructor() {
+                super(new SphereGeometry(0.5), new MeshLambertMaterial({ color: 0xffffff * Math.random() }));
+                this.focusable = false;
+                this.radius = Math.random() * 10 + 5;
+                this.angleX = Math.random() * 2 * Math.PI - Math.PI;
+                this.angleY = Math.random() * 2 * Math.PI - Math.PI;
 
-        scene.light.matrixAutoUpdate = false;
+                this.on("animate", function (e) {
+                    this.position.setFromSphericalCoords(this.radius, this.angleX + e.total / 5, this.angleY + e.total / 5);
+                });
+            }
+        }
 
-        scene.on("focus", (e) => {
-            e.target.material.emissive.set(0xaaaa00);
-            e.relatedTarget?.material.emissive.set(0);
-            scene.light.color.copy(e.target.material.color);
-            scene.light.matrix = e.target.matrix; // folow focused cube because matrixAutoUpdate is false.
-        });
+        class Scene extends SceneBase {
+            constructor() {
+                super();
+                this.add(
+                    new PerspectiveCamera(70).translateZ(5),
+                    new DirectionalLight(0xffffff, 0.05).translateZ(20),
+                    this.light = new PointLight(0x000000, 2, 30)
+                );
 
-        const main = new Main({ scenes: [scene] }, { antialias: true });
+                this.light.matrixAutoUpdate = false;
+
+                this.on("pointerdown", (e) => {
+                    if (e.button !== 0) e.preventDefault(); // prevent focus if you don't left click.
+                });
+
+                this.on("focus", (e) => {
+                    e.target.material.emissive.set(0xaaaa00);
+                    e.relatedTarget?.material.emissive.set(0);
+                    this.light.color.copy(e.target.material.color);
+                    this.light.matrix = e.target.matrix; // follow focused cube because light matrixAutoUpdate is false.
+                });
+
+                for (let i = 0; i < 100; i++) {
+                    this.add(new Sphere(), new Box());
+                }
+            }
+        }
+
+        const main = new Main({ scenes: [new Scene()] }, { antialias: true });
 
     </script>
 </body>

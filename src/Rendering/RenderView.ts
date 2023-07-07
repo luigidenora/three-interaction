@@ -49,25 +49,24 @@ export interface ViewParameters {
 export class RenderView implements ViewParameters {
   public scene: Scene;
   public camera: Camera;
-  /** The normalized viewport defining the dimensions and position of the view. Values range from 0 to 1. */
-  public viewportNormalized: Viewport;
+  public viewport: Viewport;
   /** The viewport defining the dimensions and position of the view. */
-  public viewport = { left: 0, bottom: 0, width: 0, height: 0 };
+  public computedViewport = { left: 0, bottom: 0, width: 0, height: 0 };
   public name: string;
   public visible: boolean;
   public enabled: boolean;
   public backgroundColor: Color;
   public backgroundAlpha: number;
   public composer: EffectComposer;
+  private _rendererSize: Vector2;
   private _onBeforeRender: () => void;
   private _onAfterRender: () => void;
-  private _rendererSize: Vector2;
 
   constructor(parameters: ViewParameters, rendererSize: Vector2) {
     this._rendererSize = rendererSize;
     this.scene = parameters.scene;
     this.camera = parameters.camera;
-    this.viewportNormalized = parameters.viewport;
+    this.viewport = parameters.viewport;
     this.name = parameters.name;
     this.visible = parameters.visible ?? true;
     this.enabled = parameters.enabled ?? true;
@@ -85,14 +84,14 @@ export class RenderView implements ViewParameters {
    * Updates the dimensions of the viewport based on the renderer size.
    */
   public update(): void {
-    if (this.viewportNormalized !== undefined) {
-      this.viewport.left = Math.floor(this._rendererSize.x * this.viewportNormalized.left);
-      this.viewport.bottom = Math.floor(this._rendererSize.y * this.viewportNormalized.bottom);
-      this.viewport.width = Math.floor(this._rendererSize.x * this.viewportNormalized.width);
-      this.viewport.height = Math.floor(this._rendererSize.y * this.viewportNormalized.height);
+    if (this.viewport !== undefined) {
+      this.computedViewport.left = Math.floor(this._rendererSize.x * this.viewport.left);
+      this.computedViewport.bottom = Math.floor(this._rendererSize.y * this.viewport.bottom);
+      this.computedViewport.width = Math.floor(this._rendererSize.x * this.viewport.width);
+      this.computedViewport.height = Math.floor(this._rendererSize.y * this.viewport.height);
     } else {
-      this.viewport.width = this._rendererSize.x;
-      this.viewport.height = this._rendererSize.y;
+      this.computedViewport.width = this._rendererSize.x;
+      this.computedViewport.height = this._rendererSize.y;
     }
     this.scene.__needsRender = true;
   }
