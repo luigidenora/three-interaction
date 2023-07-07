@@ -38,7 +38,7 @@ export class RaycasterManager {
         const activeView = this._renderManager.activeView;
         if (activeView === undefined || activeView.enabled !== true) return false;
         const viewport = activeView.computedViewport;
-        target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.bottom) / viewport.height * -2 + 1);
+        target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.top) / viewport.height * -2 + 1);
         return true;
     }
 

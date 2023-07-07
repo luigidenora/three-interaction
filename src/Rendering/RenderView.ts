@@ -51,7 +51,7 @@ export class RenderView implements ViewParameters {
   public camera: Camera;
   public viewport: Viewport;
   /** The viewport defining the dimensions and position of the view. */
-  public computedViewport = { left: 0, bottom: 0, width: 0, height: 0 };
+  public computedViewport = { left: 0, bottom: 0, width: 0, height: 0, top: 0 };
   public name: string;
   public visible: boolean;
   public enabled: boolean;
@@ -89,6 +89,7 @@ export class RenderView implements ViewParameters {
       this.computedViewport.bottom = Math.floor(this._rendererSize.y * this.viewport.bottom);
       this.computedViewport.width = Math.floor(this._rendererSize.x * this.viewport.width);
       this.computedViewport.height = Math.floor(this._rendererSize.y * this.viewport.height);
+      this.computedViewport.top = Math.floor(this._rendererSize.y - this.computedViewport.bottom - this.computedViewport.height);
     } else {
       this.computedViewport.width = this._rendererSize.x;
       this.computedViewport.height = this._rendererSize.y;

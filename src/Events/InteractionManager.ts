@@ -43,7 +43,6 @@ export class InteractionManager {
             console.error("Renderer not supported.");
             return;
         }
-        // renderer.domElement.addEventListener("contextmenu", (e) => e.preventDefault());
         renderer.domElement.addEventListener("pointermove", (e) => this._mouseDetected = e.pointerType === "mouse");
         renderer.domElement.addEventListener("pointerdown", (e) => this._isTapping = e.pointerType !== "mouse" && e.isPrimary);
         renderer.domElement.addEventListener("pointerup", (e) => this._isTapping &&= !e.isPrimary);

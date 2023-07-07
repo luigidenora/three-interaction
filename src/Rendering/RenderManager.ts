@@ -132,7 +132,7 @@ export class RenderManager {
   public updateActiveView(mouse: Vector2): void {
     const activeView = this.getViewByMouse(mouse);
     if (activeView !== undefined) {
-      this._activeView = activeView;
+      this._activeView = activeView; //todo indaga
     }
   }
 
@@ -143,7 +143,7 @@ export class RenderManager {
     for (let i = this.views.length - 1; i >= 0; i--) {
       const view = this.views[i];
       const v = view.computedViewport;
-      if (view.visible === true && v.left <= mouse.x && v.left + v.width >= mouse.x && v.bottom <= mouse.y && v.bottom + v.height >= mouse.y) {
+      if (view.visible === true && v.left <= mouse.x && v.left + v.width >= mouse.x && v.top <= mouse.y && v.top + v.height >= mouse.y) {
         return view;
       }
     }
