@@ -1,4 +1,4 @@
-import { Intersection, Object3D, Vector3, WebGLRenderer } from "three";
+import { Camera, Intersection, Object3D, Vector3, WebGLRenderer } from "three";
 
 export interface Events extends InteractionEvents, MiscEvents, UpdateEvents { };
 
@@ -289,10 +289,13 @@ export class RendererResizeEvent extends EventExt {
   public readonly height: number;
   /** Returns resized renderer. TODO */
   public readonly renderer: WebGLRenderer;
+  /** Returns resized camera. TODO */
+  public readonly camera: Camera;
 
-  constructor(renderer: WebGLRenderer, width: number, height: number) {
+  constructor(renderer: WebGLRenderer, camera: Camera, width: number, height: number) {
     super();
     this.renderer = renderer;
+    this.camera = camera;
     this.width = width;
     this.height = height;
   }

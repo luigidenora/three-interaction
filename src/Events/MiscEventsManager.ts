@@ -1,4 +1,4 @@
-import { Object3D, Scene } from "three";
+import { Camera, Object3D, Scene } from "three";
 import { Events } from "./Events";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
@@ -50,6 +50,17 @@ export class EventsCache {
       if (sceneCache && sceneCache[type]) {
          for (const target of sceneCache[type].data) {
             target.__eventsDispatcher.dispatchEvent(type, event);
+         }
+      }
+   }
+
+   public static dispatchEventExcludeCameras<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
+      const sceneCache = this._events[scene?.id];
+      if (sceneCache && sceneCache[type]) {
+         for (const target of sceneCache[type].data) {
+            if ((target as Camera).isCamera !== true) {
+               target.__eventsDispatcher.dispatchEvent(type, event);
+            }
          }
       }
    }

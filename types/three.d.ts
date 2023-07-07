@@ -1,3 +1,4 @@
+export * from "./Camera";
 export * from "./InstancedMesh";
 export * from "./Mesh";
 export * from "./Object3D";
