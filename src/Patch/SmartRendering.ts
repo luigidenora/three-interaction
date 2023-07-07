@@ -6,7 +6,7 @@ import { setEulerDefaultChangeCallback, setEulerSmartRenderingChangeCallback } f
 
 /** @internal */
 export function applySmartRenderingPatch(target: Object3D): void {
-    if (target.__scene.__smartRendering === true && target.__smartRenderingPatched !== true) {
+    if (target.scene.__smartRendering === true && target.__smartRenderingPatched !== true) {
         applyObject3DVector3Patch(target);
         applyObject3DRotationPatch(target);
 

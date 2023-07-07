@@ -22,6 +22,7 @@ export interface Object3DExtPrototype {
     dragging: boolean;
     cursor: Cursor;
     cursorOnDrag: Cursor;
+    scene: Scene;
     get firstFocusable(): Object3D;
     needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
@@ -58,8 +59,8 @@ Object.defineProperty(Object3D.prototype, "firstFocusable", {
 });
 
 Object3D.prototype.needsRender = function (this: Object3D) {
-    if (this.__scene !== undefined) {
-        this.__scene.__needsRender = true;
+    if (this.scene !== undefined) {
+        this.scene.__needsRender = true;
     }
 };
 
@@ -139,11 +140,11 @@ Object3D.prototype.add = function (object: Object3D) {
     addBase.call(this, ...arguments);
     if (arguments.length === 1 && object !== this && object?.isObject3D === true) {
         if ((this as unknown as Scene).isScene === true) { //TODO provare ad isolare questa parte
-            this.__scene = this as unknown as Scene; //todo fix cast
+            this.scene = this as unknown as Scene; //todo fix cast
         }
-        if (this.__scene !== undefined) {
-            setSceneReference(object, this.__scene);
-            this.__scene.__needsRender = true;
+        if (this.scene !== undefined) {
+            setSceneReference(object, this.scene);
+            this.scene.__needsRender = true;
         }
     }
     return this;
@@ -152,9 +153,9 @@ Object3D.prototype.add = function (object: Object3D) {
 const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
-        if (this.__scene !== undefined) {
+        if (this.scene !== undefined) {
             removeSceneReference(object);
-            this.__scene.__needsRender = true;
+            this.scene.__needsRender = true;
         }
     }
     removeBase.call(this, ...arguments); //todo opt all call

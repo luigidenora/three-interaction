@@ -4,8 +4,8 @@ import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3,
 export function applyVector3Patch(target: Object3D): void {
     patchVector(target.position);
     patchVector(target.scale);
-    if (target.__scene === undefined) return;
-    if (target.__scene.__smartRendering === true) {
+    if (target.scene === undefined) return;
+    if (target.scene.__smartRendering === true) {
         setVector3SmartRenderingChangeCallback(target);
     } else {
         setVector3DefaultChangeCallback(target);
@@ -15,12 +15,12 @@ export function applyVector3Patch(target: Object3D): void {
 /** @internal */
 export function setVector3SmartRenderingChangeCallback(target: Object3D): void {
     (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__scene.__needsRender = true;
+        target.scene.__needsRender = true;
         target.__eventsDispatcher.dispatchEvent("positionchange");
     };
 
     (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__scene.__needsRender = true;
+        target.scene.__needsRender = true;
         target.__eventsDispatcher.dispatchEvent("scalechange");
     };
 }

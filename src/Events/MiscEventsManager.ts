@@ -9,7 +9,7 @@ export class EventsCache {
    private static _events: { [x: number]: SceneEventsCache } = {};
 
    public static push(type: keyof Events, target: Object3D): void {
-      const scene = target.__scene;
+      const scene = target.scene;
       if (scene !== undefined && this._allowedEventsSet.has(type)) {
          this.pushScene(scene, type, target);
       }
@@ -24,7 +24,7 @@ export class EventsCache {
 
    private static updateEvent(target: Object3D, name: keyof Events): void {
       if (target.__eventsDispatcher.listeners[name]?.length > 0) {
-         this.pushScene(target.__scene, name, target);
+         this.pushScene(target.scene, name, target);
       }
    }
 

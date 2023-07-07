@@ -18,6 +18,7 @@ export class OrthographicCamera extends OrthographicCameraBase implements Object
     dragging: boolean;
     cursor: Cursor;
     cursorOnDrag: Cursor;
+    scene: Scene;
     get firstFocusable(): Object3D;
     needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
@@ -31,7 +32,6 @@ export class OrthographicCamera extends OrthographicCameraBase implements Object
     unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];
-    /** @internal */ __scene: Scene;
     /** @internal */ __boundCallbacks: BindingCallback[];
     /** @internal */ __manualDetection: boolean;
     /** @internal */ __eventsDispatcher: EventsDispatcher;

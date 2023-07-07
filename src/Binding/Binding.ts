@@ -19,7 +19,7 @@ export class Binding { //TODO remove as class
     const getValueBinded = getValue.bind(target);
     this.defineProperty(key, getValueBinded, target, renderOnChange);
     this.addToBoundCallbacks(key, getValueBinded, target, renderOnChange);
-    if (target.__scene !== undefined) {
+    if (target.scene !== undefined) {
       this.bindToScene(target);
     }
   }
@@ -66,7 +66,7 @@ export class Binding { //TODO remove as class
             this[lastTickKey] = Main.ticks;
             if (value !== this[privateKey]) {
               this[privateKey] = value;
-              this.__scene.__needsRender = true;
+              this.scene.__needsRender = true;
             }
           }
           return this[privateKey];
@@ -98,7 +98,7 @@ export class Binding { //TODO remove as class
         const value = getValue();
         if (value !== (target as any)[privateKey]) {
           (target as any)[privateKey] = value;
-          target.__scene.__needsRender = true;
+          target.scene.__needsRender = true;
         }
       };
 
@@ -115,12 +115,12 @@ export class Binding { //TODO remove as class
 
   /** @internal */
   public static bindToScene(target: Object3D): void {
-    target.__scene.__boundObjects.push(target);
+    target.scene.__boundObjects.push(target);
   }
 
   /** @internal */
   public static unbindFromScene(target: Object3D): void {
-    target.__scene.__boundObjects.remove(target);
+    target.scene.__boundObjects.remove(target);
   }
 
   public static detectChanges(target: Object3D, resursive: boolean): void {
@@ -148,7 +148,7 @@ export class Binding { //TODO remove as class
         value: (target as any)[privateKey], writable: true, configurable: true
       });
 
-      if (target.__scene !== undefined) {
+      if (target.scene !== undefined) {
         this.unbindFromScene(target);
       }
 

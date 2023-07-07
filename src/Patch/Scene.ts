@@ -22,7 +22,7 @@ Scene.prototype.activeSmartRendering = function (this: Scene) {
 
 /** @internal */
 export function setSceneReference(target: Object3D, scene: Scene) {
-    target.__scene = scene;
+    target.scene = scene;
     EventsCache.update(target);
     object3DList[target.id] = target;
     applySmartRenderingPatch(target);
@@ -35,11 +35,11 @@ export function setSceneReference(target: Object3D, scene: Scene) {
 
 /** @internal */
 export function removeSceneReference(target: Object3D) {
-    EventsCache.remove(target, target.__scene);
+    EventsCache.remove(target, target.scene);
     object3DList[target.id] = undefined;
     removeSmartRenderingPatch(target);
     Binding.unbindFromScene(target);
-    target.__scene = undefined;
+    target.scene = undefined;
 
     for (const object of target.children) {
         removeSceneReference(object);
