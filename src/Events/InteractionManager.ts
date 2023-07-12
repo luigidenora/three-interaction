@@ -7,10 +7,9 @@ import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
 
 export class InteractionManager {
-    public enabled = true;
     public needsUpdate = true;
     public continousRaycasting = true; //for intersection event
-    public continousRaycastingDrop = true; //for trigger drag without moving
+    public continousRaycastingDropTarget = true; //for trigger drag without moving
     public blurOnClickOut = false;
     public intersection: { [x: string]: IntersectionExt } = {};
     public intersectionDropTarget: IntersectionExt;
@@ -66,9 +65,9 @@ export class InteractionManager {
         this._queue.enqueue(event);
     }
 
-    public update(): void { //todo user active scene?
+    public update(): void {
         //TODO check se canvas ha perso focus
-        if (this.enabled !== true || this.needsUpdate === false) return;
+        if (this.needsUpdate === false) return;
         this._primaryRaycasted = false;
         for (const event of this._queue.dequeue()) {
             this.computeQueuedEvent(event);
@@ -179,7 +178,7 @@ export class InteractionManager {
 
     private pointerIntersection(): void {
         if (this._dragManager.isDragging) {
-            if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDrop) {
+            if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDropTarget) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
                 this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, this.intersectionDropTarget);
@@ -289,7 +288,7 @@ export class InteractionManager {
             }
 
             this.focusedObject = focusableObj;
-            this._renderManager.activeView.scene.__needsRender = true;
+            this._renderManager.activeView.scene.needsRender = true;
         }
     }
 }

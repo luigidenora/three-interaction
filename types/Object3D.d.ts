@@ -19,8 +19,8 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     dragging: boolean;
     cursor: Cursor;
     cursorOnDrag: Cursor;
+    needsRender: boolean;
     get firstFocusable(): Object3D;
-    needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

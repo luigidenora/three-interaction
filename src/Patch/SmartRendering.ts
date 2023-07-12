@@ -22,7 +22,7 @@ export function applySmartRenderingPatch(target: Object3D): void {
                 get: function (this: Object3D) { return this.__visible },
                 set: function (this: Object3D, value: boolean) {
                     this.__visible = value;
-                    this.needsRender();
+                    this.needsRender = true;
                 },
                 configurable: true
             });
@@ -35,7 +35,7 @@ export function applySmartRenderingPatch(target: Object3D): void {
                 get: function (this: Object3D) { return this.__enabled },
                 set: function (this: Object3D, value: boolean) {
                     this.__enabled = value;
-                    this.needsRender();
+                    this.needsRender = true;
                 },
                 configurable: true
             });

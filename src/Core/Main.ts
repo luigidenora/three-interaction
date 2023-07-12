@@ -15,8 +15,7 @@ export interface MainParameters {
     disableContextMenu?: boolean;
     backgroundColor?: Color | number;
     backgroundAlpha?: number;
-    // raycasting frequency
-    // fps?: number;
+    raycastingFrequency?: boolean;
 }
 
 export class Main {
@@ -121,7 +120,7 @@ export class Main {
             const rendered = this.renderManager.render();
 
             for (const scene of visibleScenes) {
-                scene.__needsRender = !scene.__smartRendering;
+                scene.needsRender = !scene.__smartRendering;
             }
 
             if (this._showStats === true) {

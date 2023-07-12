@@ -23,8 +23,8 @@ export interface Object3DExtPrototype {
     cursor: Cursor;
     cursorOnDrag: Cursor;
     scene: Scene;
+    needsRender: boolean;
     get firstFocusable(): Object3D;
-    needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
@@ -53,14 +53,21 @@ Object.defineProperty(Object3D.prototype, "firstFocusable", {
             obj = obj.parent;
         }
         return obj;
-    }, configurable: true
+    },
+    configurable: true
 });
 
-Object3D.prototype.needsRender = function (this: Object3D) {
-    if (this.scene !== undefined) {
-        this.scene.__needsRender = true;
-    }
-};
+Object.defineProperty(Object3D.prototype, "needsRender", {
+    get: function (this: Object3D) {
+        return this.scene?.needsRender;
+    },
+    set: function (this: Object3D, value: boolean) {
+        if (this.scene !== undefined) {
+            this.scene.needsRender = value;
+        }
+    },
+    configurable: true
+});
 
 Object3D.prototype.on = function (this: Object3D, types: any, listener) {
     if (typeof (types) === "string") {
@@ -94,7 +101,8 @@ Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code i
         Object.defineProperty(this, "userData", { // hack to inject code in constructor
             value, writable: true, configurable: true
         });
-    }, configurable: true
+    },
+    configurable: true
 });
 
 /** @Internal */
@@ -142,7 +150,7 @@ Object3D.prototype.add = function (object: Object3D) {
         }
         if (this.scene !== undefined) {
             setSceneReference(object, this.scene);
-            this.scene.__needsRender = true;
+            this.scene.needsRender = true;
         }
     }
     return this;
@@ -153,7 +161,7 @@ Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
         if (this.scene !== undefined) {
             removeSceneReference(object);
-            this.scene.__needsRender = true;
+            this.scene.needsRender = true;
         }
     }
     removeBase.call(this, ...arguments); //todo opt all call

@@ -66,7 +66,7 @@ export class Binding { //TODO remove as class
             this[lastTickKey] = Main.ticks;
             if (value !== this[privateKey]) {
               this[privateKey] = value;
-              this.scene.__needsRender = true;
+              this.scene.needsRender = true;
             }
           }
           return this[privateKey];
@@ -98,7 +98,7 @@ export class Binding { //TODO remove as class
         const value = getValue();
         if (value !== (target as any)[privateKey]) {
           (target as any)[privateKey] = value;
-          target.scene.__needsRender = true;
+          target.scene.needsRender = true;
         }
       };
 

@@ -15,12 +15,12 @@ export function applyVector3Patch(target: Object3D): void {
 /** @internal */
 export function setVector3SmartRenderingChangeCallback(target: Object3D): void {
     (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.scene.__needsRender = true;
+        target.scene.needsRender = true;
         target.__eventsDispatcher.dispatchEvent("positionchange");
     };
 
     (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.scene.__needsRender = true;
+        target.scene.needsRender = true;
         target.__eventsDispatcher.dispatchEvent("scalechange");
     };
 }

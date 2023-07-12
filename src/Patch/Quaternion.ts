@@ -15,7 +15,7 @@ export function applyQuaternionPatch(target: Object3D): void {
 export function setQuaternionSmartRenderingChangeCallback(target: Object3D): void {
     target.quaternion._onChangeCallback = () => {
         (target as any).__onChangeCallbackBase();
-        target.scene.__needsRender = true;
+        target.scene.needsRender = true;
         target.__eventsDispatcher.dispatchEvent("rotationchange");
     };
 }

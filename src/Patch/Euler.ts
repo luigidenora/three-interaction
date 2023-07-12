@@ -15,7 +15,7 @@ export function applyEulerPatch(target: Object3D): void {
 export function setEulerSmartRenderingChangeCallback(target: Object3D): void {
     target.rotation._onChangeCallback = () => {
         (target as any).__onChangeCallbackBase();
-        target.scene.__needsRender = true;
+        target.scene.needsRender = true;
         target.__eventsDispatcher.dispatchEvent("rotationchange");
     };
 }

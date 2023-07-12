@@ -19,8 +19,8 @@ export class Mesh extends MeshBase  implements Object3DExtPrototype {
     cursor: Cursor;
     cursorOnDrag: Cursor;
     scene: Scene;
+    needsRender: boolean;
     get firstFocusable(): Object3D;
-    needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

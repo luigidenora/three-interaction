@@ -2,13 +2,16 @@ import { Object3D } from "three";
 import { Scene as SceneBase } from "three/index";
 import { BindingCallback } from "../src/Binding/Binding";
 import { Cursor } from "../src/Events/CursorManager";
-import { Events } from "../src/Events/Events";
+import { Events, IntersectionExt } from "../src/Events/Events";
 import { Object3DExtPrototype } from "../src/Patch/Object3D";
 import { DistinctTargetArray } from "../src/Utils/DistinctTargetArray";
 import { SceneExtPrototype } from "../src/Patch/Scene";
 import { EventsDispatcher } from "../src/Events/EventsDispatcher";
 
 export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPrototype {
+    continousRaycasting: boolean;
+    continousRaycastingDropTarget: boolean;
+    intersections: { [x: string]: IntersectionExt; };
     activeSmartRendering(): this;
     enabled: boolean;
     enabledUntilParent: boolean;
@@ -23,8 +26,8 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     cursor: Cursor;
     cursorOnDrag: Cursor;
     scene: Scene;
+    needsRender: boolean;
     get firstFocusable(): Object3D;
-    needsRender(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
@@ -45,6 +48,5 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     /** @internal */ __enabled: boolean;
     /** @internal */ __visible: boolean;
     /** @internal */ __boundObjects: DistinctTargetArray;
-    /** @internal */ __needsRender: boolean;
     /** @internal */ __smartRendering: boolean;
 }

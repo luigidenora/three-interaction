@@ -3,13 +3,19 @@ import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 import { EventsCache } from "../Events/MiscEventsManager";
 import { applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
 import { Binding } from "../Binding/Binding";
+import { IntersectionExt } from "../Events/Events";
 
 export interface SceneExtPrototype {
+    continousRaycasting: boolean;
+    continousRaycastingDropTarget: boolean;
+    intersections: { [x: string]: IntersectionExt };
     activeSmartRendering(): this;
 }
 
+Scene.prototype.continousRaycasting = true;
+Scene.prototype.continousRaycastingDropTarget = true;
 Scene.prototype.focusable = false;
-Scene.prototype.__needsRender = true;
+Scene.prototype.needsRender = true;
 Scene.prototype.__smartRendering = false;
 Scene.prototype.__boundObjects = new DistinctTargetArray();
 
