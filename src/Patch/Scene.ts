@@ -6,14 +6,17 @@ import { Binding } from "../Binding/Binding";
 import { IntersectionExt } from "../Events/Events";
 
 export interface SceneExtPrototype {
-    continousRaycasting: boolean;
-    continousRaycastingDropTarget: boolean;
-    intersections: { [x: string]: IntersectionExt };
+    continousRaycasting: boolean;  //for intersection event
+    continousRaycastingDropTarget: boolean; //for trigger drag without moving
+    intersections: IntersectionExt[];
+    intersectionsDropTarget: IntersectionExt[];
     activeSmartRendering(): this;
 }
 
 Scene.prototype.continousRaycasting = true;
 Scene.prototype.continousRaycastingDropTarget = true;
+Scene.prototype.intersections = [];
+Scene.prototype.intersectionsDropTarget = [];
 Scene.prototype.focusable = false;
 Scene.prototype.needsRender = true;
 Scene.prototype.__smartRendering = false;

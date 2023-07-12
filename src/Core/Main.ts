@@ -10,12 +10,13 @@ import { Binding } from "../Binding/Binding";
 export interface MainParameters {
     fullscreen?: boolean;
     scenes?: Scene[];
-    animate?: XRFrameRequestCallback;
     showStats?: boolean;
     disableContextMenu?: boolean;
     backgroundColor?: Color | number;
     backgroundAlpha?: number;
     raycastingFrequency?: boolean;
+    blurOnClickOut?: boolean;
+    animate?: XRFrameRequestCallback;
 }
 
 export class Main {

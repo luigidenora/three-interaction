@@ -4,7 +4,7 @@ import { IntersectionExt } from "./Events";
 
 export class RaycasterManager {
     public raycaster = new Raycaster();
-    public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => a.distance - b.distance;
+    public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => a.distance - b.distance; //TODO esporre fuori
     private _pointer = new Vector2();
     private _computedPointer = new Vector2();
     private _renderManager: RenderManager;

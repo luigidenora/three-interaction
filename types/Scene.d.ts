@@ -11,7 +11,8 @@ import { EventsDispatcher } from "../src/Events/EventsDispatcher";
 export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPrototype {
     continousRaycasting: boolean;
     continousRaycastingDropTarget: boolean;
-    intersections: { [x: string]: IntersectionExt; };
+    intersections: IntersectionExt[];
+    intersectionsDropTarget: IntersectionExt[];
     activeSmartRendering(): this;
     enabled: boolean;
     enabledUntilParent: boolean;

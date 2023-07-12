@@ -8,9 +8,7 @@ import { RaycasterManager } from "./RaycasterManager";
 
 export class InteractionManager {
     public needsUpdate = true;
-    public continousRaycasting = true; //for intersection event
-    public continousRaycastingDropTarget = true; //for trigger drag without moving
-    public blurOnClickOut = false;
+    public blurOnClickOut: boolean;
     public intersection: { [x: string]: IntersectionExt } = {};
     public intersectionDropTarget: IntersectionExt;
     public focusedObject: Object3D;
@@ -84,11 +82,16 @@ export class InteractionManager {
         }
         if (this._dragManager.isDragging) {
             const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.findDropTarget === true ? this._dragManager.target : undefined);
+            this._renderManager.activeView.scene.intersectionsDropTarget = intersections;
             this.intersectionDropTarget = intersections[0];
+            //TODO check if is always primary here
         } else {
             this._lastIntersection[event.pointerId] = this.intersection[event.pointerId]; //todo remember delete
             const intersections = this.raycasterManager.getIntersections(event, false);
             this.intersection[event.pointerId] = intersections[0];
+            if (event.isPrimary) {
+                this._renderManager.activeView.scene.intersections = intersections;
+            }
         }
     }
 
@@ -178,12 +181,12 @@ export class InteractionManager {
 
     private pointerIntersection(): void {
         if (this._dragManager.isDragging) {
-            if (!this._primaryRaycasted && this._dragManager.findDropTarget && this.continousRaycastingDropTarget) {
+            if (!this._primaryRaycasted && this._dragManager.findDropTarget && this._renderManager.activeView.scene.continousRaycastingDropTarget) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
                 this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, this.intersectionDropTarget);
             }
-        } else if (this.continousRaycasting && (this._mouseDetected || this._isTapping)) {
+        } else if (this._renderManager.activeView.scene.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
