@@ -47,7 +47,7 @@ export class EventsCache {
 
    public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
-      if (sceneCache && sceneCache[type]) {
+      if (sceneCache?.[type]) {
          for (const target of sceneCache[type].data) {
             target.__eventsDispatcher.dispatchEvent(type, event);
          }
@@ -56,7 +56,7 @@ export class EventsCache {
 
    public static dispatchEventExcludeCameras<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
-      if (sceneCache && sceneCache[type]) {
+      if (sceneCache?.[type]) {
          for (const target of sceneCache[type].data) {
             if ((target as Camera).isCamera !== true) {
                target.__eventsDispatcher.dispatchEvent(type, event);

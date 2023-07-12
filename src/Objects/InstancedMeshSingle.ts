@@ -1,4 +1,4 @@
-import { Color, EventDispatcher, Object3D, Quaternion, Vector3 } from "three";
+import { Color, EventDispatcher, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
 import { InstancedMesh } from "./InstancedMesh";
 import { EventsDispatcher } from "../Events/EventsDispatcher";

@@ -1,4 +1,4 @@
-import { CanvasTexture, Color, ShaderMaterial, Texture, Vector2 } from "three";
+import { CanvasTexture, ShaderMaterial, Texture, Vector2 } from "three";
 
 interface BubbleMaterialParameters {
     map?: CanvasTexture;

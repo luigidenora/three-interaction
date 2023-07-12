@@ -47,18 +47,6 @@ export interface InteractionEvents {
   dragover: DragEventExt;
   dragleave: DragEventExt;
   drop: DragEventExt;
-
-  // mouseover: PointerEventExt;
-  // mouseenter: PointerEventExt;
-  // mouseout: PointerEventExt;
-  // mouseleave: PointerEventExt;
-  // mousemove: PointerEventExt;
-  // mousedown: PointerEventExt;
-  // mouseup: PointerEventExt;
-  // touchstart: TouchEventExt;
-  // touchmove: TouchEventExt;
-  // touchend: TouchEventExt;
-  // touchcancel: TouchEventExt;
 }
 
 export interface IntersectionExt extends Intersection {
