@@ -32,13 +32,8 @@
         import GUI from "lil-gui";
 
         class CustomMesh extends Mesh {
-            constructor(geometry, material, wireframeCamera) {
-                super(geometry, material);
-                this.wireframeCamera = wireframeCamera;
-            }
-
             onBeforeRender(renderer, scene, camera, geometry, material, group) {
-                if (camera === this.wireframeCamera) {
+                if (camera.name === "wireframeCamera") {
                     this.material.wireframe = true;
                 }
             }
@@ -49,8 +44,8 @@
         }
 
         class Box extends CustomMesh {
-            constructor(wireframeCamera) {
-                super(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 }), wireframeCamera);
+            constructor() {
+                super(new BoxGeometry(1), new MeshLambertMaterial({ color: 0xff5555 }));
                 this.translateX(2);
                 this.draggable = true;
 
@@ -62,29 +57,30 @@
         }
 
         class Sphere extends CustomMesh {
-            constructor(wireframeCamera) {
-                super(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff }), wireframeCamera);
+            constructor() {
+                super(new SphereGeometry(1), new MeshLambertMaterial({ color: 0x5555ff }));
                 this.translateX(-2);
             }
         }
 
         class Scene extends SceneBase {
-            constructor(wireframeCamera) {
+            constructor() {
                 super();
                 this.add(
                     new DirectionalLight(0xffffff, 0.7).translateZ(10),
                     new DirectionalLight(0xffffff, 0.7).translateZ(-10),
-                    new Box(wireframeCamera),
-                    new Sphere(wireframeCamera)
+                    new Box(),
+                    new Sphere()
                 );
             }
         }
 
         class Main extends MainBase {
             constructor() {
-                super({}, { antialias: true });
+                super({ scenes: [new Scene()] }, { antialias: true });
+
                 const wireframeCamera = new OrthographicCamera(10).translateZ(10);
-                this.addScene(new Scene(wireframeCamera));
+                wireframeCamera.name = "wireframeCamera";
 
                 this.leftView = this.renderManager.add({
                     scene: this.scenes[0],

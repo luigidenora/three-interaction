@@ -62,9 +62,9 @@ export class RenderManager {
    * Retrieves a view by its name.
    */
   public getByName(name: string): RenderView {
-    for (let i = 0; i < this.views.length; i++) {
-      if (this.views[i].name === name) {
-        return this.views[i];
+    for (const view of this.views) {
+      if (view.name === name) {
+        return view;
       }
     }
   }

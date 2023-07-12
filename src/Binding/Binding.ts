@@ -172,8 +172,8 @@ export class Binding { //TODO remove as class
   public static compute(scene: Scene): void {
     for (const object of scene.__boundObjects.data) {
       if (object.__boundCallbacks !== undefined) {
-        for (const test of object.__boundCallbacks) {
-          (object as any)[test.key];
+        for (const boundProperty of object.__boundCallbacks) {
+          (object as any)[boundProperty.key]; //TODO mmm...
         }
       }
     }

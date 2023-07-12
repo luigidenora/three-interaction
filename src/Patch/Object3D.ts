@@ -36,8 +36,6 @@ export interface Object3DExtPrototype {
     unbindProperty<T extends keyof this>(property: T): this;
 }
 
-export const object3DList: { [x: number]: Object3D } = {};
-
 Object3D.prototype.focusable = true;
 Object3D.prototype.focused = false;
 Object3D.prototype.clicking = false;

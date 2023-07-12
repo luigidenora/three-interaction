@@ -28,7 +28,7 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
     }
 
     public hasEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
-        if (this.listeners[type]?.indexOf(listener) ?? -1 !== -1) {
+        if (this.listeners[type]?.indexOf(listener) !== -1) {
             return true;
         }
         return false;
@@ -53,7 +53,6 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
     private _dispatchDOMEvent<K extends keyof InteractionEvents>(type: K, event: InteractionEvents[K]): void {
         if (!this.listeners[type]) return;
         const target = event.currentTarget = this.parent as Object3D;
-        // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
         for (const callback of this.listeners[type]) {
             if (event._stoppedImmediatePropagation) break;
             callback.call(target, event);
@@ -75,7 +74,6 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
 
     public dispatchEvent(type: keyof Events, args?: any): void {
         if (!this.listeners[type]) return;
-        // for (const callback of [...this._listeners[type]]) { // Make a copy, in case listeners are removed while iterating.
         for (const callback of this.listeners[type]) {
             callback.call(this.parent, args);
         }

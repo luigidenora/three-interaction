@@ -536,10 +536,9 @@ iframe#viewer {
 		right: 0;
 		z-index: 1000;
 		overflow-x: hidden;
-		transition: 0s 0s height;
+		transition: 0s 0.2s height;
 		border: none;
 		height: var(--header-height);
-		transition: 0s 0.2s height;
 	}
 	#panel.open {
 		height: 100%;
@@ -555,7 +554,6 @@ iframe#viewer {
 		top: 0;
 		bottom: 0;
 		z-index: 1000;
-		pointer-events: none;
 		transition: .2s background-color;
 	}
 	#panel.open #panelScrim {
