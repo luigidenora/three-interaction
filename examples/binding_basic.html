@@ -91,13 +91,13 @@
         boxGeometry.computeBoundingBox();
         sphereGeometry.computeBoundingSphere();
 
-        scene.on("animate", (e) => { //todo add afterAnimate event?
-            for (let i = 0; i < spheres.length; i++) {
-                sphereCollider.copy(spheres[i].geometry.boundingSphere).applyMatrix4(spheres[i].matrixWorld);
-                for (let j = 0; j < boxes.length; j++) {
-                    boxCollider.copy(boxes[j].geometry.boundingBox).applyMatrix4(boxes[j].matrixWorld);
+        scene.on("afteranimate", (e) => {
+            for (const sphere of spheres) {
+                sphereCollider.copy(sphere.geometry.boundingSphere).applyMatrix4(sphere.matrixWorld);
+                for (const box of boxes) {
+                    boxCollider.copy(box.geometry.boundingBox).applyMatrix4(box.matrixWorld);
                     if (sphereCollider.intersectsBox(boxCollider)) {
-                        spheres[i].isColliding = boxes[j].isColliding = true;
+                        sphere.isColliding = box.isColliding = true;
                     }
                 }
             }

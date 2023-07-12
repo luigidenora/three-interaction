@@ -24,7 +24,8 @@ function handleRendererResize(renderer: WebGLRenderer, scene: Scene, camera: Cam
     const lastSceneSize = lastViewportSizes[scene.id];
     if (lastSceneSize.z !== viewportSize.z || lastSceneSize.w !== viewportSize.w) {
         lastSceneSize.copy(viewportSize);
-        EventsCache.dispatchEventExcludeCameras(scene, "rendererresize", event = new RendererResizeEvent(renderer, camera, viewportSize.z, viewportSize.w));
+        event = new RendererResizeEvent(renderer, camera, viewportSize.z, viewportSize.w);
+        EventsCache.dispatchEventExcludeCameras(scene, "rendererresize", event);
     }
 
     if (!lastViewportSizes[camera.id]) {

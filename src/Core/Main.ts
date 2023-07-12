@@ -52,7 +52,7 @@ export class Main {
     public set backgroundAlpha(value: number) { this.renderManager.backgroundAlpha = value }
 
     constructor(parameters: MainParameters = {}, rendererParameters: WebGLRendererParameters = {}) {
-        this.initRenderer(parameters.fullscreen, rendererParameters);
+        this.initRenderer(rendererParameters, parameters.fullscreen);
         this.interactionManager = new InteractionManager(this.renderManager);
         this.appendCanvas(rendererParameters);
         this.handleContextMenu(parameters.disableContextMenu);
@@ -68,7 +68,7 @@ export class Main {
         // setInterval(() => { this.interactionManager.needsUpdate = true }, 1000 / 20); //TODO in future
     }
 
-    private initRenderer(fullscreen = true, rendererParameters: WebGLRendererParameters): void {
+    private initRenderer(rendererParameters: WebGLRendererParameters, fullscreen = true): void {
         this.renderer = new WebGLRenderer(rendererParameters);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         applyWebGLRendererPatch(this.renderer);

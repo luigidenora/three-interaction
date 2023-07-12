@@ -46,21 +46,21 @@ function patchVector(vec3: any): void {
     Object.defineProperties(vec3, {
         x: {
             get() { return this._x; },
-            set(value: Number) {
+            set(value: number) {
                 this._x = value;
                 this._onChangeCallback();
             }
         },
         y: {
             get() { return this._y; },
-            set(value: Number) {
+            set(value: number) {
                 this._y = value;
                 this._onChangeCallback();
             }
         },
         z: {
             get() { return this._z; },
-            set(value: Number) {
+            set(value: number) {
                 this._z = value;
                 this._onChangeCallback();
             }
@@ -854,7 +854,7 @@ class Vector3Ext {
 
     }
 
-    public _onChangeCallback() { }
+    public _onChangeCallback: () => void;
 
     *[Symbol.iterator]() {
 
