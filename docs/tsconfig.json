@@ -1,0 +1,23 @@
+{
+  // This file is not used in compilation. It is here just for a nice editor experience.
+  "extends": "@tsconfig/docusaurus/tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2015",
+    "target": "ES2015",
+    "strict": true,
+    "noImplicitOverride": true,
+    "declaration": true,
+    "strictNullChecks": false,
+    "stripInternal": true,
+    "outDir": "build",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "three": ["../types/three.d.ts"]
+      /* 	"@ag-three/interaction": [
+				"../src"
+			] */
+    }
+  }
+}
