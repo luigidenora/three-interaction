@@ -1,4 +1,4 @@
-import { Matrix4, Object3D } from "three";
+import { Object3D } from "three";
 
 /** @internal Override compose method because is called for every rendered object and can be performance critical after Vector3 patch. */
 export function applyMatrix4Patch(parent: Object3D): void {

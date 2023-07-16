@@ -1,12 +1,12 @@
 import { Color, EventDispatcher, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
-import { InstancedMesh } from "./InstancedMesh";
+import { InstancedMesh2 } from "./InstancedMesh2";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 
 let id = 1;
 
 export class InstancedMeshSingle extends EventDispatcher {
-    public parent: InstancedMesh;
+    public parent: InstancedMesh2;
     public instanceId: number;
     public id: number;
     public position = new Vector3();
@@ -19,7 +19,7 @@ export class InstancedMeshSingle extends EventDispatcher {
     public enabledUntilParent: boolean; // TODO
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
     
-    constructor(parent: InstancedMesh, index: number, color?: Color) {
+    constructor(parent: InstancedMesh2, index: number, color?: Color) {
         super();
         this.id = id++;
         this.parent = parent;

@@ -1,11 +1,8 @@
 import { Object3D, Scene } from "three";
-import { Line2 as Line2Base } from "../node_modules/@types/three/examples/jsm/lines/Line2";
-import { Cursor } from "../src/Events/CursorManager";
-import { Events } from "../src/Events/Events";
-import { BindingCallback, EventsDispatcher } from "../src/index";
-import { Object3DExtPrototype } from "../src/Patch/Object3D";
+import { Line2 as Line2Base } from "../../node_modules/@types/three/examples/jsm/lines/Line2";
+import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
-export class Line2 extends Line2Base  implements Object3DExtPrototype {
+export class Line2 extends Line2Base implements Object3DExtPrototype {
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

@@ -1,11 +1,8 @@
 import { Object3D, Scene } from "three";
-import { OrthographicCamera as OrthographicCameraBase } from "three/index";
-import { Cursor } from "../src/Events/CursorManager";
-import { Events } from "../src/Events/Events";
-import { BindingCallback, EventsDispatcher } from "../src/index";
-import { Object3DExtPrototype } from "../src/Patch/Object3D";
+import { Camera as CameraBase } from "three/index";
+import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
-export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototype {
+export class Camera extends CameraBase implements Object3DExtPrototype {
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

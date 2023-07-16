@@ -1,11 +1,8 @@
 import { Object3D, Scene } from "three";
-import { Mesh as MeshBase } from "three/index";
-import { Cursor } from "../src/Events/CursorManager";
-import { Events } from "../src/Events/Events";
-import { BindingCallback, EventsDispatcher } from "../src/index";
-import { Object3DExtPrototype } from "../src/Patch/Object3D";
+import { PerspectiveCamera as PerspectiveCameraBase } from "three/index";
+import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
-export class Mesh extends MeshBase  implements Object3DExtPrototype {
+export class PerspectiveCamera extends PerspectiveCameraBase implements Object3DExtPrototype {
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

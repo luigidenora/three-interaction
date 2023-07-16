@@ -3,7 +3,7 @@ import { OrthographicCamera as OrthographicCameraBase } from "three";
 /**
  * Important: adding camera to scene to trigger renderresize event.
  */
-export class OrthographicCamera extends OrthographicCameraBase {
+export class OrthographicCamera2 extends OrthographicCameraBase {
 
     //todo property frustum size
     constructor(frustumSize = 100, near?: number, far?: number) {

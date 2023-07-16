@@ -10,7 +10,6 @@ module.exports = {
   },
   externals: [
     'three',
-    'three/examples/jsm/libs/stats.module',
     'three/examples/jsm/lines/LineMaterial',
     'three/examples/jsm/lines/Line2',
     'three/examples/jsm/lines/LineGeometry'
@@ -40,6 +39,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "README.md", to: "README.md" },
+        { from: "src/Types", to: "Types" },
       ]
     })
   ]

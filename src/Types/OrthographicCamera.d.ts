@@ -1,12 +1,8 @@
-import { Scene } from "three";
-import { Object3D as Object3DBase } from "three/index";
-import { BindingCallback } from "../src/Binding/Binding";
-import { Cursor } from "../src/Events/CursorManager";
-import { Events } from "../src/Events/Events";
-import { EventsDispatcher } from "../src/Events/EventsDispatcher";
-import { Object3DExtPrototype } from "../src/Patch/Object3D";
+import { Object3D, Scene } from "three";
+import { OrthographicCamera as OrthographicCameraBase } from "three/index";
+import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
-export class Object3D extends Object3DBase implements Object3DExtPrototype {
+export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototype {
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;
@@ -19,6 +15,7 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     dragging: boolean;
     cursor: Cursor;
     cursorOnDrag: Cursor;
+    scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;
@@ -34,7 +31,6 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];
-    /** @internal */ scene: Scene;
     /** @internal */ __boundCallbacks: BindingCallback[];
     /** @internal */ __manualDetection: boolean;
     /** @internal */ __eventsDispatcher: EventsDispatcher;

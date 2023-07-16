@@ -1,7 +1,7 @@
 import { BufferGeometry, Color, InstancedMesh as InstancedMeshBase, Material, Matrix4 } from "three";
 import { InstancedMeshSingle } from "./InstancedMeshSingle";
 
-export class InstancedMesh extends InstancedMeshBase {
+export class InstancedMesh2 extends InstancedMeshBase {
     public focusedId: number;
     public hoveredId: number;
     public instances: InstancedMeshSingle[] = [];
