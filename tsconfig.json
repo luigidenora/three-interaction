@@ -12,10 +12,10 @@
 		"experimentalDecorators": true,
 		"paths": {
 			"three": [
-				"./src/Types/index.d.ts"
+				"./src/types/index.d.ts"
 			],
 			"three/examples/jsm/lines/Line2": [
-				"./src/Types/Line2.d.ts"
+				"./src/types/Line2.d.ts"
 			]
 		}
 	},
