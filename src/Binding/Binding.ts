@@ -169,12 +169,10 @@ export class Binding { //TODO remove as class
     target.__manualDetection = true;
   }
 
-  public static compute(scene: Scene): void {
+  public static compute(scene: Scene): void { //TODO do it only if smart rendedring and needs render false e solo delle property visible
     for (const object of scene.__boundObjects.data) {
-      if (object.__boundCallbacks !== undefined) {
-        for (const boundProperty of object.__boundCallbacks) {
-          (object as any)[boundProperty.key]; //TODO mmm...
-        }
+      if (object.hasOwnProperty('__bound__visible')) {
+        Object.getOwnPropertyDescriptor(object, 'visible').get.call(object)
       }
     }
   }

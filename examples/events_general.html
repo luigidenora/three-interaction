@@ -59,7 +59,7 @@
     <script type="module">
 
         import { Mesh, BoxGeometry, SphereGeometry, PlaneGeometry, MeshLambertMaterial, Scene as SceneBase, DirectionalLight } from "three";
-        import { OrthographicCamera, Main } from "../src/index";
+        import { OrthographicCamera2, Main } from "../src/index";
 
         class Box extends Mesh {
             constructor() {
@@ -120,7 +120,7 @@
                 super();
                 this.activeSmartRendering();
                 this.add(
-                    new OrthographicCamera(20).translateZ(10),
+                    new OrthographicCamera2(20).translateZ(10),
                     new DirectionalLight(0xffffff, 0.7).translateZ(10),
                     new Sphere(),
                     new Box(),
