@@ -68,7 +68,7 @@ const config = {
         title: 'My Site',
         logo: {
           alt: 'My Site Logo',
-          src: 'img/logo.svg',
+          src: 'img/logo/android-chrome-512x512.png',
         },
         items: [
           {
