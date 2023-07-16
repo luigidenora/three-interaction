@@ -25,6 +25,8 @@ export interface Object3DExtPrototype {
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;
+    applyFocus(): void;
+    applyBlur(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
@@ -122,6 +124,14 @@ export function applyObject3DRotationPatch(target: Object3D): void {
         target.__rotationPatched = true;
     }
 }
+
+Object3D.prototype.applyFocus = function () {
+    this.scene.focus(this);
+};
+
+Object3D.prototype.applyFocus = function () {
+    this.scene.focus();
+};
 
 Object3D.prototype.setManualDetectionMode = function () {
     Binding.setManualDetectionMode(this);

@@ -18,6 +18,7 @@ export class RenderManager {
   private _backgroundAlpha: number;
 
   public get activeView(): RenderView { return this.views.length > 0 ? this._activeView : this.__defaultView }
+  public get activeScene(): Scene { return this.activeView?.scene }
 
   /** todo */
   public get backgroundColor(): Color { return this._backgroundColor }

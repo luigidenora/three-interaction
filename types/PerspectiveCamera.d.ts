@@ -21,6 +21,8 @@ export class PerspectiveCamera extends PerspectiveCameraBase implements Object3D
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;
+    applyFocus(): void;
+    applyBlur(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

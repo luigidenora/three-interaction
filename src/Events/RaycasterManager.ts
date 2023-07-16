@@ -16,8 +16,8 @@ export class RaycasterManager {
     public getIntersections(event: PointerEvent, isDragging: boolean, excluded?: Object3D): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this._pointer.set(event.offsetX, event.offsetY);
-        if (this.getComputedMousePosition(this._pointer, this._computedPointer, isDragging) === true) {
-            const scene = this._renderManager.activeView.scene;
+        if (this.getComputedMousePosition(this._pointer, this._computedPointer, isDragging, event.isPrimary) === true) {
+            const scene = this._renderManager.activeScene;
             const camera = this._renderManager.activeView.camera;
             this.raycaster.setFromCamera(this._computedPointer, camera);
             if (isDragging === false || excluded !== undefined) {
@@ -31,8 +31,8 @@ export class RaycasterManager {
     /**
      * Retrieves the ray origin based on the mouse position.
      */
-    public getComputedMousePosition(mouse: Vector2, target: Vector2, isDragging: boolean): boolean {
-        if (!isDragging) {
+    public getComputedMousePosition(mouse: Vector2, target: Vector2, isDragging: boolean, isPrimary: boolean): boolean {
+        if (!isDragging && isPrimary) {
             this._renderManager.updateActiveView(mouse);
         }
         const activeView = this._renderManager.activeView;

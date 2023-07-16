@@ -9,10 +9,13 @@ import { SceneExtPrototype } from "../src/Patch/Scene";
 import { EventsDispatcher } from "../src/Events/EventsDispatcher";
 
 export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPrototype {
+    blurOnClickOut: boolean;
+    focus(target?: Object3D): void;
     continousRaycasting: boolean;
     continousRaycastingDropTarget: boolean;
     intersections: IntersectionExt[];
     intersectionsDropTarget: IntersectionExt[];
+    focusedObject: Object3D;
     activeSmartRendering(): this;
     enabled: boolean;
     enabledUntilParent: boolean;
@@ -29,6 +32,8 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;
+    applyFocus(): void;
+    applyBlur(): void;
     on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
     hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;

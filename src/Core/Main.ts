@@ -23,14 +23,14 @@ export class Main {
     public static ticks = 0;
     public renderer: WebGLRenderer;
     public renderManager: RenderManager;
-    public interactionManager: InteractionManager;
-    public _stats: Stats;
     public scenes: Scene[] = [];
+    private _interactionManager: InteractionManager;
+    private _stats: Stats;
     private _animate: XRFrameRequestCallback;
     private _clock = new Clock();
     private _showStats: boolean;
 
-    public get activeScene(): Scene { return this.renderManager.activeView.scene };
+    public get activeScene(): Scene { return this.renderManager.activeScene };
     public get activeCamera(): Camera { return this.renderManager.activeView.camera };
     public get activeComposer(): EffectComposer { return this.renderManager.activeView.composer };
 
@@ -53,7 +53,7 @@ export class Main {
 
     constructor(parameters: MainParameters = {}, rendererParameters: WebGLRendererParameters = {}) {
         this.initRenderer(rendererParameters, parameters.fullscreen);
-        this.interactionManager = new InteractionManager(this.renderManager);
+        this._interactionManager = new InteractionManager(this.renderManager);
         this.appendCanvas(rendererParameters);
         this.handleContextMenu(parameters.disableContextMenu);
         this.showStats = parameters.showStats ?? true;
@@ -103,7 +103,7 @@ export class Main {
         this.renderer.setAnimationLoop((time, frame) => {
             Main.ticks++;
 
-            this.interactionManager.update();
+            this._interactionManager.update();
 
             this.animate(time, frame);
 
