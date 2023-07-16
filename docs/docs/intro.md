@@ -19,35 +19,8 @@ Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new
 
 ## Generate a new site
 
-```jsx live
-function ThreeScene() {
-  const sceneRef = useRef(null);
+<iframe height="600px" width="100%" src="https://stackblitz.com/edit/vitejs-vite-erltqp?embed=1&file=src%2Fmain.ts&hideDevTools=1&hideExplorer=1&hideNavigation=1&terminalHeight=0"></iframe>
 
-  useEffect(() => {
-    const scene = new Scene().add(new PerspectiveCamera(70, 1, 10000).translateZ(10));
-    scene.interceptByRaycaster = false;
-
-    const points = [];
-    for (let i = 0; i < 20; i++) {
-      debugger;
-      const point = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 0xffffff * Math.random() }));
-      points.push(point);
-      scene.add(point);
-      point.on('animate', e =>
-        point.position.set(-Math.cos((e.total / 10) * (i + 1)) * 5, Math.sin((e.total / 10) * (i + 1)) * 5),
-      );
-    }
-
-    for (let i = 0; i < points.length - 1; i++) {
-      for (let j = i + 1; j < points.length; j++) {
-        scene.add(new LinkedLine(points[i], points[j]));
-      }
-    }
-  }, []);
-
-  return <div ref={sceneRef} />;
-}
-```
 
 You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
 

@@ -1,0 +1,3 @@
+[submodule "examples/boilerplate"]
+	path = examples/boilerplate
+	url = https://github.com/luigidenora/boilerplate.git
