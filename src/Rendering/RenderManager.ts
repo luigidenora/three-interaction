@@ -147,13 +147,26 @@ export class RenderManager {
     }
   }
 
+  public isRenderNecessary(): boolean {
+    if (this.views.length > 0) {
+      for (const view of this.views) {
+        if (view.visible === true && view.scene.needsRender === true) {
+          return true;
+        }
+      }
+    } else if (this.__defaultView.scene.needsRender === true) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Performs rendering.
    * If there are active views, each view is rendered individually.
    * If there are no active views, the scene is rendered using the provided scene and camera.
    */
   public render(): boolean {
-    let rendered = false;
+    if (!this.isRenderNecessary()) return false;
     if (this.views.length > 0) {
       for (const view of this.views) {
         if (view.visible === true && view.scene.needsRender === true) {
@@ -165,17 +178,15 @@ export class RenderManager {
           view.onBeforeRender();
           this.executeRender(view.scene, view.camera, view.composer);
           view.onAfterRender();
-          rendered ||= true;
         }
       }
     } else {
       const scene = this.__defaultView.scene;
       if (scene.needsRender === true) {
         this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
-        rendered ||= true;
       }
     }
-    return rendered;
+    return true;
   }
 
   private executeRender(scene?: Scene, camera?: Camera, composer?: EffectComposer): void {
