@@ -5,7 +5,7 @@ import { IntersectionExt } from "./Events";
 export class RaycasterManager {
     public raycaster = new Raycaster();
     public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => a.distance - b.distance; //TODO esporre fuori
-    private _pointer = new Vector2();
+    public pointer = new Vector2();
     private _computedPointer = new Vector2();
     private _renderManager: RenderManager;
 
@@ -15,8 +15,8 @@ export class RaycasterManager {
 
     public getIntersections(event: PointerEvent, isDragging: boolean, excluded?: Object3D): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
-        this._pointer.set(event.offsetX, event.offsetY);
-        if (this.getComputedMousePosition(this._pointer, this._computedPointer, isDragging, event.isPrimary) === true) {
+        this.pointer.set(event.offsetX, event.offsetY);
+        if (this.getComputedMousePosition(this.pointer, this._computedPointer, isDragging, event.isPrimary) === true) {
             const scene = this._renderManager.activeScene;
             const camera = this._renderManager.activeView.camera;
             this.raycaster.setFromCamera(this._computedPointer, camera);

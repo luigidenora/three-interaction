@@ -29,7 +29,7 @@
     <script type="module">
 
         import { Mesh, BoxGeometry, SphereGeometry, MeshLambertMaterial, DirectionalLight, PointLight, Scene as SceneBase } from "three";
-        import { PerspectiveCamera, Main } from "../src/index";
+        import { PerspectiveCamera2, Main, Tween } from "../src/index";
 
         class Box extends Mesh {
             constructor() {
@@ -67,7 +67,7 @@
 
                 this.add(
                     this.light,
-                    new PerspectiveCamera(70).translateZ(5),
+                    new PerspectiveCamera2(70).translateZ(5),
                     new DirectionalLight(0xffffff, 0.05).translateZ(20)
                 );
 
@@ -78,10 +78,19 @@
                 });
 
                 this.on("focus", (e) => {
+                    const tween = new Tween(e.target)
+                        .to(1000, { easing: "easeOutElastic", scale: 2 })
+                        .start();
                     e.target.material.emissive.set(0xaaaa00);
-                    e.relatedTarget?.material.emissive.set(0);
                     this.light.color.copy(e.target.material.color);
                     this.light.matrix = e.target.matrix; // follow focused cube because light matrixAutoUpdate is false.
+                });
+
+                this.on("blur", (e) => {
+                    const tween = new Tween(e.target)
+                        .to(1000, { easing: "easeOutElastic", scale: 1 })
+                        .start();
+                    e.target.material.emissive.set(0);
                 });
 
                 for (let i = 0; i < 100; i++) {

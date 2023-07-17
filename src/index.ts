@@ -32,6 +32,10 @@ export * from './Patch/WebGLRenderer';
 export * from './Rendering/RenderManager';
 export * from './Rendering/RenderView';
 
-export * from './Utils/Animation';
+export * from './Tweening/Actions';
+export * from './Tweening/Easings';
+export * from './Tweening/Tween';
+export * from './Tweening/TweenManager';
+
 export * from './Utils/DistinctTargetArray';
 export * from './Utils/Stats';

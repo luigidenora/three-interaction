@@ -7,10 +7,10 @@ import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
 
 export class InteractionManager {
+    public raycasterManager: RaycasterManager;
     public needsUpdate = true;
     private _intersection: { [x: string]: IntersectionExt } = {};
     private _intersectionDropTarget: IntersectionExt;
-    private _raycasterManager: RaycasterManager;
     private _renderManager: RenderManager;
     private _cursorManager: CursorHandler;
     private _queue = new InteractionEventsQueue();
@@ -30,7 +30,7 @@ export class InteractionManager {
         const renderer = renderManager.renderer;
         this.registerRenderer(renderer);
         this._cursorManager = new CursorHandler(renderer.domElement);
-        this._raycasterManager = new RaycasterManager(renderManager);
+        this.raycasterManager = new RaycasterManager(renderManager);
     }
 
     public registerRenderer(renderer: WebGLRenderer): void {
@@ -80,7 +80,7 @@ export class InteractionManager {
         }
         if (this._dragManager.isDragging) {
             if (event.isPrimary) {
-                const intersections = this._raycasterManager.getIntersections(event, true, this._dragManager.findDropTarget === true ? this._dragManager.target : undefined);
+                const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.findDropTarget === true ? this._dragManager.target : undefined);
                 this._intersectionDropTarget = intersections[0];
                 const scene = this._renderManager.activeScene;
                 if (scene) {
@@ -89,7 +89,7 @@ export class InteractionManager {
             }
         } else {
             this._lastIntersection[event.pointerId] = this._intersection[event.pointerId]; //todo remember delete
-            const intersections = this._raycasterManager.getIntersections(event, false);
+            const intersections = this.raycasterManager.getIntersections(event, false);
             this._intersection[event.pointerId] = intersections[0];
             const scene = this._renderManager.activeScene;
             if (scene && event.isPrimary) {
@@ -176,11 +176,11 @@ export class InteractionManager {
         this._lastPointerMove[event.pointerId] = event;
         this.raycastScene(event);
         if (this._dragManager.isDragging) {
-            this._dragManager.performDrag(event, this._raycasterManager.raycaster, this._renderManager.activeView.camera, this._intersectionDropTarget);
+            this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, this._intersectionDropTarget);
         } else {
             this.pointerOutOver(event);
             const target = this._intersection[event.pointerId]?.object;
-            if (!this._dragManager.startDragging(event, this._raycasterManager.raycaster, this._renderManager.activeView?.camera, target)) {
+            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, target)) {
                 this.triggerAncestorPointer("pointermove", event, target);
             }
         }
@@ -191,7 +191,7 @@ export class InteractionManager {
             if (!this._primaryRaycasted && this._dragManager.findDropTarget && this._renderManager.activeScene?.continousRaycastingDropTarget) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
-                this._dragManager.performDrag(event, this._raycasterManager.raycaster, this._renderManager.activeView?.camera, this._intersectionDropTarget);
+                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, this._intersectionDropTarget);
             }
         } else if (this._renderManager.activeScene?.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {

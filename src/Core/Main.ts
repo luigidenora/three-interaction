@@ -1,4 +1,4 @@
-import { Camera, Clock, Color, Scene, WebGLRenderer, WebGLRendererParameters } from "three";
+import { Camera, Clock, Color, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
 import { Stats } from "../Utils/Stats";
 import { InteractionManager } from "../Events/InteractionManager";
 import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
@@ -6,6 +6,7 @@ import { EventsCache } from "../Events/MiscEventsManager";
 import { RenderManager } from "../Rendering/RenderManager";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Binding } from "../Binding/Binding";
+import { TweenManager } from "../Tweening/TweenManager";
 
 export interface MainParameters {
     fullscreen?: boolean;
@@ -45,11 +46,14 @@ export class Main {
         this._showStats = value;
     }
 
+    //TODO change to ColorRepresentation
     public get backgroundColor(): Color | number { return this.renderManager.backgroundColor }
     public set backgroundColor(value: Color | number) { this.renderManager.backgroundColor = value }
 
     public get backgroundAlpha(): number { return this.renderManager.backgroundAlpha }
     public set backgroundAlpha(value: number) { this.renderManager.backgroundAlpha = value }
+
+    public get mousePosition(): Vector2 { return this._interactionManager.raycasterManager.pointer }
 
     constructor(parameters: MainParameters = {}, rendererParameters: WebGLRendererParameters = {}) {
         this.initRenderer(rendererParameters, parameters.fullscreen);
@@ -102,13 +106,13 @@ export class Main {
     private setAnimationLoop(): void {
         this.renderer.setAnimationLoop((time, frame) => {
             Main.ticks++;
-
-            this._interactionManager.update();
-
-            this.animate(time, frame);
-
             const delta = this._clock.getDelta();
             const total = this._clock.getElapsedTime();
+
+            this._interactionManager.update();
+            TweenManager.update(delta * 1000);
+
+            this.animate(time, frame);
 
             const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
             for (const scene of visibleScenes) {

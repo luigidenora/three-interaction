@@ -1,7 +1,12 @@
-import { Euler, Vector3 } from "three";
+export type Easing = keyof Easings /* | ((x: number) => number) */;
+export let DEFAULT_EASING: keyof Easings = "easeInOutExpo";
 
 /** For more info check https://easings.net */
 export class Easings {
+
+    public linear(x: number): number {
+        return x;
+    }
 
     public easeInSine(x: number): number {
         return 1 - Math.cos((x * Math.PI) / 2);
@@ -132,62 +137,5 @@ export class Easings {
     public easeInOutBounce(x: number): number {
         return x < 0.5 ? (1 - this.easeOutBounce(1 - 2 * x)) / 2 : (1 + this.easeOutBounce(2 * x - 1)) / 2;
     }
+    
 }
-
-type Easing = keyof Easings | ((x: number) => number);
-
-export interface Action {
-    easing?: Easing;
-    position?: Vector3 | { value: Vector3, easing?: Easing };
-    scale?: number | Vector3 | { value: number | Vector3, easing?: Easing };
-    rotation?: Euler | { value: Euler, easing?: Easing };
-    opacity?: number | { value: number, easing?: Easing };
-    //custom TODO
-}
-
-// export class Tweening {
-//     // private _actions = [];
-
-//     public to(time: number, config: Action): this {
-//         const test: Action = {
-//             easing: 'easeInBack'
-
-//         }
-//         return this;
-//     }
-
-//     public by(): this {
-//         return this;
-//     }
-
-//     public call(callback: () => void): this {
-//         callback();
-//         return this;
-//     }
-
-//     public repeat(times: number, config: Tweening): this {
-//         return this;
-//     }
-
-//     public repeatForever(): this {
-//         return this;
-//     }
-
-//     public delay(time: number): this {
-//         return this;
-//     }
-
-//     public start(): void {
-
-//     }
-
-//     public clone(): Tweening {
-//         return undefined;
-//     }
-
-//     public then(tween: Tweening): this {
-//         return this;
-//     }
-
-//     // public parallel()
-// }
