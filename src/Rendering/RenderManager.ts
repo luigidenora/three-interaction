@@ -169,7 +169,7 @@ export class RenderManager {
     if (!this.isRenderNecessary()) return false;
     if (this.views.length > 0) {
       for (const view of this.views) {
-        if (view.visible === true && view.scene.needsRender === true) {
+        if (view.visible === true) {
           const v = view.computedViewport;
           this.renderer.setScissorTest(view.viewport !== undefined);
           this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
@@ -181,8 +181,7 @@ export class RenderManager {
         }
       }
     } else {
-      const scene = this.__defaultView.scene;
-      if (scene.needsRender === true) {
+      if (this.__defaultView.scene.needsRender === true) {
         this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
       }
     }

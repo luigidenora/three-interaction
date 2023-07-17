@@ -91,6 +91,7 @@ export class Main {
         }
     }
 
+    //TODO REMOVE
     public addScene(...scene: Scene[]): void {
         this.scenes.push(...scene);
         if (this.renderManager.views.length === 0 && this.renderManager.__defaultView === undefined) {  //TODO documenta
