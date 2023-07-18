@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { TweenManager } from "./TweenManager";
-import { ActionCallback, ActionDelay, ActionMotion, ActionRepeat, ActionReversed, IAction, Motion } from "./Actions";
+import { ActionCallback, ActionDelay, ActionMotion, ActionRepeat, ActionYoyo, IAction, Motion } from "./Actions";
 
 export class Tween {
     /** @internal */ public _actions: IAction[] = [];
@@ -40,8 +40,8 @@ export class Tween {
         return this;
     }
 
-    public reverse(): this {
-        this._actions.push(new ActionReversed());
+    public yoyo(times = 1): this {
+        this._actions.push(new ActionYoyo(times));
         return this;
     }
 

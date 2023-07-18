@@ -67,7 +67,6 @@
 
                 this.add(
                     this.light,
-                    new PerspectiveCamera2(70).translateZ(5),
                     new DirectionalLight(0xffffff, 0.05).translateZ(20)
                 );
 
@@ -99,7 +98,8 @@
             }
         }
 
-        const main = new Main({ scenes: [new Scene()] }, { antialias: true });
+        const main = new Main();
+        main.addView({ scene: new Scene(), camera: new PerspectiveCamera2(70).translateZ(5) });
 
     </script>
 </body>

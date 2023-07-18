@@ -162,8 +162,9 @@ export class InteractionManager {
 
         if (!pointerDownEvent?._defaultPrevented && event.isPrimary) {
             const scene = this._renderManager.activeScene;
-            if (target || scene.blurOnClickOut) {
-                scene.focus(target);
+            const firstFocusable = target?.firstFocusable;
+            if (firstFocusable || scene?.blurOnClickOut) {
+                scene.focus(firstFocusable);
             }
         }
     }

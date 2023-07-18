@@ -27,7 +27,7 @@
     <script type="module">
 
         import { WebGLRenderTarget, CircleGeometry, Mesh, Scene as SceneBase, MeshLambertMaterial, DirectionalLight, SphereGeometry, Vector3, PlaneGeometry, Group } from 'three';
-        import { Main, PerspectiveCamera, BubbleMaterial, InstancedMeshSingle, InstancedMesh } from "../src/index";
+        import { Main, PerspectiveCamera, BubbleMaterial, InstancedMeshSingle, InstancedMesh2 } from "../src/index";
         import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
         import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
         import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -97,7 +97,7 @@
             }
         }
 
-        class Particles extends InstancedMesh {
+        class Particles extends InstancedMesh2 {
             constructor(count) {
                 super(new SphereGeometry(0.03, 10, 10), new MeshLambertMaterial(), count, Particle);
                 this.interceptByRaycaster = false;

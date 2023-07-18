@@ -9,15 +9,13 @@ import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 export class RenderManager {
   public renderer: WebGLRenderer;
   public views: RenderView[] = [];
-  private _activeView: RenderView;
-  /** @internal */ public __defaultView: RenderView;
+  public activeView: RenderView;
   private _visibleScenes = new DistinctTargetArray<Scene>();
   private _rendererSize = new Vector2();
   private _fullscreen: boolean; // TODO editable?
   private _backgroundColor: Color;
   private _backgroundAlpha: number;
 
-  public get activeView(): RenderView { return this.views.length > 0 ? this._activeView : this.__defaultView }
   public get activeScene(): Scene { return this.activeView?.scene }
 
   /** todo */
@@ -131,7 +129,7 @@ export class RenderManager {
    * Updates the active view based on the mouse position.
    */
   public updateActiveView(mouse: Vector2): void {
-    this._activeView = this.getViewByMouse(mouse);
+    this.activeView = this.getViewByMouse(mouse);
   }
 
   /**
@@ -148,14 +146,10 @@ export class RenderManager {
   }
 
   public isRenderNecessary(): boolean {
-    if (this.views.length > 0) {
-      for (const view of this.views) {
-        if (view.visible === true && view.scene.needsRender === true) {
-          return true;
-        }
+    for (const view of this.views) {
+      if (view.visible === true && view.scene.needsRender === true) {
+        return true;
       }
-    } else if (this.__defaultView.scene.needsRender === true) {
-      return true;
     }
     return false;
   }
@@ -167,22 +161,16 @@ export class RenderManager {
    */
   public render(): boolean {
     if (!this.isRenderNecessary()) return false;
-    if (this.views.length > 0) {
-      for (const view of this.views) {
-        if (view.visible === true) {
-          const v = view.computedViewport;
-          this.renderer.setScissorTest(view.viewport !== undefined);
-          this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
-          this.renderer.setScissor(v.left, v.bottom, v.width, v.height);
-          this.renderer.setClearColor(view.backgroundColor ?? this._backgroundColor, view.backgroundAlpha ?? this._backgroundAlpha);
-          view.onBeforeRender();
-          this.executeRender(view.scene, view.camera, view.composer);
-          view.onAfterRender();
-        }
-      }
-    } else {
-      if (this.__defaultView.scene.needsRender === true) {
-        this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
+    for (const view of this.views) {
+      if (view.visible === true) {
+        const v = view.computedViewport;
+        this.renderer.setScissorTest(view.viewport !== undefined);
+        this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
+        this.renderer.setScissor(v.left, v.bottom, v.width, v.height);
+        this.renderer.setClearColor(view.backgroundColor ?? this._backgroundColor, view.backgroundAlpha ?? this._backgroundAlpha);
+        view.onBeforeRender();
+        this.executeRender(view.scene, view.camera, view.composer);
+        view.onAfterRender();
       }
     }
     return true;
@@ -198,8 +186,6 @@ export class RenderManager {
 
   private onResize(): void {
     this.updateRenderSize();
-    this.__defaultView?.update();
-
     for (const view of this.views) {
       view.update();
     }
@@ -213,10 +199,6 @@ export class RenderManager {
       this.renderer.setSize(width, height, false);
     }
     this.renderer.getSize(this._rendererSize);
-  }
-
-  public createDefaultRenderView(scene: Scene, camera: Camera, composer?: EffectComposer) {
-    this.__defaultView = new RenderView({ scene, camera, composer }, this._rendererSize);
   }
 
   //TODO metodo per settare unica scena visibile

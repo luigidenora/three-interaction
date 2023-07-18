@@ -48,8 +48,8 @@ export class ActionRepeat implements IAction {
     }
 }
 
-export class ActionReversed implements IAction {
-    constructor() { }
+export class ActionYoyo implements IAction {
+    constructor(public times: number) { }
 
     public init(): ActionDescriptor {
         return { reverse: true };
