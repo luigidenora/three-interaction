@@ -1,13 +1,12 @@
 import { Camera, Clock, Color, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
-import { Stats } from "../Utils/Stats";
-import { InteractionManager } from "../Events/InteractionManager";
-import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
-import { EventsCache } from "../Events/MiscEventsManager";
-import { RenderManager } from "../Rendering/RenderManager";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Binding } from "../Binding/Binding";
-import { TweenManager } from "../Tweening/TweenManager";
+import { InteractionManager } from "../Events/InteractionManager";
+import { EventsCache } from "../Events/MiscEventsManager";
+import { RenderManager } from "../Rendering/RenderManager";
 import { RenderView, ViewParameters } from "../Rendering/RenderView";
+import { TweenManager } from "../Tweening/TweenManager";
+import { Stats } from "../Utils/Stats";
 
 export interface MainParameters {
     fullscreen?: boolean;
@@ -22,7 +21,6 @@ export interface MainParameters {
 
 export class Main {
     public static ticks = 0;
-    public renderer: WebGLRenderer;
     public renderManager: RenderManager;
     private _interactionManager: InteractionManager;
     private _stats: Stats;
@@ -30,10 +28,12 @@ export class Main {
     private _clock = new Clock();
     private _showStats: boolean;
 
-    public get activeView(): RenderView { return this.renderManager.activeView };
-    public get activeScene(): Scene { return this.renderManager.activeView?.scene };
-    public get activeCamera(): Camera { return this.renderManager.activeView?.camera };
-    public get activeComposer(): EffectComposer { return this.renderManager.activeView?.composer };
+    public get renderer(): WebGLRenderer { return this.renderManager.renderer }
+    public get views(): RenderView[] { return this.renderManager.views }
+    public get activeView(): RenderView { return this.renderManager.activeView }
+    public get activeScene(): Scene { return this.renderManager.activeView?.scene }
+    public get activeCamera(): Camera { return this.renderManager.activeView?.camera }
+    public get activeComposer(): EffectComposer { return this.renderManager.activeView?.composer }
 
     public get showStats(): boolean { return this._showStats }
     public set showStats(value: boolean) {
@@ -56,9 +56,7 @@ export class Main {
     public get mousePosition(): Vector2 { return this._interactionManager.raycasterManager.pointer }
 
     constructor(parameters: MainParameters = {}) {
-        parameters.renderer ??= {};
-        this.initRenderer(parameters.renderer, parameters.fullscreen);
-        this.appendCanvas(parameters.renderer);
+        this.renderManager = new RenderManager(parameters.renderer, parameters.fullscreen);
         this._interactionManager = new InteractionManager(this.renderManager);
         this.handleContextMenu(parameters.disableContextMenu);
         this.showStats = parameters.showStats ?? true;
@@ -67,19 +65,6 @@ export class Main {
         this.backgroundAlpha = parameters.backgroundAlpha ?? 1;
         this._animate = parameters.animate;
         // setInterval(() => { this.interactionManager.needsUpdate = true }, 1000 / 20); //TODO in future
-    }
-
-    private initRenderer(rendererParameters: WebGLRendererParameters, fullscreen = true): void {
-        this.renderer = new WebGLRenderer(rendererParameters);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        applyWebGLRendererPatch(this.renderer);
-        this.renderManager = new RenderManager(this.renderer, fullscreen);
-    }
-
-    private appendCanvas(rendererParameters: WebGLRendererParameters): void {
-        if (rendererParameters.canvas === undefined) {
-            document.body.appendChild(this.renderer.domElement);
-        }
     }
 
     private handleContextMenu(disableContextMenu = true): void {
@@ -129,8 +114,32 @@ export class Main {
         }
     }
 
-    public addView(view: ViewParameters): RenderView {
-        return this.renderManager.add(view);
+    public createView(view: ViewParameters): RenderView {
+        return this.renderManager.create(view);
     }
 
+    public addView(view: RenderView): void {
+        this.renderManager.add(view);
+    }
+
+    public getViewByName(name: string): RenderView {
+        return this.renderManager.getByName(name);
+    }
+
+    public removeView(view: RenderView): void {
+        this.renderManager.remove(view);
+    }
+
+    //TODO replace name with tag?
+    public removeViewByName(name: string): void {
+        this.renderManager.removeByName(name);
+    }
+
+    public clearViews(): void {
+        this.renderManager.clear();
+    }
+
+    public getViewByMouse(mouse: Vector2): void {
+        this.renderManager.getViewByMouse(mouse);
+    }
 }

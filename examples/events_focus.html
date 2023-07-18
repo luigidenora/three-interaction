@@ -99,7 +99,11 @@
         }
 
         const main = new Main();
-        main.addView({ scene: new Scene(), camera: new PerspectiveCamera2(70).translateZ(5) });
+        const view = main.createView({ scene: new Scene(), camera: new PerspectiveCamera2(70).translateZ(5) });
+
+        setTimeout(() => main.removeView(view), 1000);
+        setTimeout(() => main.addView(view), 2000);
+
 
     </script>
 </body>
