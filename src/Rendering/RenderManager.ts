@@ -5,7 +5,6 @@ import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 import { RenderView, ViewParameters } from "./RenderView";
 
 /**
- * @internal
  * The RenderManager class manages the rendering of views and provides methods for manipulating views and their parameters.
  */
 export class RenderManager {
@@ -51,26 +50,17 @@ export class RenderManager {
     }
 }
 
-  /** 
-   * Creates and adds a view.
-   */
   public create(view: ViewParameters): RenderView {
     const renderView = new RenderView(view, this._rendererSize);
     this.views.push(renderView);
     return renderView;
   }
 
-  /** 
-   * Adds a view.
-   */
   public add(view: RenderView): void {
     if (this.views.indexOf(view) !== -1) return;
     this.views.push(view);
   }
 
-  /**
-   * Retrieves a view by its name.
-   */
   public getByName(name: string): RenderView {
     for (const view of this.views) {
       if (view.name === name) {
@@ -78,10 +68,6 @@ export class RenderManager {
       }
     }
   }
-
-  /**
-   * Removes a view.
-   */
   public remove(view: RenderView): void {
     const index = this.views.indexOf(view);
     if (index !== -1) {
@@ -92,9 +78,6 @@ export class RenderManager {
     }
   }
 
-  /**
-   * Removes a view by its name.
-   */
   public removeByName(name: string): void {
     for (let i = 0; i < this.views.length; i++) {
       if (this.views[i].name === name) {

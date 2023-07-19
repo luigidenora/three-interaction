@@ -53,14 +53,21 @@ export class RenderView implements ViewParameters {
   /** The viewport defining the dimensions and position of the view. */
   public computedViewport = { left: 0, bottom: 0, width: 0, height: 0, top: 0 };
   public name: string;
-  public visible: boolean;
   public enabled: boolean;
   public backgroundColor: Color;
   public backgroundAlpha: number;
   public composer: EffectComposer;
   private _rendererSize: Vector2;
+  private _visible: boolean;
   private _onBeforeRender: () => void;
   private _onAfterRender: () => void;
+
+  public get visible(): boolean { return this._visible }
+  public set visible(value: boolean) { 
+    if (this._visible === value) return;
+    this._visible = value;
+    this.scene.needsRender = true;
+  }
 
   constructor(parameters: ViewParameters, rendererSize: Vector2) {
     this._rendererSize = rendererSize;
@@ -68,7 +75,7 @@ export class RenderView implements ViewParameters {
     this.camera = parameters.camera;
     this.viewport = parameters.viewport;
     this.name = parameters.name;
-    this.visible = parameters.visible ?? true;
+    this._visible = parameters.visible ?? true;
     this.enabled = parameters.enabled ?? true;
     this.backgroundAlpha = parameters.backgroundAlpha;
     this.backgroundColor = typeof parameters.backgroundColor === "number" ? new Color(parameters.backgroundColor) : parameters.backgroundColor;
