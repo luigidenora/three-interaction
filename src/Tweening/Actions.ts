@@ -1,14 +1,16 @@
 import { Euler, Material, MathUtils, Mesh, Object3D, Vector3 } from "three";
 import { DEFAULT_EASING, Easing } from "./Easings";
 import { ExecutionAction } from "./TweenManager";
+import { Tween } from "./Tween";
 
 type MotionValueExt<T = any> = { value: T, easing?: Easing };
 type MotionValue<T> = T | MotionValueExt<T>;
 
 export interface ActionDescriptor {
-    actions?: ExecutionAction<Vector3>[];
+    actions?: ExecutionAction[];
+    tweens?: Tween[];
     repeat?: number;
-    reverse?: boolean;
+    yoyo?: boolean;
 }
 
 export interface Motion {
@@ -22,9 +24,11 @@ export interface Motion {
 
 export interface IAction {
     init(target: Object3D): ActionDescriptor;
+    hasActions: boolean;
 }
 
 export class ActionCallback implements IAction {
+    public hasActions = true;
     constructor(public callback: () => void) { }
 
     public init(): ActionDescriptor {
@@ -33,6 +37,7 @@ export class ActionCallback implements IAction {
 }
 
 export class ActionDelay implements IAction {
+    public hasActions = true;
     constructor(public time: number) { }
 
     public init(): ActionDescriptor {
@@ -41,6 +46,7 @@ export class ActionDelay implements IAction {
 }
 
 export class ActionRepeat implements IAction {
+    public hasActions = false;
     constructor(public times: number) { }
 
     public init(): ActionDescriptor {
@@ -49,14 +55,25 @@ export class ActionRepeat implements IAction {
 }
 
 export class ActionYoyo implements IAction {
+    public hasActions = false;
     constructor(public times: number) { }
 
     public init(): ActionDescriptor {
-        return { reverse: true };
+        return { yoyo: true, repeat: this.times };
+    }
+}
+
+export class ActionTween implements IAction {
+    public hasActions = true;
+    constructor(public tweens: Tween[]) { }
+
+    public init(): ActionDescriptor {
+        return { tweens: this.tweens };
     }
 }
 
 export class ActionMotion implements IAction {
+    public hasActions = true;
     constructor(public time: number, public motion: Motion, public isBy: boolean) { }
 
     public init(target: Object3D): ActionDescriptor {
