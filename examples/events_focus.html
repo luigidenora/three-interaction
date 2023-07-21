@@ -35,11 +35,9 @@
             constructor() {
                 super(new BoxGeometry(1, 1, 1), new MeshLambertMaterial({ color: 0xffffff }));
                 const tween = new Tween(this)
-                    .by(1000, { easing: "easeOutElastic", scale: 1.2 })
-                    .by(1000, { easing: "easeOutElastic", position: new Vector3(0, 1, 0) })
-                    .by(1000, { easing: "easeOutElastic", position: new Vector3(1, 0, 0) })
+                    .by(1000, { easing: "easeInSine", position: new Vector3(1, 0, 0) })
                     .repeat()
-                    .yoyo()
+                    .yoyo(5)
                     .start();
             }
         }

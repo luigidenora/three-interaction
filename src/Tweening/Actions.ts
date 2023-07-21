@@ -9,8 +9,6 @@ type MotionValue<T> = T | MotionValueExt<T>;
 export interface ActionDescriptor {
     actions?: ExecutionAction[];
     tweens?: Tween[];
-    repeat?: number;
-    yoyo?: boolean;
 }
 
 export interface Motion {
@@ -18,13 +16,36 @@ export interface Motion {
     position?: MotionValue<Vector3>;
     scale?: MotionValue<number | Vector3>;
     rotation?: MotionValue<Euler>;
-    opacity?: MotionValue<number>;
     // custom TODO e add time per ogni cosino?
 }
 
 export interface IAction {
-    init(target: Object3D): ActionDescriptor;
+    init?(target: Object3D): ActionDescriptor;
     hasActions: boolean;
+    isRepeat?: boolean;
+    isYoyo?: boolean;
+    times?: number;
+}
+
+export class ActionRepeat implements IAction {
+    public hasActions = false;
+    public isRepeat = true;
+    constructor(public times: number) { }
+}
+
+export class ActionYoyo implements IAction {
+    public hasActions = false;
+    public isYoyo = true;
+    constructor(public times: number) { }
+}
+
+export class ActionTween implements IAction {
+    public hasActions = true;
+    constructor(public tweens: Tween[]) { }
+
+    public init(): ActionDescriptor {
+        return { tweens: this.tweens };
+    }
 }
 
 export class ActionCallback implements IAction {
@@ -45,33 +66,6 @@ export class ActionDelay implements IAction {
     }
 }
 
-export class ActionRepeat implements IAction {
-    public hasActions = false;
-    constructor(public times: number) { }
-
-    public init(): ActionDescriptor {
-        return { repeat: this.times };
-    }
-}
-
-export class ActionYoyo implements IAction {
-    public hasActions = false;
-    constructor(public times: number) { }
-
-    public init(): ActionDescriptor {
-        return { yoyo: true, repeat: this.times };
-    }
-}
-
-export class ActionTween implements IAction {
-    public hasActions = true;
-    constructor(public tweens: Tween[]) { }
-
-    public init(): ActionDescriptor {
-        return { tweens: this.tweens };
-    }
-}
-
 export class ActionMotion implements IAction {
     public hasActions = true;
     constructor(public time: number, public motion: Motion, public isBy: boolean) { }
@@ -82,7 +76,6 @@ export class ActionMotion implements IAction {
         (action = this.position(target)) && actions.push(action);
         (action = this.scale(target)) && actions.push(action);
         (action = this.rotation(target)) && actions.push(action);
-        (action = this.opacity(target as Mesh)) && actions.push(action);
         return { actions };
     }
 
@@ -132,20 +125,6 @@ export class ActionMotion implements IAction {
                         MathUtils.lerp(start.z, end.z, alpha)
                     );
                 }
-            };
-        }
-    }
-
-    private opacity(target: Mesh): ExecutionAction<number> {
-        const opacity = this.motion.opacity;
-        if (opacity) {
-            const value = (opacity as MotionValueExt<number>).value ?? opacity as number;
-            return {
-                time: this.time,
-                easing: (opacity as MotionValueExt<number>).easing ?? this.motion.easing ?? DEFAULT_EASING,
-                start: (target.material as Material).opacity,
-                end: MathUtils.clamp(this.isBy ? value + (target.material as Material).opacity : value, 0, 1),
-                callback: (start, end, alpha) => { (target.material as Material).opacity = MathUtils.lerp(start, end, alpha) }
             };
         }
     }

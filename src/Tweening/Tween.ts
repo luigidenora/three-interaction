@@ -37,23 +37,29 @@ export class Tween {
     }
 
     public repeat(times = 1): this {
-        this.actions.push(new ActionRepeat(times));
+        if (this.actions[this.actions.length - 1].isRepeat) {
+            this.actions[this.actions.length - 1].times += times;
+        } else {
+            this.actions.push(new ActionRepeat(times));
+        }
         return this;
     }
 
     public repeatForever(): this {
-        this.actions.push(new ActionRepeat(Infinity));
-        return this;
+        return this.repeat(Infinity);
     }
 
     public yoyo(times = 1): this {
-        this.actions.push(new ActionYoyo(times));
+        if (this.actions[this.actions.length - 1].isYoyo) {
+            this.actions[this.actions.length - 1].times += times;
+        } else {
+            this.actions.push(new ActionYoyo(times));
+        }
         return this;
     }
 
     public yoyoForever(): this {
-        this.actions.push(new ActionYoyo(Infinity));
-        return this;
+        return this.yoyo(Infinity);
     }
 
     public then(tween: Tween): this {
@@ -62,7 +68,7 @@ export class Tween {
     }
 
     public parallel(tweens: Tween[]): this {
-        this.actions.push(new ActionTween(tweens));
+        // this.actions.push(new ActionTween(tweens));
         return this;
     }
 
