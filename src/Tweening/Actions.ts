@@ -24,6 +24,7 @@ export interface IAction {
     hasActions: boolean;
     isRepeat?: boolean;
     isYoyo?: boolean;
+    isTween?: boolean;
     times?: number;
 }
 
@@ -41,11 +42,8 @@ export class ActionYoyo implements IAction {
 
 export class ActionTween implements IAction {
     public hasActions = true;
+    public isTween = true;
     constructor(public tweens: Tween[]) { }
-
-    public init(): ActionDescriptor {
-        return { tweens: this.tweens };
-    }
 }
 
 export class ActionCallback implements IAction {

@@ -28,16 +28,16 @@
 
     <script type="module">
 
-        import { Mesh, BoxGeometry, SphereGeometry, MeshLambertMaterial, DirectionalLight, PointLight, Scene as SceneBase, Vector3 } from "three";
+        import { Mesh, BoxGeometry, SphereGeometry, MeshLambertMaterial, DirectionalLight, PointLight, Scene as SceneBase, Vector3, Euler } from "three";
         import { PerspectiveCamera2, Main, Tween } from "../src/index";
 
         class Box extends Mesh {
             constructor() {
                 super(new BoxGeometry(1, 1, 1), new MeshLambertMaterial({ color: 0xffffff }));
                 const tween = new Tween(this)
-                    .by(1000, { easing: "easeInSine", position: new Vector3(1, 0, 0) })
-                    .repeat()
-                    .yoyo(5)
+                    .by(1000, { easing: "easeInOutBack", rotation: new Euler(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1) })
+                    .then(new Tween(this).by(1000, { easing: "easeInOutBack", rotation: new Euler(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1) }))
+                    .by(1000, { easing: "easeInOutBack", rotation: new Euler(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1) })
                     .start();
             }
         }
@@ -45,7 +45,12 @@
         class Scene extends SceneBase {
             constructor() {
                 super();
-                this.add(new DirectionalLight(0xffffff, 0.7).translateZ(20), new Box());
+                this.add(
+                    new DirectionalLight(0xffffff, 0.7).translateZ(20),
+                    new Box().translateX(-2),
+                    new Box(),
+                    new Box().translateX(2),
+                );
             }
         }
 
