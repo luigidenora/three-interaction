@@ -34,10 +34,17 @@
         class Box extends Mesh {
             constructor() {
                 super(new BoxGeometry(1, 1, 1), new MeshLambertMaterial({ color: 0xffffff }));
+                const tween2 = new Tween(this)
+                .by(1000, { easing: "easeInOutBack", scale: 1.1 })
+                .to(1000, { easing: "easeInOutBack", scale: 0.9 })
+
                 const tween = new Tween(this)
-                    .by(1000, { easing: "easeInOutBack", rotation: new Euler(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1) })
-                    .then(new Tween(this).by(1000, { easing: "easeInOutBack", rotation: new Euler(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1) }))
-                    .by(1000, { easing: "easeInOutBack", rotation: new Euler(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1) })
+                    .by(1000, { easing: "easeInOutBack", rotation: new Euler(1, 1, 1) })
+                    .yoyo(3)
+                    .then(tween2)
+                    .repeat(2)
+                    .by(1000, { easing: "easeInOutBack", position: new Vector3(0, 1, 0) })
+                    .yoyo() 
                     .start();
             }
         }

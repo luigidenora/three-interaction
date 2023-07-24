@@ -9,7 +9,6 @@ interface ExecutionTween {
     tween: Tween;
     target: Object3D;
     blocks: ExecutionBlock[];
-    currentBlock?: ExecutionBlock;
     actionIndex: number;
     blockIndex: number;
     reversed: boolean;
@@ -52,7 +51,7 @@ export class TweenManager {
 
         const block = this.getNextBlock(executionTween);
         if (!block) return undefined;
-        executionTween.currentBlock = executionTween.blocks[executionTween.blockIndex] = block;
+        executionTween.blocks[executionTween.blockIndex] = block;
         if (!parent) {
             this._executionTweens.push(executionTween);
         }
@@ -75,14 +74,14 @@ export class TweenManager {
         const tween = executionTween.tween;
 
         while (executionTween.actionIndex < tween.actions.length) {
-            if (executionTween.reversed) {
-                while (executionTween.blockIndex > -1) {
-                    const block = executionTween.blocks[executionTween.blockIndex--];
-                    block.elapsedTime = 0;
-                    return block;
-                }
-            }
 
+            if (executionTween.reversed && executionTween.blockIndex > -1) {
+                const block = executionTween.blocks[executionTween.blockIndex--];
+                block.elapsedTime = 0;
+                //invert start and end TODO
+                return block;
+            }
+            
             const action = tween.actions[executionTween.actionIndex];
             if (action.hasActions) {
                 if (action.isTween) {
@@ -110,7 +109,7 @@ export class TweenManager {
 
     private static handleTween(action: ActionTween): ExecutionBlock {
         return {
-            tween: action.tweens[0], //TODO fix
+            tween: action.tweens[0], //TODO fix usando array
             elapsedTime: 0,
             totalTime: 0
         };
@@ -149,12 +148,10 @@ export class TweenManager {
     }
 
     public static update(delta: number): void {
-        console.log(this._executionTweens[0].parent);
         let i = 0;
         while (i < this._executionTweens.length) {
-            const executionTween = this._executionTweens[i];
-            this.executeBlock(executionTween, delta, i);
-            if (executionTween.blocks[executionTween.blockIndex] === undefined) {
+            this.executeBlock(this._executionTweens[i], delta, i); // (this._executionTweens[i] can be changed here, if tween
+            if (this._executionTweens[i].blocks[this._executionTweens[i].blockIndex] === undefined) {
                 this._executionTweens.splice(i, 1);
             } else {
                 i++;
@@ -176,7 +173,7 @@ export class TweenManager {
                 }
             }
         } else {
-            const newExecutionTween = this.start(executionTween.target, block.tween, executionTween, executionTween ?? executionTween.root);
+            const newExecutionTween = this.start(executionTween.target, block.tween, executionTween, executionTween?.root ?? executionTween);
             this._executionTweens[index] = newExecutionTween;
             this.executeBlock(newExecutionTween, delta, index);
             return;
@@ -190,10 +187,13 @@ export class TweenManager {
             if (block) {
                 this.executeBlock(executionTween, delta, index);
             } else {
-                if (executionTween.parent) {
-                    executionTween = executionTween.parent;
+                executionTween = executionTween.parent;
+                if (executionTween) {
                     this._executionTweens[index] = executionTween;
-                    //continua esecuzione del nuovo executionTween
+                    executionTween.actionIndex++; //aumentare index direttamente in questa func
+                    block = this.getNextBlock(executionTween); //codice ripetuto
+                    executionTween.blocks[executionTween.blockIndex] = block;
+                    this.executeBlock(executionTween, delta, index);
                 }
             }
         }
