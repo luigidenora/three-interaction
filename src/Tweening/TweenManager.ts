@@ -6,6 +6,7 @@ import { ActionDescriptor, ActionRepeat, ActionTween, ActionYoyo, IAction } from
 type updateCallback<T> = (start?: T, end?: T, alpha?: number) => void;
 
 interface ExecutionTween {
+    saveHistory: boolean;
     tween: Tween;
     target: Object3D;
     blocks: ExecutionBlock[];
@@ -13,6 +14,7 @@ interface ExecutionTween {
     blockIndex: number;
     reversed: boolean;
     repeat: { [x: number]: number };
+    executedTweens: { [x: number]: ExecutionTween };
     parent?: ExecutionTween;
     root?: ExecutionTween;
 }
@@ -46,12 +48,14 @@ export class TweenManager {
             reversed: false,
             repeat: {},
             parent,
-            root
+            root,
+            executedTweens: {},
+            saveHistory: parent !== undefined
         };
 
         const block = this.getNextBlock(executionTween);
         if (!block) return undefined;
-        executionTween.blocks[executionTween.blockIndex] = block;
+        executionTween.blocks[0] = block;
         if (!parent) {
             this._executionTweens.push(executionTween);
         }
@@ -76,12 +80,13 @@ export class TweenManager {
         while (executionTween.actionIndex < tween.actions.length) {
 
             if (executionTween.reversed && executionTween.blockIndex > -1) {
+                debugger;
                 const block = executionTween.blocks[executionTween.blockIndex--];
                 block.elapsedTime = 0;
                 //invert start and end TODO
                 return block;
             }
-            
+
             const action = tween.actions[executionTween.actionIndex];
             if (action.hasActions) {
                 if (action.isTween) {
@@ -132,12 +137,12 @@ export class TweenManager {
         const repeat = executionTween.repeat;
         repeat[executionTween.actionIndex] ??= 0;
         if (repeat[executionTween.actionIndex] <= times) {
+            executionTween.blockIndex = executionTween.blocks.length - 1;
             if (repeat[executionTween.actionIndex]++ === times) {
                 executionTween.actionIndex++;
                 executionTween.reversed = false;
             } else {
                 executionTween.reversed = !executionTween.reversed;
-                executionTween.blockIndex = executionTween.blocks.length - 1;
                 do {
                     executionTween.actionIndex--;
                 } while (executionTween.actionIndex > -1 && !executionTween.tween.actions[executionTween.actionIndex].hasActions);
@@ -173,7 +178,14 @@ export class TweenManager {
                 }
             }
         } else {
-            const newExecutionTween = this.start(executionTween.target, block.tween, executionTween, executionTween?.root ?? executionTween);
+            let newExecutionTween: ExecutionTween;
+            if (executionTween.reversed) {
+                newExecutionTween = executionTween.executedTweens[executionTween.actionIndex]
+                newExecutionTween.reversed = true;
+            } else {
+                newExecutionTween = this.start(executionTween.target, block.tween, executionTween, executionTween?.root ?? executionTween);
+                executionTween.executedTweens[executionTween.actionIndex] = newExecutionTween; //mmm
+            }
             this._executionTweens[index] = newExecutionTween;
             this.executeBlock(newExecutionTween, delta, index);
             return;
@@ -183,18 +195,19 @@ export class TweenManager {
             delta = block.elapsedTime - block.totalTime;
             executionTween.actionIndex++;
             block = this.getNextBlock(executionTween);
-            executionTween.blocks[executionTween.blockIndex] = block;
             if (block) {
+                executionTween.saveHistory && executionTween.blockIndex++;
+                executionTween.blocks[executionTween.blockIndex] = block;
                 this.executeBlock(executionTween, delta, index);
             } else {
                 executionTween = executionTween.parent;
-                if (executionTween) {
-                    this._executionTweens[index] = executionTween;
-                    executionTween.actionIndex++; //aumentare index direttamente in questa func
-                    block = this.getNextBlock(executionTween); //codice ripetuto
-                    executionTween.blocks[executionTween.blockIndex] = block;
-                    this.executeBlock(executionTween, delta, index);
-                }
+                if (!executionTween) return;
+                this._executionTweens[index] = executionTween;
+                executionTween.actionIndex++; //aumentare index direttamente in questa func
+                block = this.getNextBlock(executionTween); //codice ripetuto
+                executionTween.saveHistory && executionTween.blockIndex++;
+                executionTween.blocks[executionTween.blockIndex] = block;
+                this.executeBlock(executionTween, delta, index);
             }
         }
     }

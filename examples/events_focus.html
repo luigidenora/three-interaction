@@ -36,14 +36,14 @@
                 super(new BoxGeometry(1, 1, 1), new MeshLambertMaterial({ color: 0xffffff }));
                 const tween2 = new Tween(this)
                 .by(1000, { easing: "easeInOutBack", scale: 1.1 })
-                .to(1000, { easing: "easeInOutBack", scale: 0.9 })
+                .by(1000, { easing: "easeInOutBack", scale: 1.2 });
 
                 const tween = new Tween(this)
-                    .by(1000, { easing: "easeInOutBack", rotation: new Euler(1, 1, 1) })
-                    .yoyo(3)
+                    // .by(1000, { easing: "easeInOutBack", rotation: new Euler(1, 1, 1) })
+                    // .yoyo()
                     .then(tween2)
-                    .repeat(2)
-                    .by(1000, { easing: "easeInOutBack", position: new Vector3(0, 1, 0) })
+                    // .repeat()
+                    // .by(1000, { easing: "easeInOutBack", position: new Vector3(0, 1, 0) })
                     .yoyo() 
                     .start();
             }
@@ -54,9 +54,9 @@
                 super();
                 this.add(
                     new DirectionalLight(0xffffff, 0.7).translateZ(20),
-                    new Box().translateX(-2),
+                    // new Box().translateX(-2),
                     new Box(),
-                    new Box().translateX(2),
+                    // new Box().translateX(2),
                 );
             }
         }
