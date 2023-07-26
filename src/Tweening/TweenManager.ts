@@ -1,29 +1,30 @@
 import { Object3D } from "three";
+import { ActionTween } from "./Actions";
 import { Easing, Easings } from "./Easings";
 import { Tween } from "./Tween";
-import { ActionDescriptor, ActionRepeat, ActionTween, ActionYoyo, IAction } from "./Actions";
 
 type updateCallback<T> = (start?: T, end?: T, alpha?: number) => void;
 
 interface ExecutionTween {
-    saveHistory: boolean;
     tween: Tween;
     target: Object3D;
-    blocks: ExecutionBlock[];
     actionIndex: number;
-    blockIndex: number;
+    currentBlock?: ExecutionBlock;
+    history: ExecutionBlock[];
     reversed: boolean;
     repeat: { [x: number]: number };
-    executedTweens: { [x: number]: ExecutionTween };
     parent?: ExecutionTween;
     root?: ExecutionTween;
 }
 
 interface ExecutionBlock {
-    tween?: Tween;
+    tweens?: Tween[];
+    executionTweens?: ExecutionTween[];
     actions?: ExecutionAction[];
     elapsedTime: number;
     totalTime: number;
+    reversed?: boolean;
+    tweensStarted?: boolean;
 }
 
 export interface ExecutionAction<T = any> {
@@ -38,27 +39,20 @@ export class TweenManager {
     private static _executionTweens: ExecutionTween[] = [];
     private static _easings = new Easings();
 
-    public static start(target: Object3D, tween: Tween, parent?: ExecutionTween, root?: ExecutionTween): ExecutionTween {
+    public static create(target: Object3D, tween: Tween, parent?: ExecutionTween, root?: ExecutionTween): ExecutionTween {
         const executionTween: ExecutionTween = {
             tween,
             target,
-            blocks: [],
-            actionIndex: 0,
-            blockIndex: 0,
+            actionIndex: -1,
+            history: [],
             reversed: false,
             repeat: {},
             parent,
-            root,
-            executedTweens: {},
-            saveHistory: parent !== undefined
+            root
         };
 
-        const block = this.getNextBlock(executionTween);
-        if (!block) return undefined;
-        executionTween.blocks[0] = block;
-        if (!parent) {
-            this._executionTweens.push(executionTween);
-        }
+        this.getBlock(executionTween);
+        this._executionTweens.push(executionTween);
         return executionTween;
     }
 
@@ -74,31 +68,36 @@ export class TweenManager {
         this._executionTweens.splice(index, 1);
     }
 
+    private static getBlock(executionTween: ExecutionTween): ExecutionBlock {
+        const block = executionTween.reversed ? this.getPrevBlock(executionTween) : this.getNextBlock(executionTween);
+        if (!executionTween.reversed && block) {
+            executionTween.history.push(block);
+        }
+        executionTween.currentBlock = block;
+        return block;
+    }
+
+    private static getPrevBlock(executionTween: ExecutionTween): ExecutionBlock {
+        // if (executionTween.reversed && executionTween.historyIndex > -1) {
+        //     const block = executionTween.history[executionTween.historyIndex--];
+        //     block.elapsedTime = 0;
+        //     //invert start and end TODO
+        //     return block;
+        // }
+        return undefined;
+    }
+
     private static getNextBlock(executionTween: ExecutionTween): ExecutionBlock {
-        const tween = executionTween.tween;
-
-        while (executionTween.actionIndex < tween.actions.length) {
-
-            if (executionTween.reversed && executionTween.blockIndex > -1) {
-                debugger;
-                const block = executionTween.blocks[executionTween.blockIndex--];
-                block.elapsedTime = 0;
-                //invert start and end TODO
-                return block;
-            }
-
-            const action = tween.actions[executionTween.actionIndex];
-            if (action.hasActions) {
-                if (action.isTween) {
-                    return this.handleTween(action as ActionTween);
-                }
-                return this.handleMotion(executionTween);
+        while (++executionTween.actionIndex < executionTween.tween.actions.length) {
+            const action = executionTween.tween.actions[executionTween.actionIndex];
+            if (action.isRepeat) {
+                this.handleRepetition(executionTween, action.times);
+            } else if (action.isYoyo) {
+                this.handleYoyo(executionTween, action.times);
+            } else if (action.isTween) {
+                return this.handleTween(action as ActionTween);
             } else {
-                if (action.isYoyo) {
-                    this.handleYoyo(executionTween, action.times);
-                } else {
-                    this.handleRepetition(executionTween, action.times);
-                }
+                return this.handleMotion(executionTween);
             }
         }
     }
@@ -108,13 +107,13 @@ export class TweenManager {
         return {
             actions: descriptor.actions,
             elapsedTime: 0,
-            totalTime: Math.max(...descriptor.actions.map(x => x.time))
+            totalTime: Math.max(...descriptor.actions.map(x => x.time)),
         };
     }
 
     private static handleTween(action: ActionTween): ExecutionBlock {
         return {
-            tween: action.tweens[0], //TODO fix usando array
+            tweens: action.tweens,
             elapsedTime: 0,
             totalTime: 0
         };
@@ -128,8 +127,7 @@ export class TweenManager {
             do {
                 executionTween.actionIndex--;
             } while (executionTween.actionIndex > -1 && !executionTween.tween.actions[executionTween.actionIndex].hasActions);
-        } else {
-            executionTween.actionIndex++;
+            executionTween.actionIndex--;
         }
     }
 
@@ -137,9 +135,8 @@ export class TweenManager {
         const repeat = executionTween.repeat;
         repeat[executionTween.actionIndex] ??= 0;
         if (repeat[executionTween.actionIndex] <= times) {
-            executionTween.blockIndex = executionTween.blocks.length - 1;
-            if (repeat[executionTween.actionIndex]++ === times) {
-                executionTween.actionIndex++;
+            const isFinished = repeat[executionTween.actionIndex]++ === times;
+            if (isFinished) {
                 executionTween.reversed = false;
             } else {
                 executionTween.reversed = !executionTween.reversed;
@@ -147,69 +144,81 @@ export class TweenManager {
                     executionTween.actionIndex--;
                 } while (executionTween.actionIndex > -1 && !executionTween.tween.actions[executionTween.actionIndex].hasActions);
             }
-        } else {
-            executionTween.actionIndex++;
         }
     }
 
     public static update(delta: number): void {
-        let i = 0;
-        while (i < this._executionTweens.length) {
-            this.executeBlock(this._executionTweens[i], delta, i); // (this._executionTweens[i] can be changed here, if tween
-            if (this._executionTweens[i].blocks[this._executionTweens[i].blockIndex] === undefined) {
+        for (let i = this._executionTweens.length - 1; i >= 0; i--) {
+            if (!this.execute(this._executionTweens[i], delta)) {
                 this._executionTweens.splice(i, 1);
-            } else {
-                i++;
             }
         }
     }
 
-    private static executeBlock(executionTween: ExecutionTween, delta: number, index: number): void {
-        let block = executionTween.blocks[executionTween.blockIndex];
-        block.elapsedTime += delta;
+    private static execute(executionTween: ExecutionTween, delta: number): boolean {
+        do {
+            delta = Math.min(this.executeBlock(executionTween, delta), this.getTweensDelta(executionTween.currentBlock));
+        } while (delta >= 0 && this.getBlock(executionTween));
+        return delta < 0;
+    }
 
+    private static executeBlock(executionTween: ExecutionTween, delta: number): number {
+        const block = executionTween.currentBlock;
+        block.elapsedTime += delta;
+        this.executeActions(block);
+        this.executeTweens(executionTween, block, delta);
+        return block.elapsedTime - block.totalTime;
+    }
+
+    private static executeActions(block: ExecutionBlock): void {
         if (block.actions) {
             for (const action of block.actions) {
                 const alpha = Math.min(1, block.elapsedTime / action.time);
-                if (executionTween.reversed) {
+                if (block.reversed) { //TODO opt
                     action.callback(action.end, action.start, action.easing ? this._easings[action.easing](alpha) : alpha);
                 } else {
                     action.callback(action.start, action.end, action.easing ? this._easings[action.easing](alpha) : alpha);
                 }
             }
-        } else {
-            let newExecutionTween: ExecutionTween;
-            if (executionTween.reversed) {
-                newExecutionTween = executionTween.executedTweens[executionTween.actionIndex]
-                newExecutionTween.reversed = true;
-            } else {
-                newExecutionTween = this.start(executionTween.target, block.tween, executionTween, executionTween?.root ?? executionTween);
-                executionTween.executedTweens[executionTween.actionIndex] = newExecutionTween; //mmm
-            }
-            this._executionTweens[index] = newExecutionTween;
-            this.executeBlock(newExecutionTween, delta, index);
-            return;
         }
+    }
 
-        if (block.elapsedTime >= block.totalTime) {
-            delta = block.elapsedTime - block.totalTime;
-            executionTween.actionIndex++;
-            block = this.getNextBlock(executionTween);
-            if (block) {
-                executionTween.saveHistory && executionTween.blockIndex++;
-                executionTween.blocks[executionTween.blockIndex] = block;
-                this.executeBlock(executionTween, delta, index);
+    private static executeTweens(executionTween: ExecutionTween, block: ExecutionBlock, delta: number): void {
+        if (block.tweens && !block.tweensStarted) {
+            if (!block.executionTweens) {
+                block.executionTweens = [];
+                for (const tween of block.tweens) {
+                    this.executeTween(executionTween, block, delta, tween);
+                }
             } else {
-                executionTween = executionTween.parent;
-                if (!executionTween) return;
-                this._executionTweens[index] = executionTween;
-                executionTween.actionIndex++; //aumentare index direttamente in questa func
-                block = this.getNextBlock(executionTween); //codice ripetuto
-                executionTween.saveHistory && executionTween.blockIndex++;
-                executionTween.blocks[executionTween.blockIndex] = block;
-                this.executeBlock(executionTween, delta, index);
+                // for (const tween of block.tweens) {
+                // this.executeReversedTween(executionTween, block, delta, tween);
+                // }
+            }
+            block.tweensStarted = true;
+        }
+    }
+
+    private static executeTween(executionTween: ExecutionTween, block: ExecutionBlock, delta: number, tween: Tween): void {
+        const newExecutionTween = this.create(executionTween.target, tween, executionTween, executionTween?.root ?? executionTween);
+        block.executionTweens.push(newExecutionTween);
+        this.execute(newExecutionTween, delta);
+    }
+
+    // private static executeReversedTween(newExecutionTween: ExecutionTween, block: ExecutionBlock, delta: number, tween: Tween): void {
+    //     newExecutionTween.reversed = true;
+    //     this.execute(newExecutionTween, delta);
+    // }
+
+    private static getTweensDelta(block: ExecutionBlock): number {
+        let delta = Number.MAX_SAFE_INTEGER;
+        if (block.executionTweens) {
+            for (const executeTween of block.executionTweens) {
+                const lastBlock = executeTween.history[executeTween.history.length - 1]; //TODO fix in reverse
+                delta = Math.min(delta, lastBlock.elapsedTime - lastBlock.totalTime, this.getTweensDelta(lastBlock));
             }
         }
+        return delta;
     }
 
 }

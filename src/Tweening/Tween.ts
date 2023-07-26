@@ -73,7 +73,7 @@ export class Tween {
     }
 
     public start(): void {
-        TweenManager.start(this.target, this);
+        TweenManager.create(this.target, this);
     }
 
     public stop(): void {
