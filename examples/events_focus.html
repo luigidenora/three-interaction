@@ -36,15 +36,15 @@
                 super(new BoxGeometry(1, 1, 1), new MeshLambertMaterial({ color: 0xffffff }));
                 const tween2 = new Tween()
                     .by(1000, { easing: "easeInOutBack", scale: 1.01 })
+                    .yoyo()
                     .then(new Tween().by(1000, { easing: "easeInOutBack", position: new Vector3(1, 0, 0) }))
-                    .to(1000, { easing: "easeInOutBack", scale: 1 });
+                    .yoyo()
 
                 const tween = new Tween(this)
                     .by(1000, { easing: "easeInOutBack", rotation: new Euler(1, 1, 1) })
-                    .to(1000, { easing: "easeInOutBack", rotation: new Euler(0, 0, 0) })
                     .yoyo()
-                    // .then(tween2)
-                    // .repeat()
+                    .then(tween2)
+                    .yoyo()
                     .by(1000, { easing: "easeInOutBack", position: new Vector3(0, 1, 0) })
                     .start();
             }

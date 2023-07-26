@@ -11,7 +11,8 @@ interface ExecutionTween {
     actionIndex: number;
     currentBlock?: ExecutionBlock;
     history: ExecutionBlock[];
-    reversed: boolean;
+    reversed?: boolean;
+    yoyo?: boolean;
     repeat: { [x: number]: number };
     parent?: ExecutionTween;
     root?: ExecutionTween;
@@ -45,7 +46,6 @@ export class TweenManager {
             target,
             actionIndex: -1,
             history: [],
-            reversed: false,
             repeat: {},
             parent,
             root
@@ -93,12 +93,24 @@ export class TweenManager {
             if (action.isRepeat) {
                 this.handleRepetition(executionTween, action.times);
             } else if (action.isYoyo) {
-                this.handleYoyo(executionTween, action.times);
+                const block = this.handleYoyo(executionTween, action.times);
+                if (block) return block;
             } else if (action.isTween) {
                 return this.handleTween(action as ActionTween);
             } else {
                 return this.handleMotion(executionTween);
             }
+        }
+    }
+
+    private static cloneBlock(block: ExecutionBlock): ExecutionBlock {
+        return {
+            elapsedTime: 0,
+            totalTime: block.totalTime,
+            actions: block.actions,
+            tweens: block.tweens,
+            executionTweens: block.executionTweens, //TODO Clone?
+            reversed: true
         }
     }
 
@@ -131,18 +143,23 @@ export class TweenManager {
         }
     }
 
-    private static handleYoyo(executionTween: ExecutionTween, times: number): void {
+    private static handleYoyo(executionTween: ExecutionTween, times: number): ExecutionBlock {
         const repeat = executionTween.repeat;
         repeat[executionTween.actionIndex] ??= 0;
         if (repeat[executionTween.actionIndex] <= times) {
-            const isFinished = repeat[executionTween.actionIndex]++ === times;
-            if (isFinished) {
-                executionTween.reversed = false;
+            if (repeat[executionTween.actionIndex]++ === times) {
+                executionTween.yoyo = false;
             } else {
-                executionTween.reversed = !executionTween.reversed;
-                do {
+                executionTween.yoyo = !executionTween.yoyo;
+                if (executionTween.yoyo) {
                     executionTween.actionIndex--;
-                } while (executionTween.actionIndex > -1 && !executionTween.tween.actions[executionTween.actionIndex].hasActions);
+                    return this.cloneBlock(executionTween.history[executionTween.history.length - 1]);
+                } else {
+                    do {
+                        executionTween.actionIndex--;
+                    } while (executionTween.actionIndex > -1 && !executionTween.tween.actions[executionTween.actionIndex].hasActions);
+                    executionTween.actionIndex--;
+                }
             }
         }
     }
