@@ -78,13 +78,12 @@ export class TweenManager {
     }
 
     private static getPrevBlock(executionTween: ExecutionTween): ExecutionBlock {
-        // if (executionTween.reversed && executionTween.historyIndex > -1) {
-        //     const block = executionTween.history[executionTween.historyIndex--];
-        //     block.elapsedTime = 0;
-        //     //invert start and end TODO
-        //     return block;
-        // }
-        return undefined;
+        if (--executionTween.actionIndex > -1) {
+            const block = executionTween.history[executionTween.actionIndex];
+            block.elapsedTime = 0;
+            block.reversed = !block.reversed; //TODO giusto?
+            return block;
+        }
     }
 
     private static getNextBlock(executionTween: ExecutionTween): ExecutionBlock {
@@ -208,30 +207,34 @@ export class TweenManager {
                     this.executeTween(executionTween, block, delta, tween);
                 }
             } else {
-                // for (const tween of block.tweens) {
-                // this.executeReversedTween(executionTween, block, delta, tween);
-                // }
+                for (const newExecutionTween of block.executionTweens) {
+                    this.executeReversedTween(newExecutionTween, delta);
+                }
             }
             block.tweensStarted = true;
         }
     }
 
     private static executeTween(executionTween: ExecutionTween, block: ExecutionBlock, delta: number, tween: Tween): void {
-        const newExecutionTween = this.create(executionTween.target, tween, executionTween, executionTween?.root ?? executionTween);
+        const newExecutionTween = this.create(executionTween.target, tween, executionTween, executionTween.root ?? executionTween);
         block.executionTweens.push(newExecutionTween);
         this.execute(newExecutionTween, delta);
     }
 
-    // private static executeReversedTween(newExecutionTween: ExecutionTween, block: ExecutionBlock, delta: number, tween: Tween): void {
-    //     newExecutionTween.reversed = true;
-    //     this.execute(newExecutionTween, delta);
-    // }
+    private static executeReversedTween(newExecutionTween: ExecutionTween, delta: number): void {
+        //set in history
+        newExecutionTween.reversed = true;
+        newExecutionTween.actionIndex = newExecutionTween.history.length;
+        this._executionTweens.push(newExecutionTween);
+        this.getBlock(newExecutionTween);
+        this.execute(newExecutionTween, delta);
+    }
 
     private static getTweensDelta(block: ExecutionBlock): number {
         let delta = Number.MAX_SAFE_INTEGER;
         if (block.executionTweens) {
-            for (const executeTween of block.executionTweens) {
-                const lastBlock = executeTween.history[executeTween.history.length - 1]; //TODO fix in reverse
+            for (const exTween of block.executionTweens) {
+                const lastBlock = exTween.reversed ? exTween.history[exTween.actionIndex]: exTween.history[exTween.history.length - 1];
                 delta = Math.min(delta, lastBlock.elapsedTime - lastBlock.totalTime, this.getTweensDelta(lastBlock));
             }
         }

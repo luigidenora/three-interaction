@@ -23,7 +23,7 @@ export class DragAndDropManager {
         if (!event.isPrimary || !camera) return;
 
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._targetMatrixWorld));
-        raycaster.ray.intersectPlane(this._plane, this._intersection)
+        raycaster.ray.intersectPlane(this._plane, this._intersection);
         this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
 
         const dragEvent = this.trigger("drag", event, this._target, true, this._intersection, dropTargetIntersection?.object, dropTargetIntersection);

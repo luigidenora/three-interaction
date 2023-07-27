@@ -101,6 +101,7 @@ export class RenderView implements ViewParameters {
       this.computedViewport.width = this._rendererSize.x;
       this.computedViewport.height = this._rendererSize.y;
     }
+    this.composer?.setSize(this.computedViewport.width, this.computedViewport.height);
     this.scene.needsRender = true;
   }
 

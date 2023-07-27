@@ -1,7 +1,7 @@
-import { Euler, Material, MathUtils, Mesh, Object3D, Vector3 } from "three";
+import { Euler, MathUtils, Object3D, Vector3 } from "three";
 import { DEFAULT_EASING, Easing } from "./Easings";
-import { ExecutionAction } from "./TweenManager";
 import { Tween } from "./Tween";
+import { ExecutionAction } from "./TweenManager";
 
 type MotionValueExt<T = any> = { value: T, easing?: Easing };
 type MotionValue<T> = T | MotionValueExt<T>;
@@ -79,7 +79,7 @@ export class ActionMotion implements IAction {
 
     private position(target: Object3D): ExecutionAction<Vector3> {
         const position = this.motion.position;
-        if (position) {
+        if (position !== undefined) {
             const value = (position as MotionValueExt).value ?? position as Vector3;
             return {
                 time: this.time,
@@ -93,7 +93,7 @@ export class ActionMotion implements IAction {
 
     private scale(target: Object3D): ExecutionAction<Vector3> {
         const scale = this.motion.scale;
-        if (scale) {
+        if (scale !== undefined) {
             const valueRaw = (scale as MotionValueExt<number | Vector3>).value ?? scale as (number | Vector3);
             const value = typeof (valueRaw) === "number" ? new Vector3(valueRaw, valueRaw, valueRaw) : valueRaw;
             return {
@@ -108,7 +108,7 @@ export class ActionMotion implements IAction {
 
     private rotation(target: Object3D): ExecutionAction<Euler> {
         const rotation = this.motion.rotation;
-        if (rotation) {
+        if (rotation !== undefined) {
             const targetRotation = target.rotation;
             const value = ((rotation as MotionValueExt<Euler>).value ?? rotation as Euler).clone();
             return {
