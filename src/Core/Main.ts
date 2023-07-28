@@ -1,4 +1,4 @@
-import { Camera, Clock, Color, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
+import { Camera, Clock, Color, ColorRepresentation, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Binding } from "../Binding/Binding";
 import { InteractionManager } from "../Events/InteractionManager";
@@ -12,7 +12,7 @@ export interface MainParameters {
     fullscreen?: boolean;
     showStats?: boolean;
     disableContextMenu?: boolean;
-    backgroundColor?: Color | number;
+    backgroundColor?: ColorRepresentation;
     backgroundAlpha?: number;
     animate?: XRFrameRequestCallback;
     rendererParameters?: WebGLRendererParameters;
@@ -47,8 +47,8 @@ export class Main {
     }
 
     //TODO change to ColorRepresentation
-    public get backgroundColor(): Color | number { return this.renderManager.backgroundColor }
-    public set backgroundColor(value: Color | number) { this.renderManager.backgroundColor = value }
+    public get backgroundColor(): ColorRepresentation { return this.renderManager.backgroundColor }
+    public set backgroundColor(value: ColorRepresentation) { this.renderManager.backgroundColor = value }
 
     public get backgroundAlpha(): number { return this.renderManager.backgroundAlpha }
     public set backgroundAlpha(value: number) { this.renderManager.backgroundAlpha = value }

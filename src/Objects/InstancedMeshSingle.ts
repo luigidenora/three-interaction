@@ -1,4 +1,4 @@
-import { Color, EventDispatcher, Quaternion, Vector3 } from "three";
+import { Color, ColorRepresentation, EventDispatcher, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
 import { InstancedMesh2 } from "./InstancedMesh2";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
@@ -18,7 +18,7 @@ export class InstancedMeshSingle extends EventDispatcher {
     public enabled = true; // TODO
     public enabledUntilParent: boolean; // TODO
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
-    
+
     constructor(parent: InstancedMesh2, index: number, color?: Color) {
         super();
         this.id = id++;
@@ -31,12 +31,8 @@ export class InstancedMeshSingle extends EventDispatcher {
         }
     }
 
-    public setColor(color: Color | number): void {
-        if (typeof(color) === "number") {
-            this.parent.setColorAt(this.instanceId, this.parent._tempColor.setHex(color));
-        } else {
-            this.parent.setColorAt(this.instanceId, color);
-        }
+    public setColor(color: ColorRepresentation): void {
+        this.parent.setColorAt(this.instanceId, this.parent._tempColor.set(color));
         this.parent.instanceColor.needsUpdate = true;
     }
 

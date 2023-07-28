@@ -1,4 +1,4 @@
-import { Camera, Color, Scene, Vector2 } from "three";
+import { Camera, Color, ColorRepresentation, Scene, Vector2 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 
 /**
@@ -32,7 +32,7 @@ export interface ViewParameters {
   /** Determines whether interaction events will be triggered for the view. (optional, default: true).  */
   enabled?: boolean;
   /** The background color of the view (optional). It can be a Color object or a numeric value representing the color. */
-  backgroundColor?: Color | number;
+  backgroundColor?: ColorRepresentation;
   /** The background alpha value of the view (optional, default: 1). */
   backgroundAlpha?: number;
   /** The effect composer used for post-processing (optional). */
@@ -63,7 +63,7 @@ export class RenderView implements ViewParameters {
   private _onAfterRender: () => void;
 
   public get visible(): boolean { return this._visible }
-  public set visible(value: boolean) { 
+  public set visible(value: boolean) {
     if (this._visible === value) return;
     this._visible = value;
     this.scene.needsRender = true;
@@ -78,7 +78,7 @@ export class RenderView implements ViewParameters {
     this._visible = parameters.visible ?? true;
     this.enabled = parameters.enabled ?? true;
     this.backgroundAlpha = parameters.backgroundAlpha;
-    this.backgroundColor = typeof parameters.backgroundColor === "number" ? new Color(parameters.backgroundColor) : parameters.backgroundColor;
+    this.backgroundColor = new Color(parameters.backgroundColor);
     this.composer = parameters.composer;
     this._onBeforeRender = parameters.onBeforeRender;
     this._onAfterRender = parameters.onAfterRender;

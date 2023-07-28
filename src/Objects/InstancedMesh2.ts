@@ -1,4 +1,4 @@
-import { BufferGeometry, Color, InstancedMesh as InstancedMeshBase, Material, Matrix4 } from "three";
+import { BufferGeometry, Color, ColorRepresentation, InstancedMesh as InstancedMeshBase, Material, Matrix4 } from "three";
 import { InstancedMeshSingle } from "./InstancedMeshSingle";
 
 export class InstancedMesh2 extends InstancedMeshBase {
@@ -9,12 +9,9 @@ export class InstancedMesh2 extends InstancedMeshBase {
     /** @internal */ public _tempColor = new Color();
     /** @internal */ public _needsUpdate = false;
 
-    constructor(geometry: BufferGeometry, material: Material, count: number, singleInstanceType: typeof InstancedMeshSingle, color?: Color | number) {
+    constructor(geometry: BufferGeometry, material: Material, count: number, singleInstanceType: typeof InstancedMeshSingle, color?: ColorRepresentation) {
         super(geometry, material, count);
-
-        if (typeof (color) === "number") {
-            color = this._tempColor.setHex(color);
-        }
+        color = this._tempColor.set(color);
 
         for (let i = 0; i < count; i++) {
             this.instances.push(new singleInstanceType(this, i, color));

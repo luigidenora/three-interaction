@@ -20,8 +20,8 @@ export class RenderManager {
   public get activeScene(): Scene { return this.activeView?.scene }
 
   public get backgroundColor(): Color { return this._backgroundColor }
-  public set backgroundColor(value: Color | number) {
-    this._backgroundColor = typeof value === "number" ? new Color(value) : value;
+  public set backgroundColor(value: ColorRepresentation) {
+    this._backgroundColor = new Color(value);
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   }
 
@@ -46,9 +46,9 @@ export class RenderManager {
 
   private appendCanvas(rendererParameters: WebGLRendererParameters): void {
     if (rendererParameters.canvas === undefined) {
-        document.body.appendChild(this.renderer.domElement);
+      document.body.appendChild(this.renderer.domElement);
     }
-}
+  }
 
   public create(view: ViewParameters): RenderView {
     const renderView = new RenderView(view, this._rendererSize);
