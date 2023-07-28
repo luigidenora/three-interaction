@@ -3,6 +3,7 @@ import { Camera as CameraBase } from "three/index";
 import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
 export class Camera extends CameraBase implements Object3DExtPrototype {
+    findDropTarget: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

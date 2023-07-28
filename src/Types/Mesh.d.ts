@@ -3,6 +3,7 @@ import { Mesh as MeshBase } from "three/index";
 import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
 export class Mesh extends MeshBase  implements Object3DExtPrototype {
+    findDropTarget: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

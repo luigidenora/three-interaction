@@ -3,6 +3,7 @@ import { Line2 as Line2Base } from "../../node_modules/@types/three/examples/jsm
 import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
 export class Line2 extends Line2Base implements Object3DExtPrototype {
+    findDropTarget: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

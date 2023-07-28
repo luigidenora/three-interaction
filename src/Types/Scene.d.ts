@@ -3,6 +3,7 @@ import { Scene as SceneBase } from "three/index";
 import { BindingCallback, Cursor, DistinctTargetArray, Events, EventsDispatcher, IntersectionExt, Object3DExtPrototype, SceneExtPrototype } from "../index";
 
 export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPrototype {
+    findDropTarget: boolean;
     timeScale: number;
     totalTime: number;
     blurOnClickOut: boolean;

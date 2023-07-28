@@ -11,12 +11,10 @@ export class DragAndDropManager {
     private _startPosition = new Vector3();
     private _target: Object3D;
     private _targetMatrixWorld = new Matrix4();
-    private _findDropTarget = false;
     private _dataTransfer: { [x: string]: any };
     private _lastDropTarget: Object3D;
 
     public get isDragging(): boolean { return !!this._target }
-    public get findDropTarget(): boolean { return this._findDropTarget }
     public get target(): Object3D { return this._target }
 
     public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, dropTargetIntersection: IntersectionExt): void {
@@ -41,7 +39,7 @@ export class DragAndDropManager {
             this._target = target;
             target.dragging = true;
             this._startPosition.copy(target.position);
-            const dragEvent = this.trigger("dragstart", event, target, true);
+            this.trigger("dragstart", event, target, false);
 
             target.updateMatrixWorld(); //if transform target in dragstart event
             this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
@@ -49,9 +47,8 @@ export class DragAndDropManager {
             this._targetMatrixWorld.copy(this._target.matrixWorld);
             this._inverseMatrix.copy(this._target.parent.matrixWorld).invert();
             this._offset.copy(this._intersection).sub(this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
-            this._findDropTarget = dragEvent._defaultPrevented;
 
-            if (this._findDropTarget) {
+            if (this._target.findDropTarget) {
                 this._dataTransfer = {};
             }
 
@@ -91,17 +88,13 @@ export class DragAndDropManager {
     }
 
     private dragEnd(event: PointerEvent): void {
-        const dragEvent = this.trigger("dragend", event, this._target, true, undefined, this._lastDropTarget);
-        if (dragEvent._defaultPrevented) {
-            this._target.position.copy(this._startPosition);
-        }
+        this.trigger("dragend", event, this._target, false, undefined, this._lastDropTarget);
     }
 
     private clear(): void {
         this._target = undefined;
         this._dataTransfer = undefined;
         this._lastDropTarget = undefined;
-        this._findDropTarget = false;
     }
 
     private trigger(type: keyof InteractionEvents, event: PointerEvent, target: Object3D, cancelable: boolean, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt): DragEventExt {
@@ -113,7 +106,7 @@ export class DragAndDropManager {
     }
 
     private dropTargetEvent(event: PointerEvent, dropTargetIntersection: IntersectionExt): void {
-        if (this._findDropTarget) {
+        if (this._target.findDropTarget) {
             const dropTarget = dropTargetIntersection?.object;
             const lastDropTarget = this._lastDropTarget;
             this._lastDropTarget = dropTarget;

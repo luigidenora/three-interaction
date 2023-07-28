@@ -3,6 +3,7 @@ import { InstancedMesh as InstancedMeshBase } from "three/index";
 import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
 export class InstancedMesh extends InstancedMeshBase implements Object3DExtPrototype {
+    findDropTarget: boolean;
     enabled: boolean;
     enabledUntilParent: boolean;
     interceptByRaycaster: boolean;

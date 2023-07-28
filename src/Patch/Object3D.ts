@@ -22,6 +22,7 @@ export interface Object3DExtPrototype {
     dragging: boolean;
     cursor: Cursor;
     cursorOnDrag: Cursor;
+    findDropTarget: boolean;
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;
@@ -46,6 +47,7 @@ Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;
 Object3D.prototype.interceptByRaycaster = true;
 Object3D.prototype.enabled = true;
+Object3D.prototype.findDropTarget = false;
 Object3D.prototype.__manualDetection = false;
 
 Object.defineProperty(Object3D.prototype, "firstFocusable", {
