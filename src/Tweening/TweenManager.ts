@@ -218,12 +218,8 @@ export class TweenManager {
     private static executeActions(block: ExecutionBlock): void {
         if (block.actions) {
             for (const action of block.actions) {
-                const alpha = Math.min(1, block.elapsedTime / action.time);
-                if (block.reversed) { //TODO opt
-                    action.callback(action.end, action.start, action.easing ? this._easings[action.easing](alpha) : alpha);
-                } else {
-                    action.callback(action.start, action.end, action.easing ? this._easings[action.easing](alpha) : alpha);
-                }
+                const alpha = block.reversed ? 1 - Math.min(1, block.elapsedTime / action.time) : Math.min(1, block.elapsedTime / action.time);
+                action.callback(action.start, action.end, action.easing ? this._easings[action.easing](alpha) : alpha); //TODO default easing?
             }
         }
     }

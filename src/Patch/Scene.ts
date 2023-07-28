@@ -12,6 +12,8 @@ export interface SceneExtPrototype {
     intersectionsDropTarget: IntersectionExt[];
     focusedObject: Object3D;
     blurOnClickOut: boolean;
+    timeScale: number;
+    totalTime: number;
     activeSmartRendering(): this;
     focus(target?: Object3D): void;
 }
@@ -23,6 +25,8 @@ Scene.prototype.intersectionsDropTarget = [];
 Scene.prototype.focusable = false;
 Scene.prototype.needsRender = true;
 Scene.prototype.blurOnClickOut = false;
+Scene.prototype.timeScale = 1;
+Scene.prototype.totalTime = 0;
 Scene.prototype.__smartRendering = false;
 Scene.prototype.__boundObjects = new DistinctTargetArray();
 

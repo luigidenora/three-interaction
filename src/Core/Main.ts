@@ -15,7 +15,7 @@ export interface MainParameters {
     backgroundColor?: Color | number;
     backgroundAlpha?: number;
     animate?: XRFrameRequestCallback;
-    renderer?: WebGLRendererParameters;
+    rendererParameters?: WebGLRendererParameters;
     // raycastingFrequency?: boolean;
 }
 
@@ -56,7 +56,7 @@ export class Main {
     public get mousePosition(): Vector2 { return this._interactionManager.raycasterManager.pointer }
 
     constructor(parameters: MainParameters = {}) {
-        this.renderManager = new RenderManager(parameters.renderer, parameters.fullscreen);
+        this.renderManager = new RenderManager(parameters.rendererParameters, parameters.fullscreen);
         this._interactionManager = new InteractionManager(this.renderManager);
         this.handleContextMenu(parameters.disableContextMenu);
         this.showStats = parameters.showStats ?? true;
@@ -76,11 +76,10 @@ export class Main {
     private setAnimationLoop(): void {
         this.renderer.setAnimationLoop((time, frame) => {
             Main.ticks++;
-            const delta = this._clock.getDelta();
-            const total = this._clock.getElapsedTime();
+            const currentDelta = this._clock.getDelta();
 
             this._interactionManager.update();
-            TweenManager.update(delta * 1000);
+            TweenManager.update(currentDelta * 1000);
 
             this.animate(time, frame);
 
@@ -89,6 +88,8 @@ export class Main {
 
             if (visibleScenes !== undefined) {
                 for (const scene of visibleScenes) {
+                    const delta = currentDelta * scene.timeScale;
+                    const total = scene.timeScale += delta;
                     EventsCache.dispatchEvent(scene, "beforeanimate", { delta, total });
                     EventsCache.dispatchEvent(scene, "animate", { delta, total });
                     EventsCache.dispatchEvent(scene, "afteranimate", { delta, total });

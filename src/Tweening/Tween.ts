@@ -5,14 +5,21 @@ import { ActionCallback, ActionDelay, ActionMotion, ActionRepeat, ActionTween, A
 export class Tween {
     public actions: IAction[] = [];
     public tags: string[] = [];
-    public target: Object3D;
 
-    constructor(target?: Object3D) {
-        this.target = target;
+    constructor(public target?: Object3D, public timeScale = 1) { }
+
+    public setTags(tags: string[]): this {
+        this.tags = tags;
+        return this;
     }
 
     public setTarget(target: Object3D): this {
         this.target = target;
+        return this;
+    }
+
+    public setTimeScale(timeScale: number): this {
+        this.timeScale = timeScale;
         return this;
     }
 
@@ -80,11 +87,29 @@ export class Tween {
         // TweenManager.stop(this._target, this);
     }
 
+    public pause(): void {
+        // TweenManager.stop(this._target, this);
+    }
+
+    public complete(): void {
+        // 
+    }
+
+    public revert(): void {
+        // 
+    }
+
     public clone(): Tween {
         const tween = new Tween(this.target);
         tween.actions = [...this.actions];
         tween.tags = [...this.tags];
         return tween;
+    }
+
+    public chain(tween: Tween): this {
+        //clona actions
+        //aggiungile
+        return this;
     }
 
 }
