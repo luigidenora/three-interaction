@@ -3,20 +3,14 @@ import { DEFAULT_EASING, Easing } from "./Easings";
 import { Tween } from "./Tween";
 import { ExecutionAction } from "./TweenManager";
 
-type MotionValueExt<T = any> = { value: T, easing?: Easing };
-type MotionValue<T> = T | MotionValueExt<T>;
+// custom TODO e add time per ogni cosino?
+
+type MotionValue<T = any> = { value: T, easing?: Easing };
+export type Motion<T> = { [Property in keyof T]?: T[Property] | MotionValue<T> } & { easing?: Easing };
 
 export interface ActionDescriptor {
     actions?: ExecutionAction[];
     tweens?: Tween[];
-}
-
-export interface Motion {
-    easing?: Easing;
-    position?: MotionValue<Vector3>;
-    scale?: MotionValue<number | Vector3>;
-    rotation?: MotionValue<Euler>;
-    // custom TODO e add time per ogni cosino?
 }
 
 export interface IAction {
@@ -64,64 +58,52 @@ export class ActionDelay implements IAction {
     }
 }
 
-export class ActionMotion implements IAction {
+export class ActionMotion<T> implements IAction {
     public hasActions = true;
-    constructor(public time: number, public motion: Motion, public isBy: boolean) { }
+    constructor(public time: number, public motion: Motion<T>, public isBy: boolean) { }
 
-    public init(target: Object3D): ActionDescriptor {
+    public init(target: any): ActionDescriptor { //TODO vedere gli any
         const actions: ExecutionAction[] = [];
-        let action: ExecutionAction;
-        (action = this.position(target)) && actions.push(action);
-        (action = this.scale(target)) && actions.push(action);
-        (action = this.rotation(target)) && actions.push(action);
+        for (const key in this.motion) {
+            if ((key as keyof Motion<T>) === "easing") continue;
+            const actionValue = this.motion[key as keyof Motion<T>];
+            const targetValue = target[key];
+            const action = this.vector3(actionValue, targetValue as Vector3)
+                ?? this.euler(actionValue, targetValue as Euler)
+            // ?? this.any(actionValue, target, key);
+            if (action) {
+                actions.push(action);
+            }
+        }
         return { actions };
     }
 
-    private position(target: Object3D): ExecutionAction<Vector3> {
-        const position = this.motion.position;
-        if (position !== undefined) {
-            const value = (position as MotionValueExt).value ?? position as Vector3;
-            return {
-                time: this.time,
-                easing: (position as MotionValueExt).easing ?? this.motion.easing ?? DEFAULT_EASING,
-                start: target.position.clone(),
-                end: this.isBy ? value.clone().add(target.position) : value,
-                callback: (start, end, alpha): void => { target.position.lerpVectors(start, end, alpha) }
-            };
-        }
-    }
-
-    private scale(target: Object3D): ExecutionAction<Vector3> {
-        const scale = this.motion.scale;
-        if (scale !== undefined) {
-            const valueRaw = (scale as MotionValueExt<number | Vector3>).value ?? scale as (number | Vector3);
+    private vector3(actionValue: Motion<T>[keyof T | "easing"], targetValue: Vector3): ExecutionAction<Vector3> {
+        if (targetValue?.isVector3 === true) {
+            const valueRaw = (actionValue as MotionValue<number | Vector3>).value ?? actionValue as (number | Vector3);
             const value = typeof (valueRaw) === "number" ? new Vector3(valueRaw, valueRaw, valueRaw) : valueRaw;
             return {
                 time: this.time,
-                easing: (scale as MotionValueExt<number | Vector3>).easing ?? this.motion.easing ?? DEFAULT_EASING,
-                start: target.scale.clone(),
-                end: this.isBy ? value.clone().add(target.scale) : value,
-                callback: (start, end, alpha) => { target.scale.lerpVectors(start, end, alpha) }
+                easing: (actionValue as MotionValue<number | Vector3>).easing ?? this.motion.easing ?? DEFAULT_EASING,
+                start: targetValue.clone(),
+                end: this.isBy ? value.clone().add(targetValue) : value,
+                callback: (start, end, alpha) => { targetValue.lerpVectors(start, end, alpha) }
             };
         }
     }
 
-    private rotation(target: Object3D): ExecutionAction<Euler> {
-        const rotation = this.motion.rotation;
-        if (rotation !== undefined) {
-            const targetRotation = target.rotation;
-            const value = ((rotation as MotionValueExt<Euler>).value ?? rotation as Euler).clone();
+    private euler(actionValue: Motion<T>[keyof T | "easing"], targetValue: Euler): ExecutionAction<Euler> {
+        if (targetValue?.isEuler === true) {
+            const valueRaw = (actionValue as MotionValue<Euler>).value ?? actionValue as Euler;
+            const value = typeof (valueRaw) === "number" ? new Euler(valueRaw, valueRaw, valueRaw) : valueRaw;
+            value.order = targetValue.order;
             return {
                 time: this.time,
-                easing: (rotation as MotionValueExt<Euler>).easing ?? this.motion.easing ?? DEFAULT_EASING,
-                start: targetRotation.clone(),
-                end: this.isBy ? new Euler(value.x + targetRotation.x, value.y + targetRotation.y, value.z + targetRotation.z) : value,
+                easing: (actionValue as MotionValue<Euler>).easing ?? this.motion.easing ?? DEFAULT_EASING,
+                start: targetValue.clone(),
+                end: this.isBy ? new Euler(value.x + targetValue.x, value.y + targetValue.y, value.z + targetValue.z, targetValue.order) : value,
                 callback: (start, end, alpha) => {
-                    targetRotation.set(
-                        MathUtils.lerp(start.x, end.x, alpha),
-                        MathUtils.lerp(start.y, end.y, alpha),
-                        MathUtils.lerp(start.z, end.z, alpha)
-                    );
+                    targetValue.set(MathUtils.lerp(start.x, end.x, alpha), MathUtils.lerp(start.y, end.y, alpha), MathUtils.lerp(start.z, end.z, alpha));
                 }
             };
         }

@@ -1,19 +1,18 @@
-import { Object3D } from "three";
-import { TweenManager } from "./TweenManager";
 import { ActionCallback, ActionDelay, ActionMotion, ActionRepeat, ActionTween, ActionYoyo, IAction, Motion } from "./Actions";
+import { TweenManager } from "./TweenManager";
 
-export class Tween {
+export class Tween<T = any> {
     public actions: IAction[] = [];
     public tags: string[] = [];
 
-    constructor(public target?: Object3D, public timeScale = 1) { }
+    constructor(public target?: T, public timeScale = 1) { }
 
     public setTags(tags: string[]): this {
         this.tags = tags;
         return this;
     }
 
-    public setTarget(target: Object3D): this {
+    public setTarget(target: T): this {
         this.target = target;
         return this;
     }
@@ -23,12 +22,12 @@ export class Tween {
         return this;
     }
 
-    public to(time: number, action: Motion): this {
+    public to(time: number, action: Motion<T>): this {
         this.actions.push(new ActionMotion(time, action, false));
         return this;
     }
 
-    public by(time: number, action: Motion): this {
+    public by(time: number, action: Motion<T>): this {
         this.actions.push(new ActionMotion(time, action, true));
         return this;
     }

@@ -1,4 +1,3 @@
-import { Object3D } from "three";
 import { ActionTween } from "./Actions";
 import { Easing, Easings } from "./Easings";
 import { Tween } from "./Tween";
@@ -7,7 +6,7 @@ type updateCallback<T> = (start?: T, end?: T, alpha?: number) => void;
 
 interface ExecutionTween {
     tween: Tween;
-    target: Object3D;
+    target: any;
     actionIndex: number;
     currentBlock?: ExecutionBlock;
     history: ExecutionBlock[];
@@ -40,7 +39,7 @@ export class TweenManager {
     private static _executionTweens: ExecutionTween[] = [];
     private static _easings = new Easings();
 
-    public static create(target: Object3D, tween: Tween, parent?: ExecutionTween, root?: ExecutionTween): ExecutionTween {
+    public static create(target: any, tween: Tween, parent?: ExecutionTween, root?: ExecutionTween): ExecutionTween {
         const executionTween: ExecutionTween = {
             tween,
             target,
@@ -56,13 +55,13 @@ export class TweenManager {
         return executionTween;
     }
 
-    public static stop(tween: Tween, target: Object3D): void {
+    public static stop(tween: Tween, target: any): void {
         const index = this._executionTweens.findIndex(x => x.target === target && (x.root?.tween ?? x.tween) === tween);
         if (index === -1) return;
         this._executionTweens.splice(index, 1);
     }
 
-    public static stop2(executionTween: ExecutionTween, target: Object3D): void {
+    public static stop2(executionTween: ExecutionTween, target: any): void {
         const index = this._executionTweens.findIndex(x => x.target === target && (x.root ?? x) === executionTween);
         if (index === -1) return;
         this._executionTweens.splice(index, 1);

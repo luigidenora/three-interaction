@@ -78,7 +78,7 @@ export class RenderView implements ViewParameters {
     this._visible = parameters.visible ?? true;
     this.enabled = parameters.enabled ?? true;
     this.backgroundAlpha = parameters.backgroundAlpha;
-    this.backgroundColor = new Color(parameters.backgroundColor);
+    this.backgroundColor = parameters.backgroundColor !== undefined ? new Color(parameters.backgroundColor) : undefined;
     this.composer = parameters.composer;
     this._onBeforeRender = parameters.onBeforeRender;
     this._onAfterRender = parameters.onAfterRender;
