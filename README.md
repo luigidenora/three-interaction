@@ -13,10 +13,12 @@ hitbox
 focus
 drag and drop
 droptarget
+tween
 
 nice to have:
 
 set fps
-tween
 history
-movement limits
+multifocus
+multitouch
+multidrag

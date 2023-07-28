@@ -117,7 +117,7 @@ export class ActionMotion implements IAction {
                 start: targetRotation.clone(),
                 end: this.isBy ? new Euler(value.x + targetRotation.x, value.y + targetRotation.y, value.z + targetRotation.z) : value,
                 callback: (start, end, alpha) => {
-                    targetRotation.set( //TODO add lerp method for euler?
+                    targetRotation.set(
                         MathUtils.lerp(start.x, end.x, alpha),
                         MathUtils.lerp(start.y, end.y, alpha),
                         MathUtils.lerp(start.z, end.z, alpha)

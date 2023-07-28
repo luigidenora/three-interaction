@@ -78,10 +78,10 @@ export class TweenManager {
     }
 
     private static getPrevBlock(executionTween: ExecutionTween): ExecutionBlock {
-        if (--executionTween.actionIndex > -1) {
-            const block = executionTween.history[executionTween.actionIndex];
+        if (executionTween.actionIndex > 0) {
+            const block = executionTween.history[--executionTween.actionIndex];
             block.elapsedTime = 0;
-            block.reversed = !block.reversed; //TODO giusto?
+            block.reversed = !block.reversed;
             return block;
         }
     }
@@ -108,9 +108,35 @@ export class TweenManager {
             totalTime: block.totalTime,
             actions: block.actions,
             tweens: block.tweens,
-            executionTweens: block.executionTweens, //TODO Clone?
-            reversed: true
+            executionTweens: this.cloneExecutionTweens(block.executionTweens),
+            reversed: block.reversed //TODO cpaire se mettere true forzato
         }
+    }
+
+    private static cloneExecutionTweens(executionTweens: ExecutionTween[]): ExecutionTween[] {
+        if (!executionTweens) return undefined;
+        const ret: ExecutionTween[] = [];
+        for (const exTween of executionTweens) {
+            ret.push({
+                history: this.cloneHistory(exTween.history),
+                actionIndex: exTween.history.length,
+                repeat: {},
+                target: exTween.target,
+                tween: exTween.tween,
+                parent: exTween.parent,
+                root: exTween.root,
+                reversed: exTween.reversed
+            });
+        }
+        return ret;
+    }
+
+    private static cloneHistory(history: ExecutionBlock[]): ExecutionBlock[] {
+        const ret: ExecutionBlock[] = [];
+        for (const block of history) {
+            ret.push(this.cloneBlock(block));
+        }
+        return ret;
     }
 
     private static handleMotion(executionTween: ExecutionTween): ExecutionBlock {
@@ -151,8 +177,11 @@ export class TweenManager {
             } else {
                 executionTween.yoyo = !executionTween.yoyo;
                 if (executionTween.yoyo) {
+                    // if (executionTween.root === undefined) debugger;
                     executionTween.actionIndex--;
-                    return this.cloneBlock(executionTween.history[executionTween.history.length - 1]);
+                    const block = this.cloneBlock(executionTween.history[executionTween.history.length - 1]);
+                    block.reversed = !block.reversed; //TODO mettere nella func?
+                    return block;
                 } else {
                     do {
                         executionTween.actionIndex--;
@@ -222,7 +251,6 @@ export class TweenManager {
     }
 
     private static executeReversedTween(newExecutionTween: ExecutionTween, delta: number): void {
-        //set in history
         newExecutionTween.reversed = true;
         newExecutionTween.actionIndex = newExecutionTween.history.length;
         this._executionTweens.push(newExecutionTween);
@@ -234,7 +262,7 @@ export class TweenManager {
         let delta = Number.MAX_SAFE_INTEGER;
         if (block.executionTweens) {
             for (const exTween of block.executionTweens) {
-                const lastBlock = exTween.reversed ? exTween.history[exTween.actionIndex]: exTween.history[exTween.history.length - 1];
+                const lastBlock = exTween.reversed ? exTween.history[exTween.actionIndex] : exTween.history[exTween.history.length - 1];
                 delta = Math.min(delta, lastBlock.elapsedTime - lastBlock.totalTime, this.getTweensDelta(lastBlock));
             }
         }
