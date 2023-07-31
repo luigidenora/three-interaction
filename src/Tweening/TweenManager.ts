@@ -11,9 +11,9 @@ interface ExecutionTween {
     currentBlock?: ExecutionBlock;
     history: ExecutionBlock[];
     reversed?: boolean;
+    originallyReversed?: boolean;
     repeat?: boolean;
     ripetitions: { [x: number]: number };
-    parent?: ExecutionTween; //remove
     root?: ExecutionTween;
 }
 
@@ -47,7 +47,6 @@ export class TweenManager {
             actionIndex: -1,
             history: [],
             ripetitions: {},
-            parent,
             root
         };
 
@@ -88,8 +87,8 @@ export class TweenManager {
     }
 
     private static getRepeatBlock(executionTween: ExecutionTween): ExecutionBlock {
-        if (++executionTween.actionIndex < executionTween.tween.actions.length) {
-            const block = executionTween.history[executionTween.actionIndex];
+        if (executionTween.actionIndex < executionTween.tween.actions.length) {
+            const block = executionTween.history[++executionTween.actionIndex];
             block.reversed = block.originallyReversed;
             block.elapsedTime = 0;
             block.tweensStarted = false;
@@ -118,7 +117,6 @@ export class TweenManager {
             elapsedTime: 0,
             totalTime: block.totalTime,
             reversed: !block.reversed,
-            // tweensStarted: false,
             originallyReversed: !block.reversed,
             actions: block.actions,
             tweens: block.tweens,
@@ -136,9 +134,8 @@ export class TweenManager {
                 ripetitions: {},
                 target: exTween.target,
                 tween: exTween.tween,
-                parent: exTween.parent,
                 root: exTween.root,
-                reversed: !exTween.reversed,
+                originallyReversed: !exTween.reversed,
                 repeat: exTween.reversed
             });
         }
@@ -229,7 +226,7 @@ export class TweenManager {
                 }
             } else {
                 for (const newExecutionTween of block.runningTweens) {
-                    this.executeExistingTween(newExecutionTween, delta);
+                    this.executeExistingTween(newExecutionTween, delta, executionTween.reversed);
                 }
             }
             block.tweensStarted = true;
@@ -242,8 +239,10 @@ export class TweenManager {
         this.execute(newExecutionTween, delta);
     }
 
-    private static executeExistingTween(newExecutionTween: ExecutionTween, delta: number): void {
-        newExecutionTween.actionIndex = newExecutionTween.reversed ? newExecutionTween.history.length : -1; 
+    private static executeExistingTween(newExecutionTween: ExecutionTween, delta: number, reversed: boolean): void {
+        newExecutionTween.reversed = reversed ? !newExecutionTween.originallyReversed : newExecutionTween.originallyReversed;
+        newExecutionTween.repeat = !newExecutionTween.reversed;
+        newExecutionTween.actionIndex = newExecutionTween.reversed ? newExecutionTween.history.length : -1;
         this._executionTweens.push(newExecutionTween);
         this.getBlock(newExecutionTween);
         this.execute(newExecutionTween, delta);
