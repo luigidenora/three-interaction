@@ -1,4 +1,4 @@
-import { Camera, Clock, Color, ColorRepresentation, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
+import { Camera, Clock, ColorRepresentation, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Binding } from "../Binding/Binding";
 import { InteractionManager } from "../Events/InteractionManager";
@@ -16,7 +16,7 @@ export interface MainParameters {
     backgroundAlpha?: number;
     animate?: XRFrameRequestCallback;
     rendererParameters?: WebGLRendererParameters;
-    // raycastingFrequency?: boolean;
+    // raycastingFrequency?: boolean; TODO
 }
 
 export class Main {

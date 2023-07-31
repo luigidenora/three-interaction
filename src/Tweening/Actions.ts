@@ -70,7 +70,7 @@ export class ActionMotion<T> implements IAction {
             const targetValue = target[key];
             const action = this.vector3(actionValue, targetValue as Vector3)
                 ?? this.euler(actionValue, targetValue as Euler)
-            // ?? this.any(actionValue, target, key);
+                ?? this.any(actionValue, target, key);
             if (action) {
                 actions.push(action);
             }
@@ -107,6 +107,17 @@ export class ActionMotion<T> implements IAction {
                 }
             };
         }
+    }
+
+    private any(actionValue: Motion<T>[keyof T | "easing"], target: any, key: string): ExecutionAction {
+        const value = (actionValue as MotionValue).value ?? actionValue;
+        return {
+            time: this.time,
+            easing: (actionValue as MotionValue<number | Vector3>).easing ?? this.motion.easing ?? DEFAULT_EASING,
+            start: target[key],
+            end: this.isBy ? value + target[key] : value,
+            callback: (start, end, alpha) => {  MathUtils.lerp(start, end, alpha) }
+        };
     }
 
 }
