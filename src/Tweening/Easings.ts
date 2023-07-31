@@ -1,7 +1,9 @@
 export type Easing = keyof Easings /* | ((x: number) => number) */;
 export let DEFAULT_EASING: keyof Easings = "easeInOutExpo";
 
-/** For more info check https://easings.net */
+/** 
+ * For more info check https://easings.net 
+ */
 export class Easings {
 
     public linear(x: number): number {
@@ -137,5 +139,5 @@ export class Easings {
     public easeInOutBounce(x: number): number {
         return x < 0.5 ? (1 - this.easeOutBounce(1 - 2 * x)) / 2 : (1 + this.easeOutBounce(2 * x - 1)) / 2;
     }
-    
+
 }

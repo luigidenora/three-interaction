@@ -2,7 +2,7 @@ import { ActionCallback, ActionDelay, ActionMotion, ActionRepeat, ActionTween, A
 import { TweenManager } from "./TweenManager";
 
 export class Tween<T = any> {
-    public actions: IAction[] = [];
+    /** @internal */ public actions: IAction[] = [];
     public tags: string[] = [];
 
     constructor(public target?: T, public timeScale = 1) { }

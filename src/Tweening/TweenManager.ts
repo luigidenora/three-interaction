@@ -4,16 +4,16 @@ import { Tween } from "./Tween";
 
 type updateCallback<T> = (start?: T, end?: T, alpha?: number) => void;
 
-interface ExecutionTween {
-    tween: Tween;
-    target: any;
-    actionIndex: number;
-    currentBlock?: ExecutionBlock;
-    history: ExecutionBlock[];
-    reversed?: boolean;
-    originallyReversed?: boolean;
-    repeat?: boolean;
-    ripetitions: { [x: number]: number };
+export class ExecutionTween {
+    /** @internal */ public tween: Tween;
+    /** @internal */ public target: any;
+    /** @internal */ public actionIndex: number;
+    /** @internal */ public currentBlock?: ExecutionBlock;
+    /** @internal */ public history: ExecutionBlock[];
+    /** @internal */ public reversed?: boolean;
+    /** @internal */ public originallyReversed?: boolean;
+    /** @internal */ public repeat?: boolean;
+    /** @internal */ public ripetitions: { [x: number]: number };
 }
 
 interface ExecutionBlock {
@@ -27,6 +27,7 @@ interface ExecutionBlock {
     tweensStarted?: boolean;
 }
 
+/** @internal */
 export interface ExecutionAction<T = any> {
     time: number;
     callback: updateCallback<T>;
@@ -35,6 +36,7 @@ export interface ExecutionAction<T = any> {
     end?: T;
 }
 
+/** @internal */
 export class TweenManager {
     private static _executionTweens: ExecutionTween[] = [];
     private static _executionTweensChildren: ExecutionTween[] = [];
@@ -65,12 +67,6 @@ export class TweenManager {
         this._executionTweensChildren.push(executionTween);
         return executionTween;
     }
-
-    // public static stop(tween: Tween, target: any): void {
-    //     const index = this._executionTweens.findIndex(x => x.target === target && (x.root?.tween ?? x.tween) === tween);
-    //     if (index === -1) return;
-    //     this._executionTweens.splice(index, 1);
-    // }
 
     // public static stop2(executionTween: ExecutionTween, target: any): void {
     //     const index = this._executionTweens.findIndex(x => x.target === target && (x.root ?? x) === executionTween);

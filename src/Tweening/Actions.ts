@@ -5,14 +5,16 @@ import { ExecutionAction } from "./TweenManager";
 
 // custom TODO e add time per ogni cosino?
 
-type MotionValue<T = any> = { value: T, easing?: Easing };
+export type MotionValue<T = any> = { value: T, easing?: Easing };
 export type Motion<T> = { [Property in keyof T]?: T[Property] | MotionValue<T> } & { easing?: Easing };
 
+/** @internal */
 export interface ActionDescriptor {
     actions?: ExecutionAction[];
     tweens?: Tween[];
 }
 
+/** @internal */
 export interface IAction {
     init?(target: Object3D): ActionDescriptor;
     hasActions: boolean;
@@ -22,24 +24,28 @@ export interface IAction {
     times?: number;
 }
 
+/** @internal */
 export class ActionRepeat implements IAction {
     public hasActions = false;
     public isRepeat = true;
     constructor(public times: number) { }
 }
 
+/** @internal */
 export class ActionYoyo implements IAction {
     public hasActions = false;
     public isYoyo = true;
     constructor(public times: number) { }
 }
 
+/** @internal */
 export class ActionTween implements IAction {
     public hasActions = true;
     public isTween = true;
     constructor(public tweens: Tween[]) { }
 }
 
+/** @internal */
 export class ActionCallback implements IAction {
     public hasActions = true;
     constructor(public callback: () => void) { }
@@ -49,6 +55,7 @@ export class ActionCallback implements IAction {
     }
 }
 
+/** @internal */
 export class ActionDelay implements IAction {
     public hasActions = true;
     constructor(public time: number) { }
@@ -58,6 +65,7 @@ export class ActionDelay implements IAction {
     }
 }
 
+/** @internal */
 export class ActionMotion<T> implements IAction {
     public hasActions = true;
     constructor(public time: number, public motion: Motion<T>, public isBy: boolean) { }
