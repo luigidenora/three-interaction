@@ -39,11 +39,11 @@
                     .yoyo(2)
 
                 const tween = new Tween(this)
-                    .by(500, { easing: "easeInOutBack", rotation: new Euler(1, 1, 1) })
-                    .yoyo()
+                    // .by(500, { easing: "easeInOutBack", rotation: new Euler(1, 1, 1) })
+                    // .yoyo()
                     .then(tween2)
                     .yoyo()
-                    .repeat()
+                    // .repeat()
                     .by(1000, { easing: "easeInOutBack", position: new Vector3(0, 1, 0) })
                     .start();
             }
