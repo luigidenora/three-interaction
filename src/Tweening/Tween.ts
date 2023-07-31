@@ -5,7 +5,7 @@ export class Tween<T = any> {
     /** @internal */ public actions: IAction[] = [];
     public tags: string[] = [];
 
-    constructor(public target?: T, public timeScale = 1) { }
+    constructor(public target?: T) { }
 
     public setTags(tags: string[]): this {
         this.tags = tags;
@@ -14,11 +14,6 @@ export class Tween<T = any> {
 
     public setTarget(target: T): this {
         this.target = target;
-        return this;
-    }
-
-    public setTimeScale(timeScale: number): this {
-        this.timeScale = timeScale;
         return this;
     }
 
@@ -80,22 +75,6 @@ export class Tween<T = any> {
 
     public start(): void {
         TweenManager.create(this.target, this);
-    }
-
-    public stop(): void {
-        // TweenManager.stop(this._target, this);
-    }
-
-    public pause(): void {
-        // TweenManager.stop(this._target, this);
-    }
-
-    public complete(): void {
-        // 
-    }
-
-    public revert(): void {
-        // 
     }
 
     public clone(): Tween {
