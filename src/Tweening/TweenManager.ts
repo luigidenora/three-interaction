@@ -1,45 +1,39 @@
-import { ExecutionTween } from "./ExecutionTween";
+import { RunningTween } from "./RunningTween";
 import { Tween } from "./Tween";
 
 /** @internal */
 export class TweenManager {
-    private static _executionTweens: ExecutionTween[] = [];
-    private static _executionTweensChildren: ExecutionTween[] = [];
+    private static _runningTweens: RunningTween[] = [];
+    private static _runningTweensChildren: RunningTween[] = [];
 
-    public static create(target: any, tween: Tween): ExecutionTween {
-        const executionTween = new ExecutionTween(target, tween);
-        executionTween.getBlock();
-        this._executionTweens.push(executionTween);
-        return executionTween;
+    public static create(target: any, tween: Tween): RunningTween {
+        const runningTween = new RunningTween(target, tween);
+        runningTween.getBlock();
+        this._runningTweens.push(runningTween);
+        return runningTween;
     }
 
-    public static createChildren(target: any, tween: Tween): ExecutionTween {
-        const executionTween = new ExecutionTween(target, tween);
-        executionTween.getBlock();
-        this._executionTweensChildren.push(executionTween);
-        return executionTween;
+    public static createChildren(target: any, tween: Tween): RunningTween {
+        const runningTween = new RunningTween(target, tween);
+        runningTween.getBlock();
+        this._runningTweensChildren.push(runningTween);
+        return runningTween;
     }
 
-    public static addChildren(runningTween: ExecutionTween): void {
-        this._executionTweensChildren.push(runningTween);
+    public static addChildren(runningTween: RunningTween): void {
+        this._runningTweensChildren.push(runningTween);
     }
-
-    // public static stop2(executionTween: ExecutionTween, target: any): void {
-    //     const index = this._executionTweens.findIndex(x => x.target === target && (x.root ?? x) === executionTween);
-    //     if (index === -1) return;
-    //     this._executionTweens.splice(index, 1);
-    // }
 
     public static update(delta: number): void {
-        for (let i = this._executionTweensChildren.length - 1; i >= 0; i--) {
-            if (!this._executionTweensChildren[i].execute(delta)) {
-                this._executionTweensChildren.splice(i, 1);
+        for (let i = this._runningTweensChildren.length - 1; i >= 0; i--) {
+            if (!this._runningTweensChildren[i].execute(delta)) {
+                this._runningTweensChildren.splice(i, 1);
             }
         }
 
-        for (let i = this._executionTweens.length - 1; i >= 0; i--) {
-            if (!this._executionTweens[i].execute(delta)) {
-                this._executionTweens.splice(i, 1);
+        for (let i = this._runningTweens.length - 1; i >= 0; i--) {
+            if (!this._runningTweens[i].execute(delta)) {
+                this._runningTweens.splice(i, 1);
             }
         }
     }

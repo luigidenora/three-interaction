@@ -1,7 +1,7 @@
 import { Euler, MathUtils, Object3D, Vector3 } from "three";
 import { DEFAULT_EASING, Easing } from "./Easings";
 import { Tween } from "./Tween";
-import { ExecutionAction } from "./ExecutionTween";
+import { RunningAction } from "./RunningTween";
 
 // custom TODO e add time per ogni cosino?
 
@@ -10,7 +10,7 @@ export type Motion<T> = { [Property in keyof T]?: T[Property] | MotionValue<T> }
 
 /** @internal */
 export interface ActionDescriptor {
-    actions?: ExecutionAction[];
+    actions?: RunningAction[];
     tweens?: Tween[];
 }
 
@@ -71,7 +71,7 @@ export class ActionMotion<T> implements IAction {
     constructor(public time: number, public motion: Motion<T>, public isBy: boolean) { }
 
     public init(target: any): ActionDescriptor { //TODO vedere gli any
-        const actions: ExecutionAction[] = [];
+        const actions: RunningAction[] = [];
         for (const key in this.motion) {
             if ((key as keyof Motion<T>) === "easing") continue;
             const actionValue = this.motion[key as keyof Motion<T>];
@@ -86,7 +86,7 @@ export class ActionMotion<T> implements IAction {
         return { actions };
     }
 
-    private vector3(actionValue: Motion<T>[keyof T | "easing"], targetValue: Vector3): ExecutionAction<Vector3> {
+    private vector3(actionValue: Motion<T>[keyof T | "easing"], targetValue: Vector3): RunningAction<Vector3> {
         if (targetValue?.isVector3 === true) {
             const valueRaw = (actionValue as MotionValue<number | Vector3>).value ?? actionValue as (number | Vector3);
             const value = typeof (valueRaw) === "number" ? new Vector3(valueRaw, valueRaw, valueRaw) : valueRaw;
@@ -100,7 +100,7 @@ export class ActionMotion<T> implements IAction {
         }
     }
 
-    private euler(actionValue: Motion<T>[keyof T | "easing"], targetValue: Euler): ExecutionAction<Euler> {
+    private euler(actionValue: Motion<T>[keyof T | "easing"], targetValue: Euler): RunningAction<Euler> {
         if (targetValue?.isEuler === true) {
             const valueRaw = (actionValue as MotionValue<Euler>).value ?? actionValue as Euler;
             const value = typeof (valueRaw) === "number" ? new Euler(valueRaw, valueRaw, valueRaw) : valueRaw;
@@ -117,7 +117,7 @@ export class ActionMotion<T> implements IAction {
         }
     }
 
-    private any(actionValue: Motion<T>[keyof T | "easing"], target: any, key: string): ExecutionAction {
+    private any(actionValue: Motion<T>[keyof T | "easing"], target: any, key: string): RunningAction {
         const value = (actionValue as MotionValue).value ?? actionValue;
         return {
             time: this.time,
