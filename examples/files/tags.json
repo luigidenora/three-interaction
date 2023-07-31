@@ -1,5 +1,0 @@
-{
-	"events_focus": ["focus", "focusable"],
-	"events_instancedMesh": ["instancedMesh"],
-	"objects_instancedMeshSingle": ["instancedMesh", "instancedMeshSingle"]
-}

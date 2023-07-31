@@ -47,7 +47,7 @@ export class Tween<T = any> {
     }
 
     public repeatForever(): this {
-        return this.repeat(Infinity);
+        return this.repeat(Infinity); //TODO fix don't save history
     }
 
     public yoyo(times = 1): this {
