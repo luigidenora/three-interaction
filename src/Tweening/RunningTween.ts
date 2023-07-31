@@ -37,7 +37,7 @@ export class RunningTween {
     /** @internal */ public originallyReversed?: boolean;
     /** @internal */ public repeat?: boolean;
     /** @internal */ public ripetitions: { [x: number]: number } = {};
-    public timeScale = 1
+    public timeScale = 1; //TODO implement
 
     constructor(target: any, tween: Tween) {
         this.target = target;
@@ -66,12 +66,18 @@ export class RunningTween {
 
     /** @internal */
     public getBlock(): RunningBlock {
-        const block = this.reversed ? this.getPrevBlock() : (this.repeat ? this.getRepeatBlock() : this.getNextBlock());
+        const block = this.getCurrentBlock();
         if (!this.repeat && !this.reversed && block) {
             this.history.push(block);
         }
         this.currentBlock = block;
         return block;
+    }
+
+    /** @internal */
+    private getCurrentBlock(): RunningBlock {
+        if (this.reversed) return this.getPrevBlock();
+        return this.repeat ? this.getRepeatBlock() : this.getNextBlock();
     }
 
     /** @internal */
