@@ -1,7 +1,7 @@
 import { Euler, MathUtils, Object3D, Vector3 } from "three";
 import { DEFAULT_EASING, Easing } from "./Easings";
 import { Tween } from "./Tween";
-import { ExecutionAction } from "./TweenManager";
+import { ExecutionAction } from "./ExecutionTween";
 
 // custom TODO e add time per ogni cosino?
 
