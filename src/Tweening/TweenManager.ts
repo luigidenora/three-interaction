@@ -190,7 +190,7 @@ export class ExecutionTween {
         const block = this.currentBlock;
         block.elapsedTime += delta;
         this.executeActions(block);
-        this.executeTweens(this, block, delta);
+        this.executeTweens(block, delta);
         return block.elapsedTime - block.totalTime;
     }
 
@@ -203,35 +203,35 @@ export class ExecutionTween {
         }
     }
 
-    private executeTweens(executionTween: ExecutionTween, block: ExecutionBlock, delta: number): void {
+    private executeTweens(block: ExecutionBlock, delta: number): void {
         if (block.tweens && !block.tweensStarted) {
             if (!block.runningTweens) {
                 block.runningTweens = [];
                 for (const tween of block.tweens) {
-                    this.executeTween(executionTween, block, delta, tween);
+                    this.executeTween(block, delta, tween);
                 }
             } else {
                 for (const newExecutionTween of block.runningTweens) {
-                    this.executeExistingTween(newExecutionTween, delta, executionTween.reversed);
+                    newExecutionTween.executeExistingTween(delta, this.reversed);
                 }
             }
             block.tweensStarted = true;
         }
     }
 
-    private executeTween(executionTween: ExecutionTween, block: ExecutionBlock, delta: number, tween: Tween): void {
-        const newExecutionTween = TweenManager.createChildren(executionTween.target, tween);
+    private executeTween(block: ExecutionBlock, delta: number, tween: Tween): void {
+        const newExecutionTween = TweenManager.createChildren(this.target, tween);
         block.runningTweens.push(newExecutionTween);
         newExecutionTween.execute(delta);
     }
 
-    private executeExistingTween(runningTween: ExecutionTween, delta: number, reversed: boolean): void {
-        runningTween.reversed = reversed ? !runningTween.originallyReversed : runningTween.originallyReversed;
-        runningTween.repeat = !runningTween.reversed;
-        runningTween.actionIndex = runningTween.reversed ? runningTween.history.length : -1;
-        TweenManager.addChildren(runningTween);
-        runningTween.getBlock();
-        runningTween.execute(delta);
+    private executeExistingTween(delta: number, reversed: boolean): void {
+        this.reversed = reversed ? !this.originallyReversed : this.originallyReversed;
+        this.repeat = !this.reversed;
+        this.actionIndex = this.reversed ? this.history.length : -1;
+        TweenManager.addChildren(this);
+        this.getBlock();
+        this.execute(delta);
     }
 
     /** @internal */
