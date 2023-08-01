@@ -16,7 +16,7 @@ export function setEulerSmartRenderingChangeCallback(target: Object3D): void {
     target.rotation._onChangeCallback = () => {
         (target as any).__onChangeCallbackBase();
         target.scene.needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("rotationchange");
+        target.__eventsDispatcher.dispatch("rotationchange");
     };
 }
 
@@ -24,6 +24,6 @@ export function setEulerSmartRenderingChangeCallback(target: Object3D): void {
 export function setEulerDefaultChangeCallback(target: Object3D): void {
     target.rotation._onChangeCallback = () => {
         (target as any).__onChangeCallbackBase();
-        target.__eventsDispatcher.dispatchEvent("rotationchange");
+        target.__eventsDispatcher.dispatch("rotationchange");
     };
 }

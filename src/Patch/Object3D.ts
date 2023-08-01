@@ -103,11 +103,11 @@ Object3D.prototype.off = function (type: any, listener) {
 }
 
 Object3D.prototype.trigger = function (type: any, args) {
-    this.__eventsDispatcher.dispatchDOMEvent(type, args);
+    this.__eventsDispatcher.dispatchDOM(type, args);
 }
 
 Object3D.prototype.triggerAncestor = function (type: any, args) { //TODO Cambare nome
-    this.__eventsDispatcher.dispatchDOMEventAncestor(type, args);
+    this.__eventsDispatcher.dispatchDOMAncestor(type, args);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { // needed to inject code in constructor

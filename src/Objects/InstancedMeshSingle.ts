@@ -67,6 +67,6 @@ export class InstancedMeshSingle extends EventDispatcher {
     }
 
     public trigger<K extends keyof Events>(type: K, args: Events[K]): void {
-        this.__eventsDispatcher.dispatchEvent(type, args);
+        this.__eventsDispatcher.dispatch(type, args);
     }
 }

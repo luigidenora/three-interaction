@@ -74,7 +74,7 @@ export function setSceneReference(target: Object3D, scene: Scene) {
 
 /** @internal */
 export function removeSceneReference(target: Object3D) {
-    EventsCache.remove(target, target.scene);
+    EventsCache.removeAll(target);
     removeSmartRenderingPatch(target);
     Binding.unbindFromScene(target);
     target.scene = undefined;

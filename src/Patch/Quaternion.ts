@@ -16,7 +16,7 @@ export function setQuaternionSmartRenderingChangeCallback(target: Object3D): voi
     target.quaternion._onChangeCallback = () => {
         (target as any).__onChangeCallbackBase();
         target.scene.needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("rotationchange");
+        target.__eventsDispatcher.dispatch("rotationchange");
     };
 }
 
@@ -24,6 +24,6 @@ export function setQuaternionSmartRenderingChangeCallback(target: Object3D): voi
 export function setQuaternionDefaultChangeCallback(target: Object3D): void {
     target.quaternion._onChangeCallback = () => {
         (target as any).__onChangeCallbackBase();
-        target.__eventsDispatcher.dispatchEvent("rotationchange");
+        target.__eventsDispatcher.dispatch("rotationchange");
     };
 }

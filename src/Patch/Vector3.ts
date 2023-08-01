@@ -16,23 +16,23 @@ export function applyVector3Patch(target: Object3D): void {
 export function setVector3SmartRenderingChangeCallback(target: Object3D): void {
     (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
         target.scene.needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("positionchange");
+        target.__eventsDispatcher.dispatch("positionchange");
     };
 
     (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
         target.scene.needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("scalechange");
+        target.__eventsDispatcher.dispatch("scalechange");
     };
 }
 
 /** @internal */
 export function setVector3DefaultChangeCallback(target: Object3D): void {
     (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__eventsDispatcher.dispatchEvent("positionchange");
+        target.__eventsDispatcher.dispatch("positionchange");
     };
 
     (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.__eventsDispatcher.dispatchEvent("scalechange");
+        target.__eventsDispatcher.dispatch("scalechange");
     };
 }
 
