@@ -124,7 +124,7 @@ export class ActionMotion<T> implements IAction {
             easing: (actionValue as MotionValue<number | Vector3>).easing ?? this.motion.easing ?? DEFAULT_EASING,
             start: target[key],
             end: this.isBy ? value + target[key] : value,
-            callback: (start, end, alpha) => {  MathUtils.lerp(start, end, alpha) }
+            callback: (start, end, alpha) => {  target[key] = MathUtils.lerp(start, end, alpha) }
         };
     }
 

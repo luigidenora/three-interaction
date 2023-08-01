@@ -216,7 +216,8 @@ export class RunningTween {
         if (block.actions) {
             for (const action of block.actions) {
                 const alpha = block.reversed ? 1 - Math.min(1, block.elapsedTime / action.time) : Math.min(1, block.elapsedTime / action.time);
-                action.callback(action.start, action.end, easings[action.easing](alpha));
+                const easingFunc = easings[action.easing]
+                action.callback(action.start, action.end, easingFunc ? easingFunc(alpha) : alpha);
             }
         }
     }
