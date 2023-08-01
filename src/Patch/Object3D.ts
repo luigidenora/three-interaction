@@ -61,14 +61,24 @@ Object.defineProperty(Object3D.prototype, "firstFocusable", {
     configurable: true
 });
 
+Object.defineProperty(Object3D.prototype, "enabledUntilParent", {
+    get: function (this: Object3D) {
+        let obj = this;
+        do {
+            if (obj.enabled !== true) return false;
+        } while (obj = obj.parent);
+        return true;
+    },
+    configurable: true //Todo consider configurable false
+});
+
 Object.defineProperty(Object3D.prototype, "needsRender", {
     get: function (this: Object3D) {
         return this.scene?.needsRender;
     },
     set: function (this: Object3D, value: boolean) {
-        if (this.scene !== undefined) {
-            this.scene.needsRender = value;
-        }
+        if (!this.scene) return;
+        this.scene.needsRender = value;
     },
     configurable: true
 });

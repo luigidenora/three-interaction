@@ -46,7 +46,6 @@ export class Main {
         this._showStats = value;
     }
 
-    //TODO change to ColorRepresentation
     public get backgroundColor(): ColorRepresentation { return this.renderManager.backgroundColor }
     public set backgroundColor(value: ColorRepresentation) { this.renderManager.backgroundColor = value }
 
@@ -89,7 +88,7 @@ export class Main {
             if (visibleScenes !== undefined) {
                 for (const scene of visibleScenes) {
                     const delta = currentDelta * scene.timeScale;
-                    const total = scene.timeScale += delta;
+                    const total = scene.totalTime += delta;
                     EventsCache.dispatchEvent(scene, "beforeanimate", { delta, total });
                     EventsCache.dispatchEvent(scene, "animate", { delta, total });
                     EventsCache.dispatchEvent(scene, "afteranimate", { delta, total });

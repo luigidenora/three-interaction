@@ -83,11 +83,11 @@ export class CursorHandler {
     }
 
     private getCursor(objDragged: Object3D, objHovered: Object3D): Cursor {
-        console.log(objHovered);
-        if (objDragged) return objHovered.cursorOnDrag ?? "grabbing";
+        //TODO add drop target change curosr
+        if (objDragged) return objDragged.cursorOnDrag ?? "grabbing";
         if (objHovered) {
             if (objHovered.cursor) return objHovered.cursor;
-            if (!objHovered.enabled) return "default";
+            if (!objHovered.enabledUntilParent) return "default";
             return objHovered.draggable ? "grab" : "pointer";
         }
         return "default";
