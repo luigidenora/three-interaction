@@ -4,12 +4,12 @@ import { EventsCache } from "./MiscEventsManager";
 import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/Object3D";
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 
-export class EventsDispatcher {  //TODO union with events dispatcher?
+export class EventsDispatcher {
     public listeners: { [x: string]: ((args?: any) => void)[] } = {};
 
     constructor(public parent: Object3D | InstancedMeshSingle) { }
 
-    public addEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
+    public add<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (this.listeners[type] === undefined) {
             this.listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
@@ -27,14 +27,14 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
         return listener;
     }
 
-    public hasEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
+    public has<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
         if (this.listeners[type]?.indexOf(listener) !== -1) {
             return true;
         }
         return false;
     }
 
-    public removeEventListener<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
+    public remove<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
         const index = this.listeners[type]?.indexOf(listener) ?? -1;
         if (index !== -1) {
             this.listeners[type].splice(index, 1);
@@ -78,4 +78,5 @@ export class EventsDispatcher {  //TODO union with events dispatcher?
             callback.call(this.parent, args);
         }
     }
+    
 }

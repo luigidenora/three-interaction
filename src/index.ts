@@ -36,6 +36,7 @@ export * from './Tweening/Actions';
 export * from './Tweening/Easings';
 export * from './Tweening/Tween';
 export * from './Tweening/TweenManager';
+export * from './Tweening/RunningTween';
 
 export * from './Utils/DistinctTargetArray';
 export * from './Utils/Stats';

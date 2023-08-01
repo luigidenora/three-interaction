@@ -50,20 +50,20 @@ export class InstancedMeshSingle extends EventDispatcher {
 
     public on<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
         if (typeof (types) === "string") {
-            return this.__eventsDispatcher.addEventListener(types, listener);
+            return this.__eventsDispatcher.add(types, listener);
         }
         for (const type of types) {
-            this.__eventsDispatcher.addEventListener(type, listener);
+            this.__eventsDispatcher.add(type, listener);
         }
         return listener;
     }
 
     public hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
-        return this.__eventsDispatcher.hasEventListener(type, listener);
+        return this.__eventsDispatcher.has(type, listener);
     }
 
     public off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
-        this.__eventsDispatcher.removeEventListener(type, listener);
+        this.__eventsDispatcher.remove(type, listener);
     }
 
     public trigger<K extends keyof Events>(type: K, args: Events[K]): void {

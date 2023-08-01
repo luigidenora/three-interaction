@@ -75,20 +75,20 @@ Object.defineProperty(Object3D.prototype, "needsRender", {
 
 Object3D.prototype.on = function (this: Object3D, types: any, listener) {
     if (typeof (types) === "string") {
-        return this.__eventsDispatcher.addEventListener(types as any, listener);
+        return this.__eventsDispatcher.add(types as any, listener);
     }
     for (const type of types) {
-        this.__eventsDispatcher.addEventListener(type, listener);
+        this.__eventsDispatcher.add(type, listener);
     }
     return listener;
 };
 
 Object3D.prototype.hasEvent = function (type: any, listener) {
-    return this.__eventsDispatcher.hasEventListener(type, listener);
+    return this.__eventsDispatcher.has(type, listener);
 }
 
 Object3D.prototype.off = function (type: any, listener) {
-    this.__eventsDispatcher.removeEventListener(type, listener);
+    this.__eventsDispatcher.remove(type, listener);
 }
 
 Object3D.prototype.trigger = function (type: any, args) {
