@@ -151,7 +151,7 @@ export class MouseEventExt extends EventExt {
 }
 
 export class PointerEventExt extends MouseEventExt {
-  public override domEvent: PointerEvent;
+  declare public domEvent: PointerEvent;
   /** A unique identifier for the pointer causing the event. */
   public get pointerId() { return this.domEvent.pointerId }
   /** The width (magnitude on the X axis), in CSS pixels, of the contact geometry of the pointer. */
@@ -214,7 +214,7 @@ export class PointerIntersectionEvent extends EventExt {
 }
 
 export class WheelEventExt extends MouseEventExt {
-  public override domEvent: WheelEvent;
+  declare domEvent: WheelEvent;
   /*  Returns an unsigned long representing the unit of the delta* values' scroll amount. Permitted values are: 0 = pixels, 1 = lines, 2 = pages. */
   public get deltaMode() { return this.domEvent.deltaMode }
   /** Returns a double representing the horizontal scroll amount. */

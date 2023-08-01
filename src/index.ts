@@ -10,12 +10,10 @@ export * from './Events/InteractionEventsQueue';
 export * from './Events/MiscEventsManager';
 export * from './Events/RaycasterManager';
 
-export * from './Objects/BubbleMaterial';
 export * from './Objects/InstancedMesh2';
 export * from './Objects/InstancedMeshSingle';
 export * from './Objects/Line2';
 export * from './Objects/LinkedLine';
-export * from './Objects/LoadingMaterial';
 export * from './Objects/OrthographicCamera2';
 export * from './Objects/PerspectiveCamera2';
 

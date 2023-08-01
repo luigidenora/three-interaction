@@ -36,7 +36,7 @@ export class EventsCache {
 
    public static removeAll(target: Object3D): void {
       const sceneCache = this._events[target.scene?.id];
-      if (!sceneCache) {
+      if (sceneCache) {
          for (const key in sceneCache) {
             const eventCache = sceneCache[key];
             eventCache.remove(target);
@@ -46,7 +46,7 @@ export class EventsCache {
 
    public static remove(type: keyof Events, target: Object3D): void {
       const sceneCache = this._events[target.scene?.id];
-      if (!sceneCache) {
+      if (sceneCache) {
          sceneCache[type]?.remove(target);
       }
    }
