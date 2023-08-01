@@ -3,6 +3,8 @@ import { Scene as SceneBase } from "three/index";
 import { BindingCallback, Cursor, DistinctTargetArray, Events, EventsDispatcher, IntersectionExt, Object3DExtPrototype, SceneExtPrototype } from "../index";
 
 export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPrototype {
+    cursorDrop: Cursor;
+    get enabledUntilParent(): boolean;
     findDropTarget: boolean;
     timeScale: number;
     totalTime: number;
@@ -15,7 +17,6 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     focusedObject: Object3D;
     activeSmartRendering(): this;
     enabled: boolean;
-    enabledUntilParent: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     focusable: boolean;
@@ -25,7 +26,7 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     clicking: boolean;
     dragging: boolean;
     cursor: Cursor;
-    cursorOnDrag: Cursor;
+    cursorDrag: Cursor;
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;

@@ -15,7 +15,7 @@ export class OrthographicCamera extends OrthographicCameraBase implements Object
     clicking: boolean;
     dragging: boolean;
     cursor: Cursor;
-    cursorOnDrag: Cursor;
+    cursorDrag: Cursor;
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;

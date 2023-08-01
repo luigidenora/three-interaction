@@ -6,7 +6,7 @@ import { RunningAction } from "./RunningTween";
 // custom TODO e add time per ogni cosino?
 
 export type MotionValue<T = any> = { value: T, easing?: Easing };
-export type Motion<T> = { [Property in keyof T]?: T[Property] | MotionValue<T> } & { easing?: Easing };
+export type Motion<T> = { [P in keyof T]?: T[P] | MotionValue<T> } & { easing?: Easing };
 
 /** @internal */
 export interface ActionDescriptor {

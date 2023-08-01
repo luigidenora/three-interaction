@@ -69,9 +69,9 @@ export class CursorHandler {
         this._domElement = domElement;
     }
 
-    public update(objDragged: Object3D, objHovered: Object3D): void {
+    public update(objDragged: Object3D, objHovered: Object3D, objDropTarget: Object3D): void {
         if (!this.enabled) return;
-        const cursor = this.getCursor(objDragged, objHovered);
+        const cursor = this.getCursor(objDragged, objHovered, objDropTarget);
         if (cursor !== this._cursor) {
             this._cursor = cursor;
             if (cursorSet.has(cursor as string)) {
@@ -82,9 +82,9 @@ export class CursorHandler {
         }
     }
 
-    private getCursor(objDragged: Object3D, objHovered: Object3D): Cursor {
-        //TODO add drop target change curosr
-        if (objDragged) return objDragged.cursorOnDrag ?? "grabbing";
+    private getCursor(objDragged: Object3D, objHovered: Object3D, objDropTarget: Object3D): Cursor {
+        if (objDropTarget) return objDropTarget.cursorDrop ?? "alias";
+        if (objDragged) return objDragged.cursorDrag ?? "grabbing";
         if (objHovered) {
             if (objHovered.cursor) return objHovered.cursor;
             if (!objHovered.enabledUntilParent) return "default";

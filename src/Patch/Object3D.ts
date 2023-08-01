@@ -11,7 +11,6 @@ import { applyVector3Patch } from "./Vector3";
 
 export interface Object3DExtPrototype {
     enabled: boolean; //TODO Handle default true
-    enabledUntilParent: boolean; //TODO Handle
     interceptByRaycaster: boolean; // default true
     objectsToRaycast: Object3D[]; //TODO handle hitbox
     focusable: boolean; // default true
@@ -21,10 +20,12 @@ export interface Object3DExtPrototype {
     clicking: boolean;
     dragging: boolean;
     cursor: Cursor;
-    cursorOnDrag: Cursor;
+    cursorDrag: Cursor;
+    cursorDrop: Cursor;
     findDropTarget: boolean;
     scene: Scene;
     needsRender: boolean;
+    get enabledUntilParent(): boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;
     applyBlur(): void;

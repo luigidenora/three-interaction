@@ -53,7 +53,7 @@ export class InteractionManager {
         domElement.addEventListener("pointermove", this.enqueue.bind(this));
         domElement.addEventListener("pointerup", this.enqueue.bind(this));
         domElement.addEventListener("wheel", this.enqueue.bind(this));
-        document.addEventListener("keydown", this.enqueue.bind(this)); //todo capire meglio?
+        document.addEventListener("keydown", this.enqueue.bind(this)); //todo settare un dom element or tabindex automatico
         document.addEventListener("keyup", this.enqueue.bind(this));
     }
 
@@ -69,7 +69,8 @@ export class InteractionManager {
             this.computeQueuedEvent(event);
         }
         this.pointerIntersection();
-        this._cursorManager.update(this._dragManager.target, this._intersection[this._primaryIdentifier]?.object); //todo creare hoveredobj?
+        const hoveredObj = this._intersection[this._primaryIdentifier]?.object;
+        this._cursorManager.update(this._dragManager.target, hoveredObj, this._intersectionDropTarget?.object);
         // this.needsUpdate = false; TODO decomment when implement 20 fps raycasting
     }
 
@@ -81,10 +82,10 @@ export class InteractionManager {
         if (this._dragManager.isDragging) {
             if (event.isPrimary) {
                 const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.target.findDropTarget === true ? this._dragManager.target : undefined);
-                this._intersectionDropTarget = intersections[0];
-                const scene = this._renderManager.activeScene;
-                if (scene) {
-                    scene.intersectionsDropTarget = intersections;
+                if (this._dragManager.isDropTarget(intersections[0])) {
+                    this.setDropTarget(intersections);
+                } else {
+                    this.setDropTarget([]);
                 }
             }
         } else {
@@ -241,7 +242,9 @@ export class InteractionManager {
             this.triggerPointer("pointerleave", event, target);
         }
 
-        if (!this._dragManager.stopDragging(event)) {
+        if (this._dragManager.stopDragging(event)) {
+            this.setDropTarget([]);
+        } else {
             this.triggerAncestorPointer("pointerup", event, target, lastPointerDownTarget);
             if (target && target === lastPointerDownTarget) {
                 lastClick = this.triggerAncestorPointer("click", event, target);
@@ -277,6 +280,14 @@ export class InteractionManager {
 
     private keyUp(event: KeyboardEvent): void {
         this.triggerAncestorKeyboard("keyup", event, false);
+    }
+
+    private setDropTarget(intersections: IntersectionExt[]): void {
+        this._intersectionDropTarget = intersections[0];
+        const scene = this._renderManager.activeScene;
+        if (scene) {
+            scene.intersectionsDropTarget = intersections;
+        }
     }
 
 }

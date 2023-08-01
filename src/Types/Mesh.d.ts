@@ -15,7 +15,7 @@ export class Mesh extends MeshBase  implements Object3DExtPrototype {
     clicking: boolean;
     dragging: boolean;
     cursor: Cursor;
-    cursorOnDrag: Cursor;
+    cursorDrag: Cursor;
     scene: Scene;
     needsRender: boolean;
     get firstFocusable(): Object3D;

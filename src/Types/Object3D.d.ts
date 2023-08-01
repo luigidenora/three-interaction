@@ -15,7 +15,8 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     clicking: boolean;
     dragging: boolean;
     cursor: Cursor;
-    cursorOnDrag: Cursor;
+    cursorDrag: Cursor;
+    cursorDrop: Cursor;
     needsRender: boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;

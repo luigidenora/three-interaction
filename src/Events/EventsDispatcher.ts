@@ -5,7 +5,7 @@ import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 
 export class EventsDispatcher {
-    public listeners: { [x: string]: ((args?: any) => void)[] } = {};
+    public listeners: { [P in keyof Events]?: ((args?: any) => void)[] } = {};
 
     constructor(public parent: Object3D | InstancedMeshSingle) { }
 
@@ -78,5 +78,5 @@ export class EventsDispatcher {
             callback.call(this.parent, args);
         }
     }
-    
+
 }
