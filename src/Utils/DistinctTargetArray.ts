@@ -26,7 +26,7 @@ export class DistinctTargetArray<T extends Object3D = Object3D> {
     }
 
     public clear(): void {
-        this._set = new Set(); //or this._set.clear(); todo check performance
+        this._set.clear();
         this.data = [];
     }
 }

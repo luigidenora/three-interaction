@@ -71,17 +71,7 @@ export class CursorHandler {
 
     public update(objDragged: Object3D, objHovered: Object3D): void {
         if (!this.enabled) return;
-
-        let cursor: Cursor;
-        if (objDragged) {
-            cursor = objHovered.cursorOnDrag ?? "grabbing";
-        } else if (objHovered) {
-            //TODO drop target
-            cursor = objHovered.cursor ?? !objHovered.enabled ? "default" : (objHovered.draggable ? "grab" : "pointer");
-        } else {
-            cursor = "default";
-        }
-
+        const cursor = this.getCursor(objDragged, objHovered);
         if (cursor !== this._cursor) {
             this._cursor = cursor;
             if (cursorSet.has(cursor as string)) {
@@ -91,4 +81,16 @@ export class CursorHandler {
             }
         }
     }
+
+    private getCursor(objDragged: Object3D, objHovered: Object3D): Cursor {
+        console.log(objHovered);
+        if (objDragged) return objHovered.cursorOnDrag ?? "grabbing";
+        if (objHovered) {
+            if (objHovered.cursor) return objHovered.cursor;
+            if (!objHovered.enabled) return "default";
+            return objHovered.draggable ? "grab" : "pointer";
+        }
+        return "default";
+    }
+
 }

@@ -99,10 +99,10 @@ Object3D.prototype.triggerAncestor = function (type: any, args) { //TODO Cambare
     this.__eventsDispatcher.dispatchDOMEventAncestor(type, args);
 }
 
-Object.defineProperty(Object3D.prototype, "userData", { // hack to inject code in constructor
+Object.defineProperty(Object3D.prototype, "userData", { // needed to inject code in constructor
     set: function (value) {
         this.__eventsDispatcher = new EventsDispatcher(this);
-        Object.defineProperty(this, "userData", { // hack to inject code in constructor
+        Object.defineProperty(this, "userData", {
             value, writable: true, configurable: true
         });
     },
@@ -128,11 +128,14 @@ export function applyObject3DRotationPatch(target: Object3D): void {
 }
 
 Object3D.prototype.applyFocus = function () {
+    if (!this.scene) {
+        console.error("Cannot apply focus if the object is not added to a scene.");
+    }
     this.scene.focus(this);
 };
 
-Object3D.prototype.applyFocus = function () {
-    this.scene.focus();
+Object3D.prototype.applyBlur = function () {
+    this.scene?.focus();
 };
 
 Object3D.prototype.setManualDetectionMode = function () {

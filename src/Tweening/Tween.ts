@@ -69,12 +69,20 @@ export class Tween<T = any> {
     }
 
     public parallel(tweens: Tween[]): this {
-        // this.actions.push(new ActionTween(tweens));
+        this.actions.push(new ActionTween(tweens));
         return this;
     }
 
-    public start(): void {
-        TweenManager.create(this.target, this);
+    public sequence(tweens: Tween[]): this {
+        for (const tween of tweens) {
+            this.actions.push(new ActionTween([tween]));
+        }
+        return this;
+    }
+
+    public chain(tween: Tween): this {
+        this.actions.push(...tween.actions);
+        return this;
     }
 
     public clone(): Tween {
@@ -83,11 +91,9 @@ export class Tween<T = any> {
         tween.tags = [...this.tags];
         return tween;
     }
-
-    public chain(tween: Tween): this {
-        //clona actions
-        //aggiungile
-        return this;
+    
+    public start(): void {
+        TweenManager.create(this.target, this);
     }
 
 }
