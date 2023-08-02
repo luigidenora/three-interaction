@@ -60,8 +60,9 @@ const cursorSet = new Set([
 
 export type Cursor = keyof Cursors | String;
 
+/** @internal */
 export class CursorHandler {
-    public enabled = true; //TODO esporre nel main
+    public enabled = true;
     private _cursor: Cursor;
     private _domElement: HTMLCanvasElement;
 

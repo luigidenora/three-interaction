@@ -2,9 +2,12 @@ import { Object3D, Raycaster, Vector2 } from "three";
 import { RenderManager } from "../Rendering/RenderManager";
 import { IntersectionExt } from "./Events";
 
+export type RaycasterSortComparer = (a: IntersectionExt, b: IntersectionExt) => number;
+
+/** @internal */
 export class RaycasterManager {
     public raycaster = new Raycaster();
-    public intersectionSortComparer = (a: IntersectionExt, b: IntersectionExt) => a.distance - b.distance; //TODO esporre fuori
+    public raycasterSortComparer: RaycasterSortComparer = (a: IntersectionExt, b: IntersectionExt) => a.distance - b.distance;
     public pointer = new Vector2();
     private _computedPointer = new Vector2();
     private _renderManager: RenderManager;
@@ -23,15 +26,12 @@ export class RaycasterManager {
             if (isDragging === false || excluded !== undefined) {
                 this.raycastObjects(scene, intersections, excluded);
             }
-            intersections.sort(this.intersectionSortComparer);
+            intersections.sort(this.raycasterSortComparer);
         }
         return intersections;
     }
 
-    /**
-     * Retrieves the ray origin based on the mouse position.
-     */
-    public getComputedMousePosition(mouse: Vector2, target: Vector2, isDragging: boolean, isPrimary: boolean): boolean {
+    private getComputedMousePosition(mouse: Vector2, target: Vector2, isDragging: boolean, isPrimary: boolean): boolean {
         if (!isDragging && isPrimary) {
             this._renderManager.updateActiveView(mouse);
         }

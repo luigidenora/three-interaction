@@ -28,6 +28,7 @@ export interface RunningAction<T = any> {
 const easings = new Easings();
 
 export class RunningTween {
+    /** @internal */ public root: RunningTween;
     /** @internal */ public tween: Tween;
     /** @internal */ public target: any;
     /** @internal */ public actionIndex = -1;
@@ -37,31 +38,36 @@ export class RunningTween {
     /** @internal */ public originallyReversed?: boolean;
     /** @internal */ public repeat?: boolean;
     /** @internal */ public ripetitions: { [x: number]: number } = {};
+    /** @internal */ public _finished = false;
+    public paused = false; //TODO implement
     public timeScale = 1; //TODO implement
+
+    public get finished(): boolean { return this._finished }
 
     constructor(target: any, tween: Tween) {
         this.target = target;
         this.tween = tween;
     }
 
-    public stop(): void {
-        // TweenManager.stop(this._target, this);
-    }
-
     public pause(): void {
-        // TweenManager.stop(this._target, this);
+        this.paused = true;
     }
 
     public resume(): void {
-        // TweenManager.stop(this._target, this);
+        this.paused = false;
+    }
+
+    public stop(): void {
+        TweenManager.stop(this);
     }
 
     public complete(): void {
-        // 
+        TweenManager.complete(this);
     }
 
+    //TODO
     public revert(): void {
-        // 
+        console.error("Rever method not implemented yet.");
     }
 
     /** @internal */
@@ -137,12 +143,13 @@ export class RunningTween {
         if (!runningTweens) return undefined;
         const ret: RunningTween[] = [];
         for (const runningTween of runningTweens) {
-            const runningTweenCloned = new RunningTween(runningTween.target, runningTween.tween);
-            runningTweenCloned.history = runningTween.history;
-            runningTweenCloned.actionIndex = !runningTween.reversed ? runningTween.history.length : -1;
-            runningTweenCloned.originallyReversed = !runningTween.reversed;
-            runningTweenCloned.repeat = runningTween.reversed
-            ret.push(runningTweenCloned);
+            const runningCloned = new RunningTween(runningTween.target, runningTween.tween);
+            runningCloned.root = runningTween.root;
+            runningCloned.history = runningTween.history;
+            runningCloned.actionIndex = !runningTween.reversed ? runningTween.history.length : -1;
+            runningCloned.originallyReversed = !runningTween.reversed;
+            runningCloned.repeat = runningTween.reversed
+            ret.push(runningCloned);
         }
         return ret;
     }
@@ -216,8 +223,7 @@ export class RunningTween {
         if (block.actions) {
             for (const action of block.actions) {
                 const alpha = block.reversed ? 1 - Math.min(1, block.elapsedTime / action.time) : Math.min(1, block.elapsedTime / action.time);
-                const easingFunc = easings[action.easing]
-                action.callback(action.start, action.end, easingFunc ? easingFunc(alpha) : alpha);
+                action.callback(action.start, action.end, easings[action.easing] ? easings[action.easing](alpha) : alpha);
             }
         }
     }
@@ -241,7 +247,7 @@ export class RunningTween {
 
     /** @internal */
     private executeTween(block: RunningBlock, delta: number, tween: Tween): void {
-        const runningTween = TweenManager.createChildren(this.target, tween);
+        const runningTween = TweenManager.createChildren(this.target, tween, this.root ?? this);
         block.runningTweens.push(runningTween);
         runningTween.execute(delta);
     }
@@ -268,4 +274,5 @@ export class RunningTween {
         }
         return delta;
     }
+
 }

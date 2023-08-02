@@ -6,13 +6,14 @@ import { InteractionEvents, IntersectionExt, KeyboardEventExt, PointerEventExt, 
 import { InteractionEventsQueue } from "./InteractionEventsQueue";
 import { RaycasterManager } from "./RaycasterManager";
 
+/** @internal */
 export class InteractionManager {
     public raycasterManager: RaycasterManager;
+    public cursorManager: CursorHandler;
     public needsUpdate = true;
     private _intersection: { [x: string]: IntersectionExt } = {};
     private _intersectionDropTarget: IntersectionExt;
     private _renderManager: RenderManager;
-    private _cursorManager: CursorHandler;
     private _queue = new InteractionEventsQueue();
     private _dragManager = new DragAndDropManager();
     private _primaryIdentifier: number;
@@ -29,7 +30,7 @@ export class InteractionManager {
         this._renderManager = renderManager;
         const renderer = renderManager.renderer;
         this.registerRenderer(renderer);
-        this._cursorManager = new CursorHandler(renderer.domElement);
+        this.cursorManager = new CursorHandler(renderer.domElement);
         this.raycasterManager = new RaycasterManager(renderManager);
     }
 
@@ -70,7 +71,7 @@ export class InteractionManager {
         }
         this.pointerIntersection();
         const hoveredObj = this._intersection[this._primaryIdentifier]?.object;
-        this._cursorManager.update(this._dragManager.target, hoveredObj, this._intersectionDropTarget?.object);
+        this.cursorManager.update(this._dragManager.target, hoveredObj, this._intersectionDropTarget?.object);
         // this.needsUpdate = false; TODO decomment when implement 20 fps raycasting
     }
 
@@ -122,7 +123,7 @@ export class InteractionManager {
     }
 
     private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
-        const scene = this._renderManager.activeScene;
+        const scene = this._renderManager.activeScene; //TODO FIX
         if (scene) {
             const keyboardEvent = new KeyboardEventExt(event, cancelable);
             if (scene.focusedObject) {

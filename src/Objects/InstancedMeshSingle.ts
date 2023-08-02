@@ -19,21 +19,22 @@ export class InstancedMeshSingle extends EventDispatcher {
     public enabledUntilParent: boolean; // TODO
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
 
-    constructor(parent: InstancedMesh2, index: number, color?: Color) {
+    constructor(parent: InstancedMesh2, index: number, color?: ColorRepresentation) {
         super();
         this.id = id++;
         this.parent = parent;
         this.instanceId = index;
         this.__eventsDispatcher = new EventsDispatcher(this);
 
-        if (color) {
+        if (color !== undefined) {
             this.setColor(color);
         }
     }
 
     public setColor(color: ColorRepresentation): void {
-        this.parent.setColorAt(this.instanceId, this.parent._tempColor.set(color));
-        this.parent.instanceColor.needsUpdate = true;
+        const parent = this.parent;
+        parent.setColorAt(this.instanceId, parent._tempColor.set(color));
+        parent.instanceColor.needsUpdate = true;
     }
 
     public getColor(color = this.parent._tempColor): Color {
@@ -42,10 +43,11 @@ export class InstancedMeshSingle extends EventDispatcher {
     }
 
     public updateMatrix(): void {
-        const matrix = this.parent._tempMatrix;
+        const parent = this.parent;
+        const matrix = parent._tempMatrix;
         matrix.compose(this.position, this.quaternion, this.scale);
-        this.parent.setMatrixAt(this.instanceId, matrix);
-        this.parent.instanceMatrix.needsUpdate = true;
+        parent.setMatrixAt(this.instanceId, matrix);
+        parent.instanceMatrix.needsUpdate = true;
     }
 
     public on<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {

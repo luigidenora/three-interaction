@@ -1,4 +1,5 @@
 import { ActionCallback, ActionDelay, ActionMotion, ActionRepeat, ActionTween, ActionYoyo, IAction, Motion } from "./Actions";
+import { RunningTween } from "./RunningTween";
 import { TweenManager } from "./TweenManager";
 
 export class Tween<T = any> {
@@ -92,8 +93,8 @@ export class Tween<T = any> {
         return tween;
     }
     
-    public start(): void {
-        TweenManager.create(this.target, this);
+    public start(): RunningTween {
+        return TweenManager.create(this.target, this);
     }
 
 }

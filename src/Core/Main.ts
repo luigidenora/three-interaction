@@ -7,6 +7,7 @@ import { RenderManager } from "../Rendering/RenderManager";
 import { RenderView, ViewParameters } from "../Rendering/RenderView";
 import { TweenManager } from "../Tweening/TweenManager";
 import { Stats } from "../Utils/Stats";
+import { RaycasterSortComparer } from "../Events/RaycasterManager";
 
 export interface MainParameters {
     fullscreen?: boolean;
@@ -16,6 +17,7 @@ export interface MainParameters {
     backgroundAlpha?: number;
     animate?: XRFrameRequestCallback;
     rendererParameters?: WebGLRendererParameters;
+    enableCursor?: boolean;
     // raycastingFrequency?: boolean; TODO
 }
 
@@ -38,13 +40,19 @@ export class Main {
     public get showStats(): boolean { return this._showStats }
     public set showStats(value: boolean) {
         if (value === true) {
-            if (this._stats === undefined) this._stats = new Stats();
+            if (!this._stats) this._stats = new Stats();
             document.body.appendChild(this._stats.dom);
-        } else if (this._stats !== undefined) {
+        } else if (this._stats) {
             document.body.removeChild(this._stats.dom);
         }
         this._showStats = value;
     }
+
+    public get enableCursor(): boolean { return this._interactionManager.cursorManager.enabled }
+    public set enableCursor(value: boolean) { this._interactionManager.cursorManager.enabled = value }
+
+    public get raycasterSortComparer(): RaycasterSortComparer { return this._interactionManager.raycasterManager.raycasterSortComparer }
+    public set raycasterSortComparer(value: RaycasterSortComparer) { this._interactionManager.raycasterManager.raycasterSortComparer = value }
 
     public get backgroundColor(): ColorRepresentation { return this.renderManager.backgroundColor }
     public set backgroundColor(value: ColorRepresentation) { this.renderManager.backgroundColor = value }
@@ -62,6 +70,7 @@ export class Main {
         this.setAnimationLoop();
         this.backgroundColor = parameters.backgroundColor ?? 0x000000;
         this.backgroundAlpha = parameters.backgroundAlpha ?? 1;
+        this.enableCursor = parameters.enableCursor ?? true;
         this._animate = parameters.animate;
         // setInterval(() => { this.interactionManager.needsUpdate = true }, 1000 / 20); //TODO in future
     }

@@ -7,7 +7,6 @@ export class InstancedMesh2 extends InstancedMeshBase {
     public instances: InstancedMeshSingle[] = [];
     /** @internal */ public _tempMatrix = new Matrix4();
     /** @internal */ public _tempColor = new Color();
-    /** @internal */ public _needsUpdate = false;
 
     constructor(geometry: BufferGeometry, material: Material, count: number, singleInstanceType: typeof InstancedMeshSingle, color?: ColorRepresentation) {
         super(geometry, material, count);
