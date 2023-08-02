@@ -6,7 +6,7 @@ export class Camera extends CameraBase implements Object3DExtPrototype {
     cursorDrop: Cursor;
     findDropTarget: boolean;
     enabled: boolean;
-    enabledUntilParent: boolean;
+    get enabledUntilParent(): boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     focusable: boolean;

@@ -5,7 +5,7 @@ import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype
 export class Object3D extends Object3DBase implements Object3DExtPrototype {
     findDropTarget: boolean;
     enabled: boolean;
-    enabledUntilParent: boolean;
+    get enabledUntilParent(): boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     focusable: boolean;

@@ -36,8 +36,8 @@ export class TweenManager {
         const running = this._running;
         for (let i = running.length - 1; i >= 0; i--) {
             if (!running[i].execute(delta)) {
-                running.splice(i, 1);
                 running[i]._finished = true;
+                running.splice(i, 1);
             }
         }
     }

@@ -5,8 +5,7 @@ import { RunningAction } from "./RunningTween";
 
 // custom TODO e add time per ogni cosino?
 
-export type MotionValue<T = any> = { value: T, easing?: Easing };
-export type Motion<T> = { [P in keyof T]?: T[P] | MotionValue<T> } & { easing?: Easing };
+export type Motion = { [x: string]: any; easing?: Easing };
 
 /** @internal */
 export interface ActionDescriptor {
@@ -66,18 +65,18 @@ export class ActionDelay implements IAction {
 }
 
 /** @internal */
-export class ActionMotion<T> implements IAction {
+export class ActionMotion implements IAction {
     public hasActions = true;
-    constructor(public time: number, public motion: Motion<T>, public isBy: boolean) { }
+    constructor(public time: number, public motion: Motion, public isBy: boolean) { }
 
-    public init(target: any): ActionDescriptor { //TODO vedere gli any
+    public init(target: any): ActionDescriptor {
         const actions: RunningAction[] = [];
         for (const key in this.motion) {
-            if ((key as keyof Motion<T>) === "easing") continue;
-            const actionValue = this.motion[key as keyof Motion<T>];
+            if (key === "easing") continue;
+            const actionValue = this.motion[key];
             const targetValue = target[key];
-            const action = this.vector3(actionValue, targetValue as Vector3)
-                ?? this.euler(actionValue, targetValue as Euler)
+            const action = this.vector3(actionValue, targetValue)
+                ?? this.euler(actionValue, targetValue)
                 ?? this.any(actionValue, target, key);
             if (action) {
                 actions.push(action);
@@ -86,13 +85,13 @@ export class ActionMotion<T> implements IAction {
         return { actions };
     }
 
-    private vector3(actionValue: Motion<T>[keyof T | "easing"], targetValue: Vector3): RunningAction<Vector3> {
+    private vector3(actionValue: any, targetValue: Vector3): RunningAction<Vector3> {
         if (targetValue?.isVector3 === true) {
-            const valueRaw = (actionValue as MotionValue<number | Vector3>).value ?? actionValue as (number | Vector3);
-            const value = typeof (valueRaw) === "number" ? new Vector3(valueRaw, valueRaw, valueRaw) : valueRaw;
+            const valueRaw = actionValue.value ?? actionValue;
+            const value = typeof (valueRaw) === "number" ? new Vector3(valueRaw, valueRaw, valueRaw) : valueRaw as Vector3;
             return {
                 time: this.time,
-                easing: (actionValue as MotionValue<number | Vector3>).easing ?? this.motion.easing ?? DEFAULT_EASING,
+                easing: actionValue.easing ?? this.motion.easing ?? DEFAULT_EASING,
                 start: targetValue.clone(),
                 end: this.isBy ? value.clone().add(targetValue) : value,
                 callback: (start, end, alpha) => { targetValue.lerpVectors(start, end, alpha) }
@@ -100,16 +99,15 @@ export class ActionMotion<T> implements IAction {
         }
     }
 
-    private euler(actionValue: Motion<T>[keyof T | "easing"], targetValue: Euler): RunningAction<Euler> {
+    private euler(actionValue: any, targetValue: Euler): RunningAction<Euler> {
         if (targetValue?.isEuler === true) {
-            const valueRaw = (actionValue as MotionValue<Euler>).value ?? actionValue as Euler;
-            const value = typeof (valueRaw) === "number" ? new Euler(valueRaw, valueRaw, valueRaw) : valueRaw;
-            value.order = targetValue.order;
+            const valueRaw = actionValue.value ?? actionValue;
+            const value = typeof (valueRaw) === "number" ? new Euler(valueRaw, valueRaw, valueRaw) : valueRaw as Euler;
             return {
                 time: this.time,
-                easing: (actionValue as MotionValue<Euler>).easing ?? this.motion.easing ?? DEFAULT_EASING,
+                easing: actionValue.easing ?? this.motion.easing ?? DEFAULT_EASING,
                 start: targetValue.clone(),
-                end: this.isBy ? new Euler(value.x + targetValue.x, value.y + targetValue.y, value.z + targetValue.z, targetValue.order) : value,
+                end: this.isBy ? new Euler(value.x + targetValue.x, value.y + targetValue.y, value.z + targetValue.z) : value,
                 callback: (start, end, alpha) => {
                     targetValue.set(MathUtils.lerp(start.x, end.x, alpha), MathUtils.lerp(start.y, end.y, alpha), MathUtils.lerp(start.z, end.z, alpha));
                 }
@@ -117,14 +115,14 @@ export class ActionMotion<T> implements IAction {
         }
     }
 
-    private any(actionValue: Motion<T>[keyof T | "easing"], target: any, key: string): RunningAction {
-        const value = (actionValue as MotionValue).value ?? actionValue;
+    private any(actionValue: any, target: any, key: string): RunningAction {
+        const value = actionValue.value ?? actionValue;
         return {
             time: this.time,
-            easing: (actionValue as MotionValue<number | Vector3>).easing ?? this.motion.easing ?? DEFAULT_EASING,
+            easing: actionValue.easing ?? this.motion.easing ?? DEFAULT_EASING,
             start: target[key],
             end: this.isBy ? value + target[key] : value,
-            callback: (start, end, alpha) => {  target[key] = MathUtils.lerp(start, end, alpha) }
+            callback: (start, end, alpha) => { target[key] = MathUtils.lerp(start, end, alpha) }
         };
     }
 

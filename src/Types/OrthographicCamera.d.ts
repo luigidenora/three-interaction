@@ -3,9 +3,10 @@ import { OrthographicCamera as OrthographicCameraBase } from "three/index";
 import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
 
 export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototype {
+    cursorDrop: Cursor;
     findDropTarget: boolean;
     enabled: boolean;
-    enabledUntilParent: boolean;
+    get enabledUntilParent(): boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     focusable: boolean;

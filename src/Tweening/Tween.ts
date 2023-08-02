@@ -18,12 +18,12 @@ export class Tween<T = any> {
         return this;
     }
 
-    public to(time: number, action: Motion<T>): this {
+    public to(time: number, action: Motion): this {
         this.actions.push(new ActionMotion(time, action, false));
         return this;
     }
 
-    public by(time: number, action: Motion<T>): this {
+    public by(time: number, action: Motion): this {
         this.actions.push(new ActionMotion(time, action, true));
         return this;
     }
