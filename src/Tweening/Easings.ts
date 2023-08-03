@@ -1,4 +1,4 @@
-export type Easing = keyof Easings /* | ((x: number) => number) */;
+export type Easing = keyof Easings /* | ((x: number) => number) */; //TODO
 export let DEFAULT_EASING: keyof Easings = "easeInOutExpo";
 
 /** 

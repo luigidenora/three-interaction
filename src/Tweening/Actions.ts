@@ -3,8 +3,6 @@ import { DEFAULT_EASING, Easing } from "./Easings";
 import { Tween } from "./Tween";
 import { RunningAction } from "./RunningTween";
 
-// custom TODO e add time per ogni cosino?
-
 export type Motion = { [x: string]: any; easing?: Easing };
 
 /** @internal */
