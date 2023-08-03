@@ -1,5 +1,5 @@
 import { Object3D, Scene } from "three";
-import { Binding } from "../Binding/Binding";
+import { Binding, BindingCallback } from "../Binding/Binding";
 import { Cursor } from "../Events/CursorManager";
 import { Events } from "../Events/Events";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
@@ -9,22 +9,38 @@ import { applyQuaternionPatch } from "./Quaternion";
 import { removeSceneReference, setSceneReference } from "./Scene";
 import { applyVector3Patch } from "./Vector3";
 
+/** @internal */
+export interface Object3DExtPrototypeInternal extends Object3DExtPrototype {
+    hovered: boolean;
+    focused: boolean;
+    clicking: boolean;
+    dragging: boolean;
+    __boundCallbacks: BindingCallback[];
+    __manualDetection: boolean;
+    __eventsDispatcher: EventsDispatcher;
+    __vec3Patched: boolean;
+    __rotationPatched: boolean;
+    __smartRenderingPatched: boolean;
+    __enabled: boolean;
+    __visible: boolean;
+}
+
 export interface Object3DExtPrototype {
     enabled: boolean; //TODO Handle default true
     interceptByRaycaster: boolean; // default true
     objectsToRaycast: Object3D[]; //TODO handle hitbox
     focusable: boolean; // default true
     draggable: boolean; // default false
-    hovered: boolean;
-    focused: boolean;
-    clicking: boolean;
-    dragging: boolean;
+    findDropTarget: boolean;
+    scene: Scene;
     cursor: Cursor;
     cursorDrag: Cursor;
     cursorDrop: Cursor;
-    findDropTarget: boolean;
-    scene: Scene;
     needsRender: boolean;
+    get hovered(): boolean;
+    get focused(): boolean;
+    get clicking(): boolean;
+    get dragging(): boolean;
     get enabledUntilParent(): boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;

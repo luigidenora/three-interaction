@@ -1,24 +1,24 @@
 import { Object3D, Scene } from "three";
 import { Line2 as Line2Base } from "../../node_modules/@types/three/examples/jsm/lines/Line2";
-import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
+import { Cursor, Events, Object3DExtPrototype } from "../index";
 
 export class Line2 extends Line2Base implements Object3DExtPrototype {
-    cursorDrop: Cursor;
-    findDropTarget: boolean;
     enabled: boolean;
-    get enabledUntilParent(): boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     focusable: boolean;
     draggable: boolean;
-    hovered: boolean;
-    focused: boolean;
-    clicking: boolean;
-    dragging: boolean;
+    findDropTarget: boolean;
+    scene: Scene;
     cursor: Cursor;
     cursorDrag: Cursor;
-    scene: Scene;
+    cursorDrop: Cursor;
     needsRender: boolean;
+    get hovered(): boolean;
+    get focused(): boolean;
+    get clicking(): boolean;
+    get dragging(): boolean;
+    get enabledUntilParent(): boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;
     applyBlur(): void;
@@ -33,12 +33,4 @@ export class Line2 extends Line2Base implements Object3DExtPrototype {
     unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];
-    /** @internal */ __boundCallbacks: BindingCallback[];
-    /** @internal */ __manualDetection: boolean;
-    /** @internal */ __eventsDispatcher: EventsDispatcher;
-    /** @internal */ __vec3Patched: boolean;
-    /** @internal */ __rotationPatched: boolean;
-    /** @internal */ __smartRenderingPatched: boolean;
-    /** @internal */ __enabled: boolean;
-    /** @internal */ __visible: boolean;
 }

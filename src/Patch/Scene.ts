@@ -5,6 +5,12 @@ import { applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRend
 import { Binding } from "../Binding/Binding";
 import { FocusEventExt, IntersectionExt } from "../Events/Events";
 
+/** @internal */
+export interface SceneExtPrototypeInternal extends SceneExtPrototype {
+    __boundObjects: DistinctTargetArray;
+    __smartRendering: boolean;
+}
+
 export interface SceneExtPrototype {
     continousRaycasting: boolean;  //for intersection event
     continousRaycastingDropTarget: boolean; //for trigger drag without moving

@@ -12,14 +12,14 @@
 		"experimentalDecorators": true,
 		"paths": {
 			"three": [
-				"./src/types/index.d.ts"
+				"./typesDev/index.d.ts"
 			],
 			"three/examples/jsm/lines/Line2": [
-				"./src/types/Line2.d.ts"
+				"./typesDev/Line2.d.ts"
 			]
 		}
 	},
 	"include": [
 		"src/**/*.ts"
-	],
+	]
 }

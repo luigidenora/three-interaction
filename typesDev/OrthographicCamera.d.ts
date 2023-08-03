@@ -1,8 +1,16 @@
-import { Scene } from "three";
-import { Object3D as Object3DBase } from "three/index";
-import { Cursor, Events, Object3DExtPrototype } from "../index";
+import { Object3D, Scene } from "three";
+import { OrthographicCamera as OrthographicCameraBase } from "three/index";
+import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
 
-export class Object3D extends Object3DBase implements Object3DExtPrototype {
+export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototypeInternal {
+    __boundCallbacks: BindingCallback[];
+    __manualDetection: boolean;
+    __eventsDispatcher: EventsDispatcher;
+    __vec3Patched: boolean;
+    __rotationPatched: boolean;
+    __smartRenderingPatched: boolean;
+    __enabled: boolean;
+    __visible: boolean;
     enabled: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
@@ -14,10 +22,10 @@ export class Object3D extends Object3DBase implements Object3DExtPrototype {
     cursorDrag: Cursor;
     cursorDrop: Cursor;
     needsRender: boolean;
-    get hovered(): boolean;
-    get focused(): boolean;
-    get clicking(): boolean;
-    get dragging(): boolean;
+    hovered: boolean;
+    focused: boolean;
+    clicking: boolean;
+    dragging: boolean;
     get enabledUntilParent(): boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;

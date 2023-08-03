@@ -1,24 +1,27 @@
 import { Object3D, Scene } from "three";
-import { InstancedMesh as InstancedMeshBase } from "three/index";
-import { Events, BindingCallback, Cursor, EventsDispatcher, Object3DExtPrototype } from "../index";
+import { BufferGeometry, InstancedMesh as InstancedMeshBase, Material } from "three/index";
+import { Cursor, Events, Object3DExtPrototype } from "../index";
 
-export class InstancedMesh extends InstancedMeshBase implements Object3DExtPrototype {
-    cursorDrop: Cursor;
-    findDropTarget: boolean;
+export class InstancedMesh<
+    TGeometry extends BufferGeometry = BufferGeometry,
+    TMaterial extends Material | Material[] = Material | Material[],
+> extends InstancedMeshBase<TGeometry, TMaterial> implements Object3DExtPrototype {
     enabled: boolean;
-    get enabledUntilParent(): boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
     focusable: boolean;
     draggable: boolean;
-    hovered: boolean;
-    focused: boolean;
-    clicking: boolean;
-    dragging: boolean;
+    findDropTarget: boolean;
+    scene: Scene;
     cursor: Cursor;
     cursorDrag: Cursor;
-    scene: Scene;
+    cursorDrop: Cursor;
     needsRender: boolean;
+    get hovered(): boolean;
+    get focused(): boolean;
+    get clicking(): boolean;
+    get dragging(): boolean;
+    get enabledUntilParent(): boolean;
     get firstFocusable(): Object3D;
     applyFocus(): void;
     applyBlur(): void;
@@ -33,12 +36,4 @@ export class InstancedMesh extends InstancedMeshBase implements Object3DExtProto
     unbindProperty<T extends keyof this>(property: T): this;
     override parent: Object3D;
     override children: Object3D[];
-    /** @internal */ __boundCallbacks: BindingCallback[];
-    /** @internal */ __manualDetection: boolean;
-    /** @internal */ __eventsDispatcher: EventsDispatcher;
-    /** @internal */ __vec3Patched: boolean;
-    /** @internal */ __rotationPatched: boolean;
-    /** @internal */ __smartRenderingPatched: boolean;
-    /** @internal */ __enabled: boolean;
-    /** @internal */ __visible: boolean;
 }
