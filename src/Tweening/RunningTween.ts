@@ -99,14 +99,13 @@ export class RunningTween {
 
     /** @internal */
     private getRepeatBlock(): RunningBlock {
-        if (++this.actionIndex < this.history.length) {
-            const block = this.history[this.actionIndex];
+        if (this.actionIndex < this.history.length - 1) {
+            const block = this.history[++this.actionIndex];
             block.reversed = block.originallyReversed;
             block.elapsedTime = 0;
             block.tweensStarted = false;
             return block;
         }
-        this.actionIndex--;
     }
 
     /** @internal */
