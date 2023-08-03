@@ -1,6 +1,6 @@
 {
   "name": "@ag-three/interaction",
-  "version": "2.4.6",
+  "version": "2.4.10",
   "description": "three.js events and dragging",
   "author": "agargaro",
   "license": "MIT",
