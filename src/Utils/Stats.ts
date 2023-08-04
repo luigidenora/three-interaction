@@ -38,8 +38,8 @@ export class Stats {
 		this.beginTime = (performance || Date).now();
 	}
 
-	public end(rendered: boolean): number {
-		if (rendered === true) {
+	public end(rendered?: boolean): number {
+		if (rendered !== false) {
 			this.frames++;
 		}
 
@@ -62,7 +62,7 @@ export class Stats {
 		return time;
 	}
 
-	public update(rendered: boolean) {
+	public update(rendered?: boolean) {
 		this.beginTime = this.end(rendered);
 	}
 

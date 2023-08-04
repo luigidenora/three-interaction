@@ -16,6 +16,7 @@ export class RaycasterManager {
         this._renderManager = renderManager;
     }
 
+    //TODO aggiungere a evento solo scena intersezione?
     public getIntersections(event: PointerEvent, isDragging: boolean, excluded?: Object3D): IntersectionExt[] {
         const intersections: IntersectionExt[] = [];
         this.pointer.set(event.offsetX, event.offsetY);
@@ -42,6 +43,7 @@ export class RaycasterManager {
         return true;
     }
 
+    //TODO raycast only on rendered objects
     private raycastObjects(object: Object3D, target: IntersectionExt[], excluded?: Object3D): IntersectionExt[] {
         if (object === excluded) return;
 

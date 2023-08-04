@@ -3,6 +3,7 @@ export * from "./CubeCamera";
 export * from "./Group";
 export * from "./InstancedMesh";
 export * from "./Line";
+export * from "./LOD";
 export * from "./Mesh";
 export * from "./Object3D";
 export * from "./OrthographicCamera";
