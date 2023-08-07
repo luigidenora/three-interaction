@@ -37,7 +37,7 @@ export class RaycasterManager {
             this._renderManager.updateActiveView(mouse);
         }
         const activeView = this._renderManager.activeView;
-        if (activeView === undefined || activeView.enabled !== true) return false;
+        if (activeView === undefined || activeView.enabled !== true || activeView !== this._renderManager.hoveredView) return false;
         const viewport = activeView.computedViewport;
         target.set((mouse.x - viewport.left) / viewport.width * 2 - 1, (mouse.y - viewport.top) / viewport.height * -2 + 1);
         return true;
@@ -55,7 +55,7 @@ export class RaycasterManager {
 
             let previousCount = target.length;
 
-            if (object.objectsToRaycast !== undefined) {
+            if (object.objectsToRaycast) {
                 this.raycaster.intersectObjects(object.objectsToRaycast, false, target);
             } else {
                 this.raycaster.intersectObject(object, false, target);

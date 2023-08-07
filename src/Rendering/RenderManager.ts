@@ -11,6 +11,7 @@ export class RenderManager {
   public renderer: WebGLRenderer;
   public views: RenderView[] = [];
   public activeView: RenderView;
+  public hoveredView: RenderView;
   private _visibleScenes = new DistinctTargetArray<Scene>();
   private _rendererSize = new Vector2();
   private _fullscreen: boolean; // TODO editable?
@@ -114,7 +115,9 @@ export class RenderManager {
   }
 
   public updateActiveView(mouse: Vector2): void {
-    this.activeView = this.getViewByMouse(mouse);
+    if (this.hoveredView = this.getViewByMouse(mouse)) {
+      this.activeView = this.hoveredView;
+    }
   }
 
   public getViewByMouse(mouse: Vector2): RenderView {

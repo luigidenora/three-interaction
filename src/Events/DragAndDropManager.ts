@@ -58,10 +58,12 @@ export class DragAndDropManager {
 
     public cancelDragging(event: PointerEvent): void {
         if (this._target) {
+            const cancelEvent = this.trigger("dragcancel", event, this._target, true, undefined, this._lastDropTarget);
+            if (cancelEvent._defaultPrevented) return;
+            
             this._target.dragging = false;
 
-            const cancelEvent = this.trigger("dragcancel", event, this._target, true, undefined, this._lastDropTarget);
-            if (!cancelEvent._defaultPrevented && !this._target.position.equals(this._startPosition)) {
+            if (!this._target.position.equals(this._startPosition)) {
                 this._target.position.copy(this._startPosition);
             }
 
@@ -122,9 +124,9 @@ export class DragAndDropManager {
         }
     }
 
+    //TODO cache it
     public isDropTarget(target: IntersectionExt): boolean {
         if (!target) return;
-        //TODO chache
         const ev = target.object.__eventsDispatcher;
         return ev.listeners["drop"]?.length > 0 || ev.listeners["dragenter"]?.length > 0 || ev.listeners["dragleave"]?.length > 0 || ev.listeners["dragover"]?.length > 0;
     }
