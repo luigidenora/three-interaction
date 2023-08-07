@@ -3,6 +3,7 @@ import { DragEventExt, InteractionEvents, IntersectionExt } from "./Events";
 
 //todo check multitouch e isprimary
 export class DragAndDropManager {
+    public isDragging = false;
     private _plane = new Plane();
     private _offset = new Vector3(); //TODO ricalcolare se muove cam
     private _intersection = new Vector3();
@@ -13,15 +14,29 @@ export class DragAndDropManager {
     private _targetMatrixWorld = new Matrix4();
     private _dataTransfer: { [x: string]: any };
     private _lastDropTarget: Object3D;
+    private _raycaster: Raycaster;
+    private _moveCount: number;
 
-    public get isDragging(): boolean { return !!this._target }
     public get target(): Object3D { return this._target }
 
-    public performDrag(event: PointerEvent, raycaster: Raycaster, camera: Camera, dropTargetIntersection: IntersectionExt): void {
+    constructor(raycaster: Raycaster) {
+        this._raycaster = raycaster;
+    }
+
+    public needsDrag(event: PointerEvent, camera: Camera): boolean {
+        if (this.isDragging === true) return true;
+        if (this._target && ++this._moveCount > 3) {
+            this.startDragging(event, camera);
+            return true;
+        }
+        return false;
+    }
+
+    public performDrag(event: PointerEvent, camera: Camera, dropTargetIntersection: IntersectionExt): void {
         if (!event.isPrimary || !camera) return;
 
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._targetMatrixWorld));
-        raycaster.ray.intersectPlane(this._plane, this._intersection);
+        this._raycaster.ray.intersectPlane(this._plane, this._intersection);
         this._intersection.sub(this._offset).applyMatrix4(this._inverseMatrix);
 
         const dragEvent = this.trigger("drag", event, this._target, true, this._intersection, dropTargetIntersection?.object, dropTargetIntersection);
@@ -34,25 +49,28 @@ export class DragAndDropManager {
         this.dropTargetEvent(event, dropTargetIntersection);
     }
 
-    public startDragging(event: PointerEvent, raycaster: Raycaster, camera: Camera, target: Object3D): boolean {
-        if (event.isPrimary && target && target.draggable && target.clicking) {
+    public initDrag(event: PointerEvent, target: Object3D): void {
+        if (event.isPrimary && target?.draggable) {
             this._target = target;
-            target.dragging = true;
-            this._startPosition.copy(target.position);
-            this.trigger("dragstart", event, target, false);
+            this._moveCount = 0;
+        }
+    }
 
-            target.updateMatrixWorld(); //if transform target in dragstart event
-            this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
-            raycaster.ray.intersectPlane(this._plane, this._intersection);
-            this._targetMatrixWorld.copy(this._target.matrixWorld);
-            this._inverseMatrix.copy(this._target.parent.matrixWorld).invert();
-            this._offset.copy(this._intersection).sub(this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
+    public startDragging(event: PointerEvent, camera: Camera): void {
+        this._target.dragging = true;
+        this.isDragging = true;
+        this._startPosition.copy(this._target.position);
+        this.trigger("dragstart", event, this._target, false);
 
-            if (this._target.findDropTarget) {
-                this._dataTransfer = {};
-            }
+        this._target.updateMatrixWorld(); //if transform target in dragstart event
+        this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
+        this._raycaster.ray.intersectPlane(this._plane, this._intersection);
+        this._targetMatrixWorld.copy(this._target.matrixWorld);
+        this._inverseMatrix.copy(this._target.parent.matrixWorld).invert();
+        this._offset.copy(this._intersection).sub(this._worldPosition.setFromMatrixPosition(this._target.matrixWorld));
 
-            return true;
+        if (this._target.findDropTarget) {
+            this._dataTransfer = {};
         }
     }
 
@@ -60,8 +78,6 @@ export class DragAndDropManager {
         if (this._target) {
             const cancelEvent = this.trigger("dragcancel", event, this._target, true, undefined, this._lastDropTarget);
             if (cancelEvent._defaultPrevented) return false;
-            
-            this._target.dragging = false;
 
             if (!this._target.position.equals(this._startPosition)) {
                 this._target.position.copy(this._startPosition);
@@ -79,7 +95,6 @@ export class DragAndDropManager {
 
     public stopDragging(event: PointerEvent): boolean {
         if (!this._target || !event.isPrimary) return false;
-        this._target.dragging = false;
 
         if (this._lastDropTarget) {
             this.trigger("drop", event, this._lastDropTarget, false, undefined, this._target);
@@ -95,6 +110,8 @@ export class DragAndDropManager {
     }
 
     private clear(): void {
+        this.isDragging = false;
+        this._target.dragging = false;
         this._target = undefined;
         this._dataTransfer = undefined;
         this._lastDropTarget = undefined;

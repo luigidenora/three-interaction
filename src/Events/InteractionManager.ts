@@ -15,7 +15,7 @@ export class InteractionManager {
     private _intersectionDropTarget: IntersectionExt;
     private _renderManager: RenderManager;
     private _queue = new InteractionEventsQueue();
-    private _dragManager = new DragAndDropManager();
+    private _dragManager: DragAndDropManager;
     private _primaryIdentifier: number;
     private _lastPointerDownExt: { [x: string]: PointerEventExt } = {};
     private _lastPointerDown: { [x: string]: PointerEvent } = {};
@@ -32,6 +32,7 @@ export class InteractionManager {
         this.registerRenderer(renderer);
         this.cursorManager = new CursorHandler(renderer.domElement);
         this.raycasterManager = new RaycasterManager(renderManager);
+        this._dragManager = new DragAndDropManager(this.raycasterManager.raycaster);
     }
 
     public registerRenderer(renderer: WebGLRenderer): void {
@@ -123,7 +124,7 @@ export class InteractionManager {
     }
 
     private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
-        const scene = this._renderManager.activeScene; //TODO FIX
+        const scene = this._renderManager.activeScene;
         if (scene) {
             const keyboardEvent = new KeyboardEventExt(event, cancelable);
             if (scene.focusedObject) {
@@ -173,6 +174,8 @@ export class InteractionManager {
                 scene.focus(firstFocusable);
             }
         }
+
+        this._dragManager.initDrag(event, target);
     }
 
     private pointerLeave(event: PointerEvent): void {
@@ -182,14 +185,12 @@ export class InteractionManager {
     private pointerMove(event: PointerEvent): void {
         this._lastPointerMove[event.pointerId] = event;
         this.raycastScene(event);
-        if (this._dragManager.isDragging) {
-            this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView.camera, this._intersectionDropTarget);
+        const camera = this._renderManager.activeView?.camera;
+        if (this._dragManager.needsDrag(event, camera)) {
+            this._dragManager.performDrag(event, camera, this._intersectionDropTarget);
         } else {
             this.pointerOutOver(event);
-            const target = this._intersection[event.pointerId]?.object;
-            if (!this._dragManager.startDragging(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, target)) {
-                this.triggerAncestorPointer("pointermove", event, target);
-            }
+            this.triggerAncestorPointer("pointermove", event, this._intersection[event.pointerId]?.object);
         }
     }
 
@@ -198,7 +199,7 @@ export class InteractionManager {
             if (!this._primaryRaycasted && this._dragManager.target.findDropTarget && this._renderManager.activeScene?.continousRaycastingDropTarget) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
-                this._dragManager.performDrag(event, this.raycasterManager.raycaster, this._renderManager.activeView?.camera, this._intersectionDropTarget);
+                this._dragManager.performDrag(event, this._renderManager.activeView?.camera, this._intersectionDropTarget);
             }
         } else if (this._renderManager.activeScene?.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {
