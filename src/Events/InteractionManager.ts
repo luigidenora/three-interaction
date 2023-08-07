@@ -64,7 +64,6 @@ export class InteractionManager {
     }
 
     public update(): void {
-        //TODO check se canvas ha perso focus
         if (this.needsUpdate === false) return;
         this._primaryRaycasted = false;
         for (const event of this._queue.dequeue()) {

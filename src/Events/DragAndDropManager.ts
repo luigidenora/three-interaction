@@ -1,11 +1,10 @@
 import { Plane, Matrix4, Vector3, Raycaster, Camera, Object3D } from "three";
 import { DragEventExt, InteractionEvents, IntersectionExt } from "./Events";
 
-//todo check multitouch e isprimary
 export class DragAndDropManager {
     public isDragging = false;
     private _plane = new Plane();
-    private _offset = new Vector3(); //TODO ricalcolare se muove cam
+    private _offset = new Vector3(); //TODO recalculates if object changes
     private _intersection = new Vector3();
     private _worldPosition = new Vector3();
     private _inverseMatrix = new Matrix4();

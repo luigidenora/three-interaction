@@ -1,4 +1,4 @@
-import { InstancedInterleavedBuffer, InterleavedBufferAttribute, Vector2, Vector3 } from "three";
+import { BufferAttribute, InstancedInterleavedBuffer, InterleavedBufferAttribute, Vector2, Vector3 } from "three";
 import { Line2 as Line2Base } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
@@ -14,7 +14,7 @@ export class Line2 extends Line2Base {
     }
 
     public updatePoints(positions: Vector3[], ...indexes: number[]): void {
-        const array = (this.geometry.attributes.instanceStart as any).array as Float32Array; //TODO Fix d.ts
+        const array = (this.geometry.attributes.instanceStart as BufferAttribute).array as Float32Array;
         for (const index of indexes) {
             const arrayIndex = (index - 1) * 6 + 3;
             array[arrayIndex] = positions[index].x;

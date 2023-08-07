@@ -16,7 +16,7 @@ export class InstancedMeshSingle extends EventDispatcher {
     public focused = false;
     public hovered = false;
     public enabled = true; // TODO
-    public enabledUntilParent: boolean; // TODO
+    public enabledUntilParent: boolean;
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
 
     constructor(parent: InstancedMesh2, index: number, color?: ColorRepresentation) {
