@@ -274,7 +274,9 @@ export class InteractionManager {
         const keyDownEvent = this.triggerAncestorKeyboard("keydown", event, true);
         if (!keyDownEvent?._defaultPrevented) {
             if (event.key === "Escape" || event.key === "Esc") {
-                this._dragManager.cancelDragging(this._lastPointerMove[this._primaryIdentifier]);
+                if (this._dragManager.cancelDragging(this._lastPointerMove[this._primaryIdentifier])) {
+                    this.setDropTarget([]);
+                }
             }
         }
     }

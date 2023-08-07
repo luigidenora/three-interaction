@@ -56,10 +56,10 @@ export class DragAndDropManager {
         }
     }
 
-    public cancelDragging(event: PointerEvent): void {
+    public cancelDragging(event: PointerEvent): boolean {
         if (this._target) {
             const cancelEvent = this.trigger("dragcancel", event, this._target, true, undefined, this._lastDropTarget);
-            if (cancelEvent._defaultPrevented) return;
+            if (cancelEvent._defaultPrevented) return false;
             
             this._target.dragging = false;
 
@@ -74,6 +74,7 @@ export class DragAndDropManager {
             this.dragEnd(event);
             this.clear();
         }
+        return true;
     }
 
     public stopDragging(event: PointerEvent): boolean {
