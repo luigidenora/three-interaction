@@ -199,7 +199,7 @@ export class InteractionManager {
             if (!this._primaryRaycasted && this._dragManager.target.findDropTarget && this._renderManager.activeScene?.continousRaycastingDropTarget) {
                 const event = this._lastPointerMove[this._primaryIdentifier] || this._lastPointerDown[this._primaryIdentifier];
                 this.raycastScene(event);
-                this._dragManager.performDrag(event, this._renderManager.activeView?.camera, this._intersectionDropTarget);
+                this._dragManager.dropTargetEvent(event, this._intersectionDropTarget);
             }
         } else if (this._renderManager.activeScene?.continousRaycasting && (this._mouseDetected || this._isTapping)) {
             if (!this._primaryRaycasted) {

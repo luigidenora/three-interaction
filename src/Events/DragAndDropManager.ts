@@ -15,7 +15,6 @@ export class DragAndDropManager {
     private _dataTransfer: { [x: string]: any };
     private _lastDropTarget: Object3D;
     private _raycaster: Raycaster;
-    private _moveCount: number;
 
     public get target(): Object3D { return this._target }
 
@@ -24,8 +23,8 @@ export class DragAndDropManager {
     }
 
     public needsDrag(event: PointerEvent, camera: Camera): boolean {
-        if (this.isDragging === true) return true;
-        if (this._target && ++this._moveCount > 3) {
+        if (this.isDragging) return true;
+        if (this._target) {
             this.startDragging(event, camera);
             return true;
         }
@@ -33,7 +32,7 @@ export class DragAndDropManager {
     }
 
     public performDrag(event: PointerEvent, camera: Camera, dropTargetIntersection: IntersectionExt): void {
-        if (!event.isPrimary || !camera) return;
+        if (!event.isPrimary) return;
 
         this._plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this._plane.normal), this._worldPosition.setFromMatrixPosition(this._targetMatrixWorld));
         this._raycaster.ray.intersectPlane(this._plane, this._intersection);
@@ -52,7 +51,6 @@ export class DragAndDropManager {
     public initDrag(event: PointerEvent, target: Object3D): void {
         if (event.isPrimary && target?.draggable) {
             this._target = target;
-            this._moveCount = 0;
         }
     }
 
@@ -94,7 +92,11 @@ export class DragAndDropManager {
     }
 
     public stopDragging(event: PointerEvent): boolean {
-        if (!this._target || !event.isPrimary) return false;
+        if (!event.isPrimary) return false;
+        if (!this.isDragging) {
+            this._target = undefined;
+            return false;
+        }
 
         if (this._lastDropTarget) {
             this.trigger("drop", event, this._lastDropTarget, false, undefined, this._target);
@@ -125,7 +127,7 @@ export class DragAndDropManager {
         }
     }
 
-    private dropTargetEvent(event: PointerEvent, dropTargetIntersection: IntersectionExt): void {
+    public dropTargetEvent(event: PointerEvent, dropTargetIntersection: IntersectionExt): void {
         if (this._target.findDropTarget) {
             const dropTarget = dropTargetIntersection?.object;
             const lastDropTarget = this._lastDropTarget;
