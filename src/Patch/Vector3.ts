@@ -1,66 +1,68 @@
 import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3, Matrix4, Object3D, Quaternion, Spherical, Vector3 } from "three";
-import { setVec3OnChangeNeedsRender } from "./SmartRendering";
 
 /** @internal */
 export function applyVec3Patch(target: Object3D): void {
-    patchVector(target.position);
-    patchVector(target.scale);
-    if (!target.scene) return;
-    if (target.scene.__smartRendering === true) {
-        setVec3OnChangeNeedsRender(target);
+    patchVector(target.position as Vector3Ext);
+    patchVector(target.scale as Vector3Ext);
+    if (target.scene?.__smartRendering) {
+        setVec3ChangeCallbackSR(target);
     } else {
-        setVec3OnChangeDefault(target);
+        setVec3ChangeCallback(target);
     }
 }
 
 /** @internal */
-export function setVec3OnChangeDefault(target: Object3D): void {
-    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
+export function setVec3ChangeCallback(target: Object3D): void {
+    (target.position as Vector3Ext)._onChangeCallback = () => target.__eventsDispatcher.dispatch("positionchange");
+    (target.scale as Vector3Ext)._onChangeCallback = () => target.__eventsDispatcher.dispatch("scalechange");
+}
+
+/** @internal */
+export function setVec3ChangeCallbackSR(target: Object3D): void {
+    (target.position as Vector3Ext)._onChangeCallback = () => {
+        target.scene.needsRender = true;
         target.__eventsDispatcher.dispatch("positionchange");
     };
-
-    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
+    (target.scale as Vector3Ext)._onChangeCallback = () => {
+        target.scene.needsRender = true;
         target.__eventsDispatcher.dispatch("scalechange");
     };
 }
 
-function patchVector(vec3: any): void {
+function patchVector(vec3: Vector3Ext): void {
     vec3._x = vec3.x;
     vec3._y = vec3.y;
     vec3._z = vec3.z;
-    vec3.isVector3 = true;
     Object.setPrototypeOf(vec3, Vector3Ext.prototype);
-
-    Object.defineProperties(vec3, {
-        x: {
-            get() { return this._x; },
-            set(value: number) {
-                this._x = value;
-                this._onChangeCallback();
-            }
-        },
-        y: {
-            get() { return this._y; },
-            set(value: number) {
-                this._y = value;
-                this._onChangeCallback();
-            }
-        },
-        z: {
-            get() { return this._z; },
-            set(value: number) {
-                this._z = value;
-                this._onChangeCallback();
-            }
-        }
-    });
 }
 
-/** @internal Updated to r155 */
-export class Vector3Ext {
+/** Updated to r155 */
+class Vector3Ext {
+    public distanceToManhattan: (v: Vector3) => number; //remove when fix deprecated d.ts
+    public lengthManhattan: () => number; //remove when fix deprecated d.ts
     public _x: number;
     public _y: number;
     public _z: number;
+    public _onChangeCallback: () => void;
+    public isVector3: true;
+
+    public get x() { return this._x }
+    public set x(value: number) {
+        this._x = value;
+        this._onChangeCallback();
+    }
+
+    public get y() { return this._y }
+    public set y(value: number) {
+        this._y = value;
+        this._onChangeCallback();
+    }
+
+    public get z() { return this._z }
+    public set z(value: number) {
+        this._z = value;
+        this._onChangeCallback();
+    }
 
     set(x: number, y: number, z: number) {
 
@@ -150,7 +152,7 @@ export class Vector3Ext {
 
     clone() {
 
-        return new (this as any).constructor(this._x, this._y, this._z);
+        return new (Vector3.prototype as any).constructor(this._x, this._y, this._z);
 
     }
 
@@ -586,7 +588,7 @@ export class Vector3Ext {
 
     cross(v: Vector3) {
 
-        return this.crossVectors(this as any, v);
+        return this.crossVectors(this, v);
 
     }
 
@@ -611,7 +613,7 @@ export class Vector3Ext {
 
         if (denominator === 0) return this.set(0, 0, 0);
 
-        const scalar = v.dot(this as any) / denominator;
+        const scalar = v.dot(this) / denominator;
 
         return this.copy(v, false).multiplyScalar(scalar);
 
@@ -619,7 +621,7 @@ export class Vector3Ext {
 
     projectOnPlane(planeNormal: Vector3) {
 
-        _vector.copy(this as unknown as Vector3).projectOnVector(planeNormal);
+        _vector.copy(this).projectOnVector(planeNormal);
 
         return this.sub(_vector);
 
@@ -790,7 +792,7 @@ export class Vector3Ext {
 
     }
 
-    toArray(array: number[] = [], offset = 0) {
+    toArray(array: number[] = [], offset = 0): any {
 
         array[offset] = this._x;
         array[offset + 1] = this._y;
@@ -826,8 +828,6 @@ export class Vector3Ext {
 
     randomDirection() {
 
-        // Derived from https://mathworld.wolfram.com/SpherePointPicking.html
-
         const u = (Math.random() - 0.5) * 2;
         const t = Math.random() * Math.PI * 2;
         const f = Math.sqrt(1 - u ** 2);
@@ -842,8 +842,6 @@ export class Vector3Ext {
 
     }
 
-    public _onChangeCallback: () => void;
-
     *[Symbol.iterator]() {
 
         yield this._x;
@@ -854,5 +852,7 @@ export class Vector3Ext {
 
 }
 
-const _vector = /*@__PURE__*/ new Vector3();
-const _quaternion = /*@__PURE__*/ new Quaternion();
+Vector3Ext.prototype.isVector3 = true;
+
+const _vector = new Vector3();
+const _quaternion = new Quaternion();
