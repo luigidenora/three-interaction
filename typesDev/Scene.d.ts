@@ -23,6 +23,8 @@ export class Scene extends SceneBase implements Object3DExtPrototypeInternal, Sc
     __smartRenderingPatched: boolean;
     __enabled: boolean;
     __visible: boolean;
+    __onChangeBaseQuat: () => void;
+    __onChangeBaseEuler: () => void;
     enabled: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
