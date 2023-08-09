@@ -1,7 +1,7 @@
 import { Object3D, Scene } from "three";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 import { EventsCache } from "../Events/MiscEventsManager";
-import { applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
+import { activeSmartRendering, applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
 import { Binding } from "../Binding/Binding";
 import { FocusEventExt, IntersectionExt } from "../Events/Events";
 
@@ -37,8 +37,7 @@ Scene.prototype.__smartRendering = false;
 Scene.prototype.__boundObjects = new DistinctTargetArray();
 
 Scene.prototype.activeSmartRendering = function () {
-    this.__smartRendering = true;
-    //TODO aggiungere patch ecc nel caso non venga chiamata subito questa func
+    activeSmartRendering(this);
     return this;
 };
 
