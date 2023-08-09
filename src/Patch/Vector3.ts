@@ -1,32 +1,20 @@
 import { BufferAttribute, Camera, Color, Cylindrical, Euler, MathUtils, Matrix3, Matrix4, Object3D, Quaternion, Spherical, Vector3 } from "three";
+import { setVec3OnChangeNeedsRender } from "./SmartRendering";
 
 /** @internal */
-export function applyVector3Patch(target: Object3D): void {
+export function applyVec3Patch(target: Object3D): void {
     patchVector(target.position);
     patchVector(target.scale);
-    if (target.scene === undefined) return;
+    if (!target.scene) return;
     if (target.scene.__smartRendering === true) {
-        setVector3SmartRenderingChangeCallback(target);
+        setVec3OnChangeNeedsRender(target);
     } else {
-        setVector3DefaultChangeCallback(target);
+        setVec3OnChangeDefault(target);
     }
 }
 
 /** @internal */
-export function setVector3SmartRenderingChangeCallback(target: Object3D): void {
-    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.scene.needsRender = true;
-        target.__eventsDispatcher.dispatch("positionchange");
-    };
-
-    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
-        target.scene.needsRender = true;
-        target.__eventsDispatcher.dispatch("scalechange");
-    };
-}
-
-/** @internal */
-export function setVector3DefaultChangeCallback(target: Object3D): void {
+export function setVec3OnChangeDefault(target: Object3D): void {
     (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
         target.__eventsDispatcher.dispatch("positionchange");
     };
@@ -68,15 +56,15 @@ function patchVector(vec3: any): void {
     });
 }
 
-/** Updated to r155 */
-class Vector3Ext {
+/** @internal Updated to r155 */
+export class Vector3Ext {
     public _x: number;
     public _y: number;
     public _z: number;
 
     set(x: number, y: number, z: number) {
 
-        if (z === undefined) z = this._z; // sprite.scale.set(x,y)
+        if (z === undefined) z = this._z;
 
         this._x = x;
         this._y = y;

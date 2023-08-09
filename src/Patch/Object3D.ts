@@ -7,7 +7,7 @@ import { applyEulerPatch } from "./Euler";
 import { applyMatrix4Patch } from "./Matrix4";
 import { applyQuaternionPatch } from "./Quaternion";
 import { removeSceneReference, setSceneReference } from "./Scene";
-import { applyVector3Patch } from "./Vector3";
+import { applyVec3Patch } from "./Vector3";
 
 /** @internal */
 export interface Object3DExtPrototypeInternal extends Object3DExtPrototype {
@@ -139,7 +139,7 @@ Object.defineProperty(Object3D.prototype, "userData", { // needed to inject code
 /** @Internal */
 export function applyObject3DVector3Patch(target: Object3D): void {
     if (target.__vec3Patched !== true) {
-        applyVector3Patch(target);
+        applyVec3Patch(target);
         applyMatrix4Patch(target);
         target.__vec3Patched = true;
     }

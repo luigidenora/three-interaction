@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "./Object3D";
-import { setVector3DefaultChangeCallback, setVector3SmartRenderingChangeCallback } from "./Vector3";
+import { setVec3OnChangeDefault, Vector3Ext } from "./Vector3";
 import { setQuaternionDefaultChangeCallback, setQuaternionSmartRenderingChangeCallback } from "./Quaternion";
 import { setEulerDefaultChangeCallback, setEulerSmartRenderingChangeCallback } from "./Euler";
 
@@ -10,7 +10,7 @@ export function applySmartRenderingPatch(target: Object3D): void {
         applyObject3DVector3Patch(target);
         applyObject3DRotationPatch(target);
 
-        setVector3SmartRenderingChangeCallback(target);
+        setVec3OnChangeNeedsRender(target);
         setQuaternionSmartRenderingChangeCallback(target);
         setEulerSmartRenderingChangeCallback(target);
 
@@ -48,7 +48,7 @@ export function applySmartRenderingPatch(target: Object3D): void {
 /** @internal */
 export function removeSmartRenderingPatch(target: Object3D): void {
     if (target.__smartRenderingPatched === true) {
-        setVector3DefaultChangeCallback(target);
+        setVec3OnChangeDefault(target);
         setQuaternionDefaultChangeCallback(target);
         setEulerDefaultChangeCallback(target);
 
@@ -62,4 +62,17 @@ export function removeSmartRenderingPatch(target: Object3D): void {
 
         target.__smartRenderingPatched = false;
     }
+}
+
+/** @internal */
+export function setVec3OnChangeNeedsRender(target: Object3D): void {
+    (target.position as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.scene.needsRender = true;
+        target.__eventsDispatcher.dispatch("positionchange");
+    };
+
+    (target.scale as unknown as Vector3Ext)._onChangeCallback = () => {
+        target.scene.needsRender = true;
+        target.__eventsDispatcher.dispatch("scalechange");
+    };
 }
