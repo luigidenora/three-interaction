@@ -11,6 +11,8 @@ export class Object3D extends Object3DBase implements Object3DExtPrototypeIntern
     __smartRenderingPatched: boolean;
     __enabled: boolean;
     __visible: boolean;
+    __onChangeBaseQuat: () => void;
+    __onChangeBaseEuler: () => void;
     enabled: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];

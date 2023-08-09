@@ -20,11 +20,11 @@ export function setVec3ChangeCallback(target: Object3D): void {
 /** @internal */
 export function setVec3ChangeCallbackSR(target: Object3D): void {
     (target.position as Vector3Ext)._onChangeCallback = () => {
-        target.scene.needsRender = true;
+        target.needsRender = true;
         target.__eventsDispatcher.dispatch("positionchange");
     };
     (target.scale as Vector3Ext)._onChangeCallback = () => {
-        target.scene.needsRender = true;
+        target.needsRender = true;
         target.__eventsDispatcher.dispatch("scalechange");
     };
 }
