@@ -45,11 +45,11 @@ export interface Object3DExtPrototype {
     get firstFocusable(): Object3D;
     applyFocus(): void;
     applyBlur(): void;
-    on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
-    hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
-    off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
-    trigger<K extends keyof Events>(type: K, args: Events[K]): void;
-    triggerAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
+    on<K extends keyof Events>(type: K | K[], listener: (args?: Events[K]) => void): (args?: Events[K]) => void;
+    hasEvent<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): boolean;
+    off<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): void;
+    trigger<K extends keyof Events>(type: K, args?: Events[K]): void;
+    triggerAncestor<K extends keyof Events>(type: K, args?: Events[K]): void;
     setManualDetectionMode(): void;
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
@@ -122,7 +122,7 @@ Object3D.prototype.trigger = function (type: any, args) {
     this.__eventsDispatcher.dispatchDOM(type, args);
 }
 
-Object3D.prototype.triggerAncestor = function (type: any, args) { //TODO Cambare nome
+Object3D.prototype.triggerAncestor = function (type: any, args) {
     this.__eventsDispatcher.dispatchDOMAncestor(type, args);
 }
 
@@ -206,6 +206,6 @@ Object3D.prototype.remove = function (object: Object3D) {
             this.scene.needsRender = true;
         }
     }
-    removeBase.call(this, ...arguments); //todo opt all call
+    removeBase.call(this, ...arguments);
     return this;
 };

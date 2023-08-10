@@ -271,13 +271,13 @@ export class FocusEventExt extends EventExt {
 }
 
 export class RendererResizeEvent extends EventExt {
-  /** Returns the new renderer width. TODO */
+  /** Returns new render width. */
   public readonly width: number;
-  /** Returns the new renderer height. TODO */
+  /** Returns the render height. */
   public readonly height: number;
-  /** Returns resized renderer. TODO */
+  /** Returns renderer. */
   public readonly renderer: WebGLRenderer;
-  /** Returns resized camera. TODO */
+  /** Returns rendering camera. */
   public readonly camera: Camera;
 
   constructor(renderer: WebGLRenderer, camera: Camera, width: number, height: number) {

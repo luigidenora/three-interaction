@@ -15,7 +15,7 @@ export class EventsDispatcher {
             this.listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
                 EventsCache.push(type, this.parent as Object3D);
-                if (type === "positionchange" || type === "scalechange") { //todo move
+                if (type === "positionchange" || type === "scalechange") { 
                     applyObject3DVector3Patch(this.parent as Object3D);
                 } else if (type === "rotationchange") {
                     applyObject3DRotationPatch(this.parent as Object3D);

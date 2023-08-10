@@ -3,25 +3,25 @@ import { Line2 } from "./Line2";
 
 export class LinkedLine extends Line2 {
     private _needsUpdate: boolean;
+    private _targetAEvent: () => void;
+    private _targetBEvent: () => void;
 
-    constructor(targetA: Object3D, targetB: Object3D) {
+    constructor(private targetA: Object3D, private targetB: Object3D) {
         super();
 
-        targetA.on("positionchange", () => {
-            this._needsUpdate = true;
-        });
-
-        targetB.on("positionchange", () => {
-            this._needsUpdate = true;
-        });
+        this._targetAEvent = targetA.on("positionchange", () => this._needsUpdate = true);
+        this._targetBEvent = targetB.on("positionchange", () => this._needsUpdate = true);
 
         this.on("animate", () => {
             if (this._needsUpdate) {
-                this.setPoints([targetA.position, targetB.position]); // todo could  be opt
+                this.setPoints([targetA.position, targetB.position]);
                 this._needsUpdate = false;
             }
         });
     }
 
-    //add dispose
+    public dispose() {
+        this.targetA.off("positionchange", this._targetAEvent);
+        this.targetB.off("positionchange", this._targetBEvent);
+    }
 }

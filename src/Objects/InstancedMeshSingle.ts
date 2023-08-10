@@ -16,7 +16,7 @@ export class InstancedMeshSingle extends EventDispatcher {
     public focused = false;
     public hovered = false;
     public enabled = true; // TODO
-    public enabledUntilParent: boolean; // TODO
+    public enabledUntilParent: boolean;
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
 
     constructor(parent: InstancedMesh2, index: number, color?: ColorRepresentation) {
@@ -50,7 +50,7 @@ export class InstancedMeshSingle extends EventDispatcher {
         parent.instanceMatrix.needsUpdate = true;
     }
 
-    public on<K extends keyof Events>(types: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void {
+    public on<K extends keyof Events>(types: K | K[], listener: (args?: Events[K]) => void): (args?: Events[K]) => void {
         if (typeof (types) === "string") {
             return this.__eventsDispatcher.add(types, listener);
         }
@@ -60,15 +60,19 @@ export class InstancedMeshSingle extends EventDispatcher {
         return listener;
     }
 
-    public hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
+    public hasEvent<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): boolean {
         return this.__eventsDispatcher.has(type, listener);
     }
 
-    public off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
+    public off<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): void {
         this.__eventsDispatcher.remove(type, listener);
     }
 
-    public trigger<K extends keyof Events>(type: K, args: Events[K]): void {
-        this.__eventsDispatcher.dispatch(type, args);
+    public trigger<K extends keyof Events>(type: K, args?: Events[K]): void {
+        this.__eventsDispatcher.dispatchDOM(type, args);
+    }
+
+    public triggerAncestor<K extends keyof Events>(type: K, args?: Events[K]): void {
+        this.__eventsDispatcher.dispatchDOMAncestor(type, args);
     }
 }

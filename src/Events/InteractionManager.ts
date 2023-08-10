@@ -123,7 +123,7 @@ export class InteractionManager {
     }
 
     private triggerAncestorKeyboard(type: keyof InteractionEvents, event: KeyboardEvent, cancelable: boolean): KeyboardEventExt {
-        const scene = this._renderManager.activeScene; //TODO FIX
+        const scene = this._renderManager.activeScene;
         if (scene) {
             const keyboardEvent = new KeyboardEventExt(event, cancelable);
             if (scene.focusedObject) {
