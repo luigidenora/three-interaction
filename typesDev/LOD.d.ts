@@ -1,8 +1,8 @@
 import { Object3D, Scene } from "three";
-import { Camera as CameraBase } from "three/index";
+import { LOD as LODBase } from "three/index";
 import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
 
-export class Camera extends CameraBase implements Object3DExtPrototypeInternal {
+export class LOD extends LODBase implements Object3DExtPrototypeInternal {
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
     __eventsDispatcher: EventsDispatcher;
@@ -32,11 +32,11 @@ export class Camera extends CameraBase implements Object3DExtPrototypeInternal {
     get firstFocusable(): Object3D;
     applyFocus(): void;
     applyBlur(): void;
-    on<K extends keyof Events>(type: K | K[], listener: (args?: Events[K]) => void): (args?: Events[K]) => void;
-    hasEvent<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): boolean;
-    off<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): void;
-    trigger<K extends keyof Events>(type: K, args?: Events[K]): void;
-    triggerAncestor<K extends keyof Events>(type: K, args?: Events[K]): void;
+    on<K extends keyof Events>(type: K | K[], listener: (args: Events[K]) => void): (args: Events[K]) => void;
+    hasEvent<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean;
+    off<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void;
+    trigger<K extends keyof Events>(type: K, args: Events[K]): void;
+    triggerAncestor<K extends keyof Events>(type: K, args: Events[K]): void;
     setManualDetectionMode(): void;
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;

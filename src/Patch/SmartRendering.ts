@@ -1,65 +1,67 @@
-import { Object3D } from "three";
+import { Object3D, Scene } from "three";
 import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "./Object3D";
-import { setVector3DefaultChangeCallback, setVector3SmartRenderingChangeCallback } from "./Vector3";
-import { setQuaternionDefaultChangeCallback, setQuaternionSmartRenderingChangeCallback } from "./Quaternion";
-import { setEulerDefaultChangeCallback, setEulerSmartRenderingChangeCallback } from "./Euler";
+import { setVec3ChangeCallback, setVec3ChangeCallbackSR } from "./Vector3";
+import { setQuatChangeCallback, setQuatChangeCallbackSR } from "./Quaternion";
+import { setEulerChangeCallback, setEulerChangeCallbackSR } from "./Euler";
 
 /** @internal */
 export function applySmartRenderingPatch(target: Object3D): void {
-    if (target.scene.__smartRendering === true && target.__smartRenderingPatched !== true) {
-        applyObject3DVector3Patch(target);
-        applyObject3DRotationPatch(target);
-
-        setVector3SmartRenderingChangeCallback(target);
-        setQuaternionSmartRenderingChangeCallback(target);
-        setEulerSmartRenderingChangeCallback(target);
-
-        //if visible is bound
-        const visibleDescr = Object.getOwnPropertyDescriptor(target, "visible"); //TODO check performance
-        if (visibleDescr !== undefined && visibleDescr.get === undefined) {
-            target.__visible = target.visible;
-            Object.defineProperty(target, "visible", {
-                get: function (this: Object3D) { return this.__visible },
-                set: function (this: Object3D, value: boolean) {
-                    this.__visible = value;
-                    this.needsRender = true;
-                },
-                configurable: true
-            });
-        }
-
-        const enabledDescr = Object.getOwnPropertyDescriptor(target, "enabled");
-        if (enabledDescr !== undefined && enabledDescr.get === undefined) {
-            target.__enabled = target.enabled;
-            Object.defineProperty(target, "enabled", {
-                get: function (this: Object3D) { return this.__enabled },
-                set: function (this: Object3D, value: boolean) {
-                    this.__enabled = value;
-                    this.needsRender = true; //TODO capire
-                },
-                configurable: true
-            });
-        }
-
-        target.__smartRenderingPatched = true;
+    if (target.scene.__smartRendering && !target.__smartRenderingPatched) {
+        applyPatch(target);
     }
 }
 
 /** @internal */
 export function removeSmartRenderingPatch(target: Object3D): void {
-    if (target.__smartRenderingPatched === true) {
-        setVector3DefaultChangeCallback(target);
-        setQuaternionDefaultChangeCallback(target);
-        setEulerDefaultChangeCallback(target);
-
-        Object.defineProperty(target, "visible", {
-            value: target.__visible, writable: true, configurable: true
-        });
-
-        Object.defineProperty(target, "enabled", {
-            value: target.__enabled, writable: true, configurable: true
-        });
-
+    if (target.__smartRenderingPatched) {
+        setVec3ChangeCallback(target);
+        setQuatChangeCallback(target);
+        setEulerChangeCallback(target);
+        restoreVisibility(target);
         target.__smartRenderingPatched = false;
     }
+}
+
+/** @internal */
+export function activeSmartRendering(scene: Scene): void {
+    scene.__smartRendering = true;
+    applySmartRenderingPatchRecursive(scene);
+}
+
+function overrideVisibility(target: Object3D): void {
+    target.__visible = target.visible;
+    Object.defineProperty(target, "visible", {
+        get: function (this: Object3D) { return this.__visible },
+        set: function (this: Object3D, value: boolean) {
+            this.__visible = value;
+            this.needsRender = true;
+        },
+        configurable: true
+    });
+}
+
+function restoreVisibility(target: Object3D): void {
+    Object.defineProperty(target, "visible", {
+        value: target.__visible, writable: true, configurable: true
+    });
+    delete target.__visible;
+}
+
+function applySmartRenderingPatchRecursive(target: Object3D): void {
+    if (!target.__smartRenderingPatched) {
+        applyPatch(target);
+    }
+    for (const child of target.children) {
+        applySmartRenderingPatchRecursive(child);
+    }
+}
+
+function applyPatch(target: Object3D): void {
+    applyObject3DVector3Patch(target);
+    applyObject3DRotationPatch(target);
+    setVec3ChangeCallbackSR(target);
+    setQuatChangeCallbackSR(target);
+    setEulerChangeCallbackSR(target);
+    overrideVisibility(target)
+    target.__smartRenderingPatched = true;
 }

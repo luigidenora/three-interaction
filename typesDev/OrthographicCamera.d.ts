@@ -11,6 +11,8 @@ export class OrthographicCamera extends OrthographicCameraBase implements Object
     __smartRenderingPatched: boolean;
     __enabled: boolean;
     __visible: boolean;
+    __onChangeBaseQuat: () => void;
+    __onChangeBaseEuler: () => void;
     enabled: boolean;
     interceptByRaycaster: boolean;
     objectsToRaycast: Object3D[];
