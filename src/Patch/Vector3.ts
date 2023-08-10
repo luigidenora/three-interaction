@@ -33,6 +33,9 @@ function patchVector(vec3: Vector3Ext): void {
     vec3._x = vec3.x;
     vec3._y = vec3.y;
     vec3._z = vec3.z;
+    delete vec3.x;
+    delete vec3.y;
+    delete vec3.z;
     Object.setPrototypeOf(vec3, Vector3Ext.prototype);
 }
 
