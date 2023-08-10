@@ -1,6 +1,8 @@
 import { Camera, Intersection, Object3D, Vector3, WebGLRenderer } from "three";
 
-export interface Events extends InteractionEvents, MiscEvents, UpdateEvents { };
+export type MiscUpdateEvents = MiscEvents & UpdateEvents;
+
+export interface Events extends InteractionEvents, MiscEvents, UpdateEvents { }
 
 export interface UpdateEvents {
   positionchange: never;
@@ -14,9 +16,9 @@ export interface UpdateEvents {
 
 export interface MiscEvents {
   rendererresize: RendererResizeEvent;
-  beforeanimate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
-  animate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
-  afteranimate: { delta: DOMHighResTimeStamp, total: DOMHighResTimeStamp };
+  beforeanimate: AnimateEvent;
+  animate: AnimateEvent;
+  afteranimate: AnimateEvent;
 }
 
 export interface InteractionEvents {
@@ -270,21 +272,20 @@ export class FocusEventExt extends EventExt {
   }
 }
 
-export class RendererResizeEvent extends EventExt {
+export interface RendererResizeEvent {
   /** Returns new render width. */
-  public readonly width: number;
+  width: number;
   /** Returns the render height. */
-  public readonly height: number;
+  height: number;
   /** Returns renderer. */
-  public readonly renderer: WebGLRenderer;
+  renderer: WebGLRenderer;
   /** Returns rendering camera. */
-  public readonly camera: Camera;
+  camera: Camera;
+}
 
-  constructor(renderer: WebGLRenderer, camera: Camera, width: number, height: number) {
-    super();
-    this.renderer = renderer;
-    this.camera = camera;
-    this.width = width;
-    this.height = height;
-  }
+export interface AnimateEvent {
+  /** The difference in time between the current animation frame and the previous one. */
+  delta: DOMHighResTimeStamp;
+  /** The total amount of time that has passed since the animation started. */
+  total: DOMHighResTimeStamp;
 }

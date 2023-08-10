@@ -1,4 +1,4 @@
-import { Color, ColorRepresentation, EventDispatcher, Quaternion, Vector3 } from "three";
+import { Object3D, Color, ColorRepresentation, EventDispatcher, Quaternion, Vector3 } from "three";
 import { Events } from "../Events/Events";
 import { InstancedMesh2 } from "./InstancedMesh2";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
@@ -15,9 +15,16 @@ export class InstancedMeshSingle extends EventDispatcher {
     public focusable = false;
     public focused = false;
     public hovered = false;
-    public enabled = true; // TODO
-    public enabledUntilParent: boolean;
+    public enabled = true; //TODO handle all
     /** @internal */ public __eventsDispatcher: EventsDispatcher;
+
+    public get enabledUntilParent(): boolean {
+        let obj = this as unknown as Object3D;
+        do {
+            if (obj.enabled !== true) return false;
+        } while (obj = obj.parent);
+        return true;
+    }
 
     constructor(parent: InstancedMesh2, index: number, color?: ColorRepresentation) {
         super();
@@ -69,10 +76,10 @@ export class InstancedMeshSingle extends EventDispatcher {
     }
 
     public trigger<K extends keyof Events>(type: K, args?: Events[K]): void {
-        this.__eventsDispatcher.dispatchDOM(type, args);
+        this.__eventsDispatcher.dispatchManual(type, args);
     }
 
     public triggerAncestor<K extends keyof Events>(type: K, args?: Events[K]): void {
-        this.__eventsDispatcher.dispatchDOMAncestor(type, args);
+        this.__eventsDispatcher.dispatchAncestorManual(type, args);
     }
 }

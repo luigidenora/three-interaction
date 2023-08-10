@@ -1,11 +1,11 @@
 import { Camera, Object3D, Scene } from "three";
-import { Events } from "./Events";
+import { Events, MiscEvents } from "./Events";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
 type SceneEventsCache = { [x: string]: DistinctTargetArray };
 
 export class EventsCache {
-   private static _allowedEventsSet = new Set(["rendererresize", "beforeanimate", "animate", "afteranimate"] as (keyof Events)[]);
+   private static _allowedEventsSet = new Set<keyof Events>(["rendererresize", "beforeanimate", "animate", "afteranimate"] as (keyof MiscEvents)[]);
    private static _events: { [x: number]: SceneEventsCache } = {};
 
    public static push(type: keyof Events, target: Object3D): void {
@@ -51,7 +51,7 @@ export class EventsCache {
       }
    }
 
-   public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
+   public static dispatchEvent<K extends keyof MiscEvents>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache?.[type]) {
          for (const target of sceneCache[type].data) {
@@ -60,7 +60,7 @@ export class EventsCache {
       }
    }
 
-   public static dispatchEventExcludeCameras<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
+   public static dispatchEventExcludeCameras<K extends keyof MiscEvents>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache?.[type]) {
          for (const target of sceneCache[type].data) {

@@ -5,6 +5,7 @@ export class InstancedMesh2 extends InstancedMeshBase {
     public focusedId: number;
     public hoveredId: number;
     public instances: InstancedMeshSingle[] = [];
+    public animate = true;
     /** @internal */ public _tempMatrix = new Matrix4();
     /** @internal */ public _tempColor = new Color();
 
@@ -17,12 +18,13 @@ export class InstancedMesh2 extends InstancedMeshBase {
         }
 
         this.on("pointerintersection", (e) => {
-            this.instances[e.intersection.instanceId].trigger("pointerintersection", e);
+            this.instances[e.intersection.instanceId].__eventsDispatcher.dispatchDOM("pointerintersection", e);
         });
 
         this.on("animate", (e) => {
-            for (let i = 0; i < this.count; i++) { //opt with array sorted and don't include id > count
-                this.instances[i].trigger("animate", e);
+            if (!this.animate) return;
+            for (let i = 0; i < this.count; i++) {
+                this.instances[i].__eventsDispatcher.dispatch("animate", e);
             }
         });
     }

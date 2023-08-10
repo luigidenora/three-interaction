@@ -14,6 +14,8 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
     }
 }
 
+
+//TODO RIVEDERE
 function handleRendererResize(renderer: WebGLRenderer, scene: Scene, camera: Camera): void {
     let event: RendererResizeEvent;
 
@@ -24,7 +26,7 @@ function handleRendererResize(renderer: WebGLRenderer, scene: Scene, camera: Cam
     const lastSceneSize = lastViewportSizes[scene.id];
     if (lastSceneSize.z !== viewportSize.z || lastSceneSize.w !== viewportSize.w) {
         lastSceneSize.copy(viewportSize);
-        event = new RendererResizeEvent(renderer, camera, viewportSize.z, viewportSize.w);
+        event = { renderer, camera, width: viewportSize.z, height: viewportSize.w };
         EventsCache.dispatchEventExcludeCameras(scene, "rendererresize", event);
     }
 
@@ -35,6 +37,6 @@ function handleRendererResize(renderer: WebGLRenderer, scene: Scene, camera: Cam
     const lastCameraSize = lastViewportSizes[camera.id];
     if (lastCameraSize.z !== viewportSize.z || lastCameraSize.w !== viewportSize.w) {
         lastCameraSize.copy(viewportSize);
-        camera.__eventsDispatcher.dispatch("rendererresize", event ?? new RendererResizeEvent(renderer, camera, viewportSize.z, viewportSize.w));
+        camera.__eventsDispatcher.dispatch("rendererresize", event ?? { renderer, camera, width: viewportSize.z, height: viewportSize.w });
     }
 }

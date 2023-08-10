@@ -1,5 +1,5 @@
 import { Object3D } from "three";
-import { InteractionEvents, Events } from "./Events";
+import { InteractionEvents, Events, EventExt, MiscUpdateEvents } from "./Events";
 import { EventsCache } from "./MiscEventsManager";
 import { applyObject3DRotationPatch, applyObject3DVector3Patch } from "../Patch/Object3D";
 import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
@@ -15,7 +15,7 @@ export class EventsDispatcher {
             this.listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
                 EventsCache.push(type, this.parent as Object3D);
-                if (type === "positionchange" || type === "scalechange") { 
+                if (type === "positionchange" || type === "scalechange") {
                     applyObject3DVector3Patch(this.parent as Object3D);
                 } else if (type === "rotationchange") {
                     applyObject3DRotationPatch(this.parent as Object3D);
@@ -73,10 +73,23 @@ export class EventsDispatcher {
         }
     }
 
-    public dispatch(type: keyof Events, args?: any): void {
+    public dispatch<T extends keyof MiscUpdateEvents>(type: T, args?: MiscUpdateEvents[T]): void {
         if (!this.listeners[type]) return;
         for (const callback of this.listeners[type]) {
             callback.call(this.parent, args);
+        }
+    }
+
+    public dispatchManual<T extends keyof Events>(type: T, args?: Events[T]): void {
+        if ((args as EventExt)?.cancelable !== undefined) {
+            return this.dispatchDOM(type as keyof InteractionEvents, args as any);
+        }
+        this.dispatch(type as keyof MiscUpdateEvents, args as any);
+    }
+
+    public dispatchAncestorManual<T extends keyof Events>(type: T, args?: Events[T]): void {
+        if ((args as EventExt)?.type) {
+            this.dispatchDOMAncestor(type as keyof InteractionEvents, args as any);
         }
     }
 
