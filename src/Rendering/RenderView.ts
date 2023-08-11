@@ -37,9 +37,9 @@ export interface ViewParameters {
   backgroundAlpha?: number;
   /** The effect composer used for post-processing (optional). */
   composer?: EffectComposer;
-  /** TODO */
+  /** Function to be called before rendering the view (optional). */
   onBeforeRender?: () => void;
-  /** TODO */
+  /** Function to be called after rendering the view (optional). */
   onAfterRender?: () => void;
 }
 

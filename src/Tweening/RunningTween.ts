@@ -39,6 +39,7 @@ export class RunningTween {
     /** @internal */ public repeat?: boolean;
     /** @internal */ public ripetitions: { [x: number]: number } = {};
     /** @internal */ public _finished = false;
+    /** @internal */ public _blockHistory = false;
     public paused = false;
     public timeScale = 1;
 
@@ -78,7 +79,7 @@ export class RunningTween {
     /** @internal */
     public getBlock(): RunningBlock {
         const block = this.getCurrentBlock();
-        if (!this.repeat && !this.reversed && block) {
+        if (!this._blockHistory && !this.reversed && !this.repeat && block) {
             this.history.push(block);
         }
         this.currentBlock = block;
@@ -183,7 +184,11 @@ export class RunningTween {
         const repeat = this.ripetitions;
         repeat[this.actionIndex] ??= 0;
         if (repeat[this.actionIndex] < times) {
-            repeat[this.actionIndex]++;
+            if (times === Infinity) {
+                this._blockHistory = true;
+            } else {
+                repeat[this.actionIndex]++;
+            }
             do {
                 this.actionIndex--;
             } while (this.actionIndex > -1 && !this.tween.actions[this.actionIndex].hasActions);
