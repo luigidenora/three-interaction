@@ -40,13 +40,18 @@ export class RunningTween {
     /** @internal */ public ripetitions: { [x: number]: number } = {};
     /** @internal */ public _finished = false;
     public paused = false;
-    public timeScale = 1; //TODO implement
+    public timeScale = 1;
 
     public get finished(): boolean { return this._finished }
 
     constructor(target: any, tween: Tween) {
         this.target = target;
         this.tween = tween;
+    }
+
+    public setTimeScale(value: number): this {
+        this.timeScale = value;
+        return this;
     }
 
     public pause(): void {
@@ -205,6 +210,7 @@ export class RunningTween {
     /** @internal */
     public execute(delta: number): boolean {
         if (this.paused) return true;
+        delta *= this.timeScale;
         do {
             delta = Math.min(this.executeBlock(delta), this.getTweensDelta(this.currentBlock));
         } while (delta >= 0 && this.getBlock());
