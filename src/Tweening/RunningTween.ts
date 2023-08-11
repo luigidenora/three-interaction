@@ -39,7 +39,7 @@ export class RunningTween {
     /** @internal */ public repeat?: boolean;
     /** @internal */ public ripetitions: { [x: number]: number } = {};
     /** @internal */ public _finished = false;
-    public paused = false; //TODO implement
+    public paused = false;
     public timeScale = 1; //TODO implement
 
     public get finished(): boolean { return this._finished }
@@ -204,6 +204,7 @@ export class RunningTween {
 
     /** @internal */
     public execute(delta: number): boolean {
+        if (this.paused) return true;
         do {
             delta = Math.min(this.executeBlock(delta), this.getTweensDelta(this.currentBlock));
         } while (delta >= 0 && this.getBlock());
