@@ -4,6 +4,7 @@ import { TweenManager } from "./TweenManager";
 
 export class Tween<T = any> {
     /** @internal */ public actions: IAction[] = [];
+    /** @internal */ public blockHistory = false;
     public tags: string[] = [];
 
     constructor(public target?: T) { }
@@ -39,6 +40,9 @@ export class Tween<T = any> {
     }
 
     public repeat(times = 1): this {
+        if (times === Infinity) {
+            this.blockHistory = true;
+        }
         if (this.actions[this.actions.length - 1].isRepeat) {
             this.actions[this.actions.length - 1].times += times;
         } else {
@@ -92,7 +96,7 @@ export class Tween<T = any> {
         tween.tags = [...this.tags];
         return tween;
     }
-    
+
     public start(): RunningTween {
         return TweenManager.create(this.target, this);
     }

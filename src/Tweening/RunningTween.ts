@@ -39,7 +39,6 @@ export class RunningTween {
     /** @internal */ public repeat?: boolean;
     /** @internal */ public ripetitions: { [x: number]: number } = {};
     /** @internal */ public _finished = false;
-    /** @internal */ public _blockHistory = false;
     public paused = false;
     public timeScale = 1;
 
@@ -73,13 +72,13 @@ export class RunningTween {
 
     //TODO
     public revert(): void {
-        console.error("Rever method not implemented yet.");
+        console.error("Rever method not implemented yet."); // handle (!blockHistory)
     }
 
     /** @internal */
     public getBlock(): RunningBlock {
         const block = this.getCurrentBlock();
-        if (!this._blockHistory && !this.reversed && !this.repeat && block) {
+        if (!this.tween.blockHistory && !this.reversed && !this.repeat && block) {
             this.history.push(block);
         }
         this.currentBlock = block;
@@ -184,11 +183,7 @@ export class RunningTween {
         const repeat = this.ripetitions;
         repeat[this.actionIndex] ??= 0;
         if (repeat[this.actionIndex] < times) {
-            if (times === Infinity) {
-                this._blockHistory = true;
-            } else {
-                repeat[this.actionIndex]++;
-            }
+            repeat[this.actionIndex]++;
             do {
                 this.actionIndex--;
             } while (this.actionIndex > -1 && !this.tween.actions[this.actionIndex].hasActions);
