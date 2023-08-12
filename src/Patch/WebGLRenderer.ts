@@ -15,7 +15,6 @@ export function applyWebGLRendererPatch(renderer: WebGLRenderer): void {
 }
 
 
-//TODO RIVEDERE
 function handleRendererResize(renderer: WebGLRenderer, scene: Scene, camera: Camera): void {
     let event: RendererResizeEvent;
 

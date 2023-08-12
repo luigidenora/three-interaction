@@ -101,7 +101,7 @@ export class EventExt {
 
 export class MouseEventExt extends EventExt {
   /** Original dom event. */
-  public domEvent: MouseEvent;
+  public readonly domEvent: MouseEvent;
   /** Returns true if the alt key was down when the mouse event was fired. */
   public get altKey() { return this.domEvent.altKey }
   /** The button number that was pressed (if applicable) when the mouse event was fired. */
@@ -136,7 +136,7 @@ export class MouseEventExt extends EventExt {
   public get screenY() { return this.domEvent.screenY }
   /** Returns true if the shift key was down when the mouse event was fired. */
   public get shiftKey() { return this.domEvent.shiftKey }
-  /** TODO. */
+  /** Returns the intersection information between the mouse event and 3D objects in the scene. */
   public readonly intersection: IntersectionExt;
 
   constructor(event: MouseEvent, intersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
@@ -153,7 +153,7 @@ export class MouseEventExt extends EventExt {
 }
 
 export class PointerEventExt extends MouseEventExt {
-  declare public domEvent: PointerEvent;
+  declare public readonly domEvent: PointerEvent;
   /** A unique identifier for the pointer causing the event. */
   public get pointerId() { return this.domEvent.pointerId }
   /** The width (magnitude on the X axis), in CSS pixels, of the contact geometry of the pointer. */
@@ -178,24 +178,12 @@ export class PointerEventExt extends MouseEventExt {
   constructor(event: PointerEvent, intersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
     super(event, intersection, relatedTarget, cancelable);
   }
-
-  /** Returns a sequence of all PointerEvent instances that were coalesced into the dispatched pointermove event. */
-  public getCoalescedEvents(): PointerEventExt {
-    console.error("getCoalescedEvents not implemented yet.");
-    return undefined; // TODO
-  }
-
-  /** Returns a sequence of PointerEvent instances that the browser predicts will follow the dispatched pointermove event's coalesced events. */
-  public getPredictedEvents(): PointerEventExt {
-    console.error("getPredictedEvents not implemented yet.");
-    return undefined; // TODO
-  }
 }
 
 export class DragEventExt extends PointerEventExt {
-  /** TODO */
+  /** The data that is transferred during a drag and drop interaction. */
   public readonly dataTransfer: { [x: string]: any };
-  /** TODO */
+  /** Returns the new position of the dragged object.' */
   public readonly position: Vector3;
 
   constructor(event?: PointerEvent, cancelable = false, dataTransfer: { [x: string]: any } = {}, position?: Vector3, relatedTarget?: Object3D, intersection?: IntersectionExt) {
@@ -206,7 +194,7 @@ export class DragEventExt extends PointerEventExt {
 }
 
 export class PointerIntersectionEvent extends EventExt {
-  /** TODO. */
+  /** Returns the intersection information between the mouse event and 3D objects in the scene. */
   public readonly intersection: IntersectionExt;
 
   constructor(intersection: IntersectionExt) {
@@ -216,7 +204,7 @@ export class PointerIntersectionEvent extends EventExt {
 }
 
 export class WheelEventExt extends MouseEventExt {
-  declare domEvent: WheelEvent;
+  declare public readonly domEvent: WheelEvent;
   /*  Returns an unsigned long representing the unit of the delta* values' scroll amount. Permitted values are: 0 = pixels, 1 = lines, 2 = pages. */
   public get deltaMode() { return this.domEvent.deltaMode }
   /** Returns a double representing the horizontal scroll amount. */
@@ -284,8 +272,8 @@ export interface RendererResizeEvent {
 }
 
 export interface AnimateEvent {
-  /** The difference in time between the current animation frame and the previous one. */
+  /** The difference in time between the current animation frame and the previous one (in milliseconds). */
   delta: DOMHighResTimeStamp;
-  /** The total amount of time that has passed since the animation started. */
+  /** The total amount of time that has passed since the animation started (in milliseconds). */
   total: DOMHighResTimeStamp;
 }
