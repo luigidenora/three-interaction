@@ -3,6 +3,7 @@ import { Scene as SceneBase } from "three/index";
 import { BindingCallback, Cursor, DistinctTargetArray, Events, EventsDispatcher, IntersectionExt, Object3DExtPrototypeInternal, SceneExtPrototypeInternal } from "../src/index";
 
 export class Scene extends SceneBase implements Object3DExtPrototypeInternal, SceneExtPrototypeInternal {
+    __isDropTarget: boolean;
     __boundObjects: DistinctTargetArray;
     __smartRendering: boolean;
     continousRaycasting: boolean;

@@ -3,6 +3,7 @@ import { Camera as CameraBase } from "three/index";
 import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
 
 export class Camera extends CameraBase implements Object3DExtPrototypeInternal {
+    __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
     __eventsDispatcher: EventsDispatcher;

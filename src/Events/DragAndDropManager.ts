@@ -142,11 +142,5 @@ export class DragAndDropManager {
             }
         }
     }
-
-    //TODO cache it
-    public isDropTarget(target: IntersectionExt): boolean {
-        if (!target) return;
-        const ev = target.object.__eventsDispatcher;
-        return ev.listeners["drop"]?.length > 0 || ev.listeners["dragenter"]?.length > 0 || ev.listeners["dragleave"]?.length > 0 || ev.listeners["dragover"]?.length > 0;
-    }
+    
 }

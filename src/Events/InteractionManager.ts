@@ -83,7 +83,7 @@ export class InteractionManager {
         if (this._dragManager.isDragging) {
             if (event.isPrimary) {
                 const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.target.findDropTarget === true ? this._dragManager.target : undefined);
-                if (this._dragManager.isDropTarget(intersections[0])) {
+                if (intersections[0]?.object.__isDropTarget) {
                     this.setDropTarget(intersections);
                 } else {
                     this.setDropTarget([]);

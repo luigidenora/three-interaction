@@ -19,6 +19,8 @@ export class EventsDispatcher {
                     applyObject3DVector3Patch(this.parent as Object3D);
                 } else if (type === "rotationchange") {
                     applyObject3DRotationPatch(this.parent as Object3D);
+                } else if (type === "drop" || type === "dragenter" || type === "dragleave" || type === "dragover") {
+                    (this.parent as Object3D).__isDropTarget = true;
                 }
             }
         }
@@ -38,8 +40,13 @@ export class EventsDispatcher {
             this.listeners[type].splice(index, 1);
             if (this.listeners[type].length === 0) {
                 EventsCache.remove(type, this.parent as Object3D);
+                (this.parent as Object3D).__isDropTarget = this.isDropTarget();
             }
         }
+    }
+
+    private isDropTarget(): boolean {
+        return this.listeners["drop"]?.length > 0 || this.listeners["dragenter"]?.length > 0 || this.listeners["dragleave"]?.length > 0 || this.listeners["dragover"]?.length > 0;
     }
 
     public dispatchDOM<K extends keyof InteractionEvents>(type: K, event: InteractionEvents[K]): void {

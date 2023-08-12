@@ -23,6 +23,7 @@ export interface Object3DExtPrototypeInternal extends Object3DExtPrototype {
     __smartRenderingPatched: boolean;
     __enabled: boolean;
     __visible: boolean;
+    __isDropTarget: boolean;
 }
 
 export interface Object3DExtPrototype {

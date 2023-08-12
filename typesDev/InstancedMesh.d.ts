@@ -6,6 +6,7 @@ export class InstancedMesh<
     TGeometry extends BufferGeometry = BufferGeometry,
     TMaterial extends Material | Material[] = Material | Material[],
 > extends InstancedMeshBase<TGeometry, TMaterial> implements Object3DExtPrototypeInternal {
+    __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;
     __eventsDispatcher: EventsDispatcher;
