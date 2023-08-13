@@ -75,8 +75,7 @@ Object.defineProperty(Object3D.prototype, "firstFocusable", {
             obj = obj.parent;
         }
         return obj;
-    },
-    configurable: true
+    }
 });
 
 Object.defineProperty(Object3D.prototype, "enabledUntilParent", {
@@ -86,8 +85,7 @@ Object.defineProperty(Object3D.prototype, "enabledUntilParent", {
             if (obj.enabled !== true) return false;
         } while (obj = obj.parent);
         return true;
-    },
-    configurable: true //Todo consider configurable false
+    }
 });
 
 Object.defineProperty(Object3D.prototype, "needsRender", {
@@ -97,8 +95,7 @@ Object.defineProperty(Object3D.prototype, "needsRender", {
     set: function (this: Object3D, value: boolean) {
         if (!this.scene) return;
         this.scene.needsRender = value;
-    },
-    configurable: true
+    }
 });
 
 Object3D.prototype.on = function (this: Object3D, types: any, listener) {
