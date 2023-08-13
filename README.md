@@ -17,8 +17,9 @@ tween
 
 nice to have:
 
-set fps
+raycast only on rendered objects
 raycasting frequency
+set fps
 multifocus
 multitouch
 multidrag

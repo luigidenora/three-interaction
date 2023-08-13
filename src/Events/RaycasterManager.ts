@@ -43,7 +43,6 @@ export class RaycasterManager {
         return true;
     }
 
-    //TODO raycast only on rendered objects
     private raycastObjects(object: Object3D, target: IntersectionExt[], excluded?: Object3D): IntersectionExt[] {
         if (object === excluded) return;
 

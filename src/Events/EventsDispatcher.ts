@@ -76,7 +76,7 @@ export class EventsDispatcher {
         const target = event.currentTarget = this.parent as Object3D;
         for (const callback of this.listeners[type]) {
             if (event._stoppedImmediatePropagation) break;
-            callback.call(target, event); //TODO vedere se usare bind anzichè call
+            callback.call(target, event);
         }
     }
 
