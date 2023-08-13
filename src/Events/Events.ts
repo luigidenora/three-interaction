@@ -29,7 +29,6 @@ export interface InteractionEvents {
   pointermove: PointerEventExt;
   pointerdown: PointerEventExt;
   pointerup: PointerEventExt;
-  // pointercancel: PointerEventExt;
   pointerintersection: PointerIntersectionEvent;
   click: PointerEventExt;
   dblclick: PointerEventExt;
@@ -44,7 +43,6 @@ export interface InteractionEvents {
   dragstart: DragEventExt;
   dragend: DragEventExt;
   dragcancel: DragEventExt;
-
   dragenter: DragEventExt;
   dragover: DragEventExt;
   dragleave: DragEventExt;
@@ -174,10 +172,6 @@ export class PointerEventExt extends MouseEventExt {
   public get pointerType() { return this.domEvent.pointerType }
   /** Indicates if the pointer represents the primary pointer of this pointer type. */
   public get isPrimary() { return this.domEvent.isPrimary }
-
-  constructor(event: PointerEvent, intersection: IntersectionExt, relatedTarget?: Object3D, cancelable?: boolean) {
-    super(event, intersection, relatedTarget, cancelable);
-  }
 }
 
 export class DragEventExt extends PointerEventExt {
@@ -213,10 +207,6 @@ export class WheelEventExt extends MouseEventExt {
   public get deltaY() { return this.domEvent.deltaY }
   /** Returns a double representing the scroll amount for the z-axis. */
   public get deltaZ() { return this.domEvent.deltaZ }
-
-  constructor(event: WheelEvent, intersection: IntersectionExt) {
-    super(event, intersection);
-  }
 }
 
 export class KeyboardEventExt extends EventExt {
