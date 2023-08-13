@@ -68,32 +68,33 @@ export class RenderManager {
     this.views.push(view);
   }
 
-  public getByName(name: string): RenderView {
+  public getByTag(tag: string): RenderView {
     for (const view of this.views) {
-      if (view.name === name) {
+      if (view.tags.indexOf(tag) > -1) {
         return view;
       }
     }
   }
+
   public remove(view: RenderView): void {
     const index = this.views.indexOf(view);
-    if (index !== -1) {
+    if (index > -1) {
       this.views.splice(index, 1);
-    }
-    if (this.views.length === 0) {
-      this.setDefaultRendererParameters();
+      if (this.views.length === 0) {
+        this.setDefaultRendererParameters();
+      }
     }
   }
 
-  public removeByName(name: string): void {
-    for (let i = 0; i < this.views.length; i++) {
-      if (this.views[i].name === name) {
+  public removeByTag(tag: string): void {
+    if (this.views.length === 0) return;
+    for (let i = this.views.length - 1; i >= 0; i--) {
+      if (this.views[i].tags.indexOf(tag) > -1) {
         this.views.splice(i, 1);
-        if (this.views.length === 0) {
-          this.setDefaultRendererParameters();
-        }
-        return;
       }
+    }
+    if (this.views.length === 0) {
+      this.setDefaultRendererParameters();
     }
   }
 

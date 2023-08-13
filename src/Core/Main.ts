@@ -131,17 +131,16 @@ export class Main {
         this.renderManager.add(view);
     }
 
-    public getViewByName(name: string): RenderView {
-        return this.renderManager.getByName(name);
+    public getViewByTag(tag: string): RenderView {
+        return this.renderManager.getByTag(tag);
     }
 
     public removeView(view: RenderView): void {
         this.renderManager.remove(view);
     }
 
-    //TODO replace name with tag?
-    public removeViewByName(name: string): void {
-        this.renderManager.removeByName(name);
+    public removeViewByTag(tag: string): void {
+        this.renderManager.removeByTag(tag);
     }
 
     public clearViews(): void {

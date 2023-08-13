@@ -25,8 +25,8 @@ export interface ViewParameters {
   camera: Camera;
   /** The normalized viewport defining the dimensions and position of the view (optional). Values range from 0 to 1. */
   viewport?: Viewport;
-  /** The name of the view. */
-  name?: string;
+  /** The tags of the view. */
+  tags?: string[];
   /** Determines if the view is visible (optional, default: true). */
   visible?: boolean;
   /** Determines whether interaction events will be triggered for the view. (optional, default: true).  */
@@ -52,7 +52,7 @@ export class RenderView implements ViewParameters {
   public viewport: Viewport;
   /** The viewport defining the dimensions and position of the view. */
   public computedViewport = { left: 0, bottom: 0, width: 0, height: 0, top: 0 };
-  public name: string;
+  public tags: string[];
   public enabled: boolean;
   public backgroundColor: Color;
   public backgroundAlpha: number;
@@ -74,7 +74,7 @@ export class RenderView implements ViewParameters {
     this.scene = parameters.scene;
     this.camera = parameters.camera;
     this.viewport = parameters.viewport;
-    this.name = parameters.name;
+    this.tags = parameters.tags;
     this._visible = parameters.visible ?? true;
     this.enabled = parameters.enabled ?? true;
     this.backgroundAlpha = parameters.backgroundAlpha;
@@ -106,15 +106,11 @@ export class RenderView implements ViewParameters {
   }
 
   public onBeforeRender(): void {
-    if (this._onBeforeRender !== undefined) {
-      this._onBeforeRender();
-    }
+    this._onBeforeRender?.call(this);
   }
 
   public onAfterRender(): void {
-    if (this._onAfterRender !== undefined) {
-      this._onAfterRender();
-    }
+    this._onAfterRender?.call(this); //TODO test this context
   }
 
 }
