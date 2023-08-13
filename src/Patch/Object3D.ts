@@ -198,7 +198,7 @@ Object3D.prototype.add = function (object: Object3D) {
 
 const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
-    if (arguments.length == 1 && this.children.indexOf(object) !== -1) {
+    if (arguments.length == 1 && this.children.indexOf(object) > -1) {
         if (this.scene !== undefined) {
             removeSceneReference(object);
             this.scene.needsRender = true;

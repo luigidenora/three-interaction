@@ -64,7 +64,7 @@ export class RenderManager {
   }
 
   public add(view: RenderView): void {
-    if (this.views.indexOf(view) !== -1) return;
+    if (this.views.indexOf(view) > -1) return;
     this.views.push(view);
   }
 
@@ -189,6 +189,9 @@ export class RenderManager {
     this.renderer.getSize(this._rendererSize);
   }
 
-  //TODO metodo per settare unica scena visibile
-
+  public setActiveViewsByTag(tag: string): void {
+    for (const view of this.views) {
+      view.visible = view.tags.indexOf(tag) > -1;
+    }
+  }
 }

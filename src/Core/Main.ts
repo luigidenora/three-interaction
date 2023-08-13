@@ -148,4 +148,8 @@ export class Main {
     public getViewByMouse(mouse: Vector2): void {
         this.renderManager.getViewByMouse(mouse);
     }
+
+    public setActiveViewsByTag(tag: string): void {
+        this.renderManager.setActiveViewsByTag(tag);
+    }
 }

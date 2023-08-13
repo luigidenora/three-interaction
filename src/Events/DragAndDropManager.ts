@@ -4,7 +4,7 @@ import { DragEventExt, InteractionEvents, IntersectionExt } from "./Events";
 export class DragAndDropManager {
     public isDragging = false;
     private _plane = new Plane();
-    private _offset = new Vector3(); //TODO recalculates if object changes
+    private _offset = new Vector3(); //TODO recalculates if scale/rotation changes
     private _intersection = new Vector3();
     private _worldPosition = new Vector3();
     private _inverseMatrix = new Matrix4();
