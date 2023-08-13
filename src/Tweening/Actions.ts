@@ -1,4 +1,4 @@
-import { Euler, MathUtils, Object3D, Vector3 } from "three";
+import { Euler, MathUtils, Object3D, Quaternion, Vector3 } from "three";
 import { DEFAULT_EASING, Easing } from "./Easings";
 import { Tween } from "./Tween";
 import { RunningAction } from "./RunningTween";
@@ -74,6 +74,7 @@ export class ActionMotion implements IAction {
             const actionValue = this.motion[key];
             const targetValue = target[key];
             const action = this.vector3(actionValue, targetValue)
+                ?? this.quaternion(actionValue, targetValue)
                 ?? this.euler(actionValue, targetValue)
                 ?? this.any(actionValue, target, key);
             if (action) {
@@ -97,10 +98,22 @@ export class ActionMotion implements IAction {
         }
     }
 
+    private quaternion(actionValue: any, targetValue: Quaternion): RunningAction<Quaternion> {
+        if (targetValue?.isQuaternion === true) {
+            const value: Quaternion = actionValue.value ?? actionValue;
+            return {
+                time: this.time,
+                easing: actionValue.easing ?? this.motion.easing ?? DEFAULT_EASING,
+                start: targetValue.clone(),
+                end: this.isBy ? value.clone().premultiply(targetValue) : value,
+                callback: (start, end, alpha) => { targetValue.slerpQuaternions(start, end, alpha) }
+            };
+        }
+    }
+
     private euler(actionValue: any, targetValue: Euler): RunningAction<Euler> {
         if (targetValue?.isEuler === true) {
-            const valueRaw = actionValue.value ?? actionValue;
-            const value = typeof (valueRaw) === "number" ? new Euler(valueRaw, valueRaw, valueRaw) : valueRaw as Euler;
+            const value: Euler = actionValue.value ?? actionValue;
             return {
                 time: this.time,
                 easing: actionValue.easing ?? this.motion.easing ?? DEFAULT_EASING,
