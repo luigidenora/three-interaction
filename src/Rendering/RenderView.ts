@@ -106,11 +106,11 @@ export class RenderView implements ViewParameters {
   }
 
   public onBeforeRender(): void {
-    this._onBeforeRender?.call(this);
+    this._onBeforeRender?.apply(this);
   }
 
   public onAfterRender(): void {
-    this._onAfterRender?.call(this); //TODO test this context
+    this._onAfterRender?.apply(this);
   }
 
 }
