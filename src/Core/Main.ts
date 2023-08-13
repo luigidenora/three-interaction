@@ -18,7 +18,6 @@ export interface MainParameters {
     animate?: XRFrameRequestCallback;
     rendererParameters?: WebGLRendererParameters;
     enableCursor?: boolean;
-    // raycastingFrequency?: boolean; TODO
 }
 
 export class Main {
@@ -72,7 +71,6 @@ export class Main {
         this.backgroundAlpha = parameters.backgroundAlpha ?? 1;
         this.enableCursor = parameters.enableCursor ?? true;
         this._animate = parameters.animate;
-        // setInterval(() => { this.interactionManager.needsUpdate = true }, 1000 / 20); //TODO in future
     }
 
     private handleContextMenu(disableContextMenu = true): void {

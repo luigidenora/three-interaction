@@ -18,7 +18,7 @@ tween
 nice to have:
 
 set fps
-history
+raycasting frequency
 multifocus
 multitouch
 multidrag

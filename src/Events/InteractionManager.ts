@@ -10,7 +10,6 @@ import { RaycasterManager } from "./RaycasterManager";
 export class InteractionManager {
     public raycasterManager: RaycasterManager;
     public cursorManager: CursorHandler;
-    public needsUpdate = true;
     private _intersection: { [x: string]: IntersectionExt } = {};
     private _intersectionDropTarget: IntersectionExt;
     private _renderManager: RenderManager;
@@ -64,7 +63,6 @@ export class InteractionManager {
     }
 
     public update(): void {
-        if (this.needsUpdate === false) return;
         this._primaryRaycasted = false;
         for (const event of this._queue.dequeue()) {
             this.computeQueuedEvent(event);
@@ -72,7 +70,6 @@ export class InteractionManager {
         this.pointerIntersection();
         const hoveredObj = this._intersection[this._primaryIdentifier]?.object;
         this.cursorManager.update(this._dragManager.target, hoveredObj, this._intersectionDropTarget?.object);
-        // this.needsUpdate = false; TODO decomment when implement 20 fps raycasting
     }
 
     private raycastScene(event: PointerEvent): void {
