@@ -1,20 +1,19 @@
-import { BufferAttribute, InstancedInterleavedBuffer, InterleavedBufferAttribute, Vector2, Vector3 } from "three";
+import { InstancedInterleavedBuffer, InterleavedBufferAttribute, Vector2, Vector3 } from "three";
 import { Line2 as Line2Base } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
 
-//TODO refactor
 export class Line2 extends Line2Base {
     constructor(material = new LineMaterial()) {
         super(new LineGeometry(), material);
 
-        this.on("rendererresize", (e: any) => {
+        this.on("rendererresize", (e) => {
             this.material.resolution.set(e.width, e.height);
         });
     }
 
     public updatePoints(positions: Vector3[], ...indexes: number[]): void {
-        const array = (this.geometry.attributes.instanceStart as BufferAttribute).array as Float32Array;
+        const array = (this.geometry.attributes.instanceStart as InterleavedBufferAttribute).array as Float32Array;
         for (const index of indexes) {
             const arrayIndex = (index - 1) * 6 + 3;
             array[arrayIndex] = positions[index].x;
@@ -66,7 +65,9 @@ export class Line2 extends Line2Base {
     protected update(): void {
         this.geometry.computeBoundingBox();
         this.geometry.computeBoundingSphere();
-        // this.computeLineDistances(); //capire se solo dashed
-        // this.needsRender = true;
+        if (this.material.dashed) {
+            this.computeLineDistances();
+        }
+        this.needsRender = true;
     }
 }
