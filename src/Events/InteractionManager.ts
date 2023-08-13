@@ -42,17 +42,17 @@ export class InteractionManager {
         renderer.domElement.addEventListener("pointermove", (e) => this._mouseDetected = e.pointerType === "mouse");
         renderer.domElement.addEventListener("pointerdown", (e) => this._isTapping = e.pointerType !== "mouse" && e.isPrimary);
         renderer.domElement.addEventListener("pointerup", (e) => this._isTapping &&= !e.isPrimary);
-        //todo pointercancel
+        renderer.domElement.addEventListener("pointercancel", (e) => this._isTapping &&= !e.isPrimary);
         this.bindEvents(renderer);
     }
 
     private bindEvents(renderer: WebGLRenderer): void {
         const domElement = renderer.domElement;
-        // domElement.addEventListener("pointercancel", this.enqueue.bind(this));
         domElement.addEventListener("pointerleave", this.enqueue.bind(this));
         domElement.addEventListener("pointerdown", this.enqueue.bind(this));
         domElement.addEventListener("pointermove", this.enqueue.bind(this));
         domElement.addEventListener("pointerup", this.enqueue.bind(this));
+        domElement.addEventListener("pointercancel", this.enqueue.bind(this));
         domElement.addEventListener("wheel", this.enqueue.bind(this));
         document.addEventListener("keydown", this.enqueue.bind(this)); //todo settare un dom element or tabindex automatico
         document.addEventListener("keyup", this.enqueue.bind(this));
@@ -87,7 +87,7 @@ export class InteractionManager {
                 }
             }
         } else {
-            this._lastIntersection[event.pointerId] = this._intersection[event.pointerId]; //todo remember delete
+            this._lastIntersection[event.pointerId] = this._intersection[event.pointerId];
             const intersections = this.raycasterManager.getIntersections(event, false);
             this._intersection[event.pointerId] = intersections[0];
             const scene = this._renderManager.activeScene;
@@ -138,6 +138,7 @@ export class InteractionManager {
             case "pointermove": return this.pointerMove(event as PointerEvent);
             case "pointerdown": return this.pointerDown(event as PointerEvent);
             case "pointerup": return this.pointerUp(event as PointerEvent);
+            case "pointercancel": return this.pointerUp(event as PointerEvent);
             case "wheel": return this.wheel(event as WheelEvent);
             case "keydown": return this.keyDown(event as KeyboardEvent);
             case "keyup": return this.keyUp(event as KeyboardEvent);
@@ -159,7 +160,6 @@ export class InteractionManager {
         this._lastPointerDownExt[event.pointerId] = pointerDownEvent;
 
         if (target) {
-            //todo handle if pointer cancel
             target.clicking = this.isMainClick(event);
         }
 
@@ -249,11 +249,23 @@ export class InteractionManager {
             }
         }
 
-        this._lastClick = this.dblClick(event, lastClick, target);
+        if (event.type === "pointerup") {
+            this._lastClick = this.dblClick(event, lastClick, target);
+        }
 
         if (lastPointerDownTarget && this.isMainClick(event)) {
             lastPointerDownTarget.clicking = false;
         }
+
+        this.clearPointerId(event.pointerId);
+    }
+
+    private clearPointerId(pointerId: number): void {
+        delete this._intersection[pointerId];
+        delete this._lastPointerDownExt[pointerId];
+        delete this._lastPointerDown[pointerId];
+        delete this._lastPointerMove[pointerId];
+        delete this._lastIntersection[pointerId];
     }
 
     private dblClick(event: PointerEvent, lastClick: PointerEventExt, target: Object3D): PointerEventExt {
