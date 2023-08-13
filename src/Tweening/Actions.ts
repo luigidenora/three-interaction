@@ -1,4 +1,4 @@
-import { Euler, MathUtils, Object3D, Quaternion, Vector3 } from "three";
+import { Color, Euler, MathUtils, Object3D, Quaternion, Vector3 } from "three";
 import { DEFAULT_EASING, Easing } from "./Easings";
 import { Tween } from "./Tween";
 import { RunningAction } from "./RunningTween";
@@ -76,6 +76,7 @@ export class ActionMotion implements IAction {
             const action = this.vector3(actionValue, targetValue)
                 ?? this.quaternion(actionValue, targetValue)
                 ?? this.euler(actionValue, targetValue)
+                ?? this.color(actionValue, targetValue)
                 ?? this.any(actionValue, target, key);
             if (action) {
                 actions.push(action);
@@ -122,6 +123,19 @@ export class ActionMotion implements IAction {
                 callback: (start, end, alpha) => {
                     targetValue.set(MathUtils.lerp(start.x, end.x, alpha), MathUtils.lerp(start.y, end.y, alpha), MathUtils.lerp(start.z, end.z, alpha));
                 }
+            };
+        }
+    }
+
+    private color(actionValue: any, targetValue: Color): RunningAction<Color> {
+        if (targetValue?.isColor === true) {
+            const value: Color = actionValue.value ?? actionValue;
+            return {
+                time: this.time,
+                easing: actionValue.easing ?? this.motion.easing ?? DEFAULT_EASING,
+                start: targetValue.clone(),
+                end: this.isBy ? value.clone().add(targetValue) : value,
+                callback: (start, end, alpha) => { targetValue.lerpColors(start, end, alpha) }
             };
         }
     }
