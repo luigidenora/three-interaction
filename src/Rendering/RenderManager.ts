@@ -14,11 +14,17 @@ export class RenderManager {
   public hoveredView: RenderView;
   private _visibleScenes = new DistinctTargetArray<Scene>();
   private _rendererSize = new Vector2();
-  private _fullscreen: boolean; // TODO editable?
+  private _fullscreen: boolean;
   private _backgroundColor: Color;
   private _backgroundAlpha: number;
 
   public get activeScene(): Scene { return this.activeView?.scene }
+
+  public get fullscreen(): boolean { return this._fullscreen }
+  public set fullscreen(value: boolean) {
+    this._fullscreen = value;
+    this.updateRenderSize();
+  }
 
   public get backgroundColor(): Color { return this._backgroundColor }
   public set backgroundColor(value: ColorRepresentation) {
@@ -173,7 +179,7 @@ export class RenderManager {
   }
 
   private updateRenderSize(): void {
-    if (this._fullscreen === true) {
+    if (this._fullscreen) {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     } else {
       const { width, height } = this.renderer.domElement.getBoundingClientRect();
