@@ -54,8 +54,9 @@ export class InteractionManager {
         domElement.addEventListener("pointerup", this.enqueue.bind(this));
         domElement.addEventListener("pointercancel", this.enqueue.bind(this));
         domElement.addEventListener("wheel", this.enqueue.bind(this));
-        document.addEventListener("keydown", this.enqueue.bind(this)); //todo settare un dom element or tabindex automatico
-        document.addEventListener("keyup", this.enqueue.bind(this));
+        domElement.tabIndex = -1;
+        domElement.addEventListener("keydown", this.enqueue.bind(this));
+        domElement.addEventListener("keyup", this.enqueue.bind(this));
     }
 
     private enqueue(event: Event): void {
