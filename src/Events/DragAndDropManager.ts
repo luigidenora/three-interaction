@@ -4,7 +4,7 @@ import { DragEventExt, InteractionEvents, IntersectionExt } from "./Events";
 export class DragAndDropManager {
     public isDragging = false;
     private _plane = new Plane();
-    private _offset = new Vector3(); //TODO recalculates if scale/rotation changes
+    private _offset = new Vector3();
     private _intersection = new Vector3();
     private _worldPosition = new Vector3();
     private _inverseMatrix = new Matrix4();
@@ -132,7 +132,7 @@ export class DragAndDropManager {
             const lastDropTarget = this._lastDropTarget;
             this._lastDropTarget = dropTarget;
 
-            if (dropTarget !== lastDropTarget) { //documenta che il related target è sempre l'oggetto che stai draggando
+            if (dropTarget !== lastDropTarget) {
                 this.trigger("dragleave", event, lastDropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
                 this.trigger("dragenter", event, dropTarget, false, dropTargetIntersection?.point, this._target, dropTargetIntersection);
             }
@@ -142,5 +142,5 @@ export class DragAndDropManager {
             }
         }
     }
-    
+
 }

@@ -75,7 +75,10 @@ export class InteractionManager {
     private raycastScene(event: PointerEvent): void {
         if (event.isPrimary) {
             this._primaryRaycasted = true;
-            this._primaryIdentifier = event.pointerId;
+            if (this._primaryIdentifier !== event.pointerId) {
+                this.clearPointerId(this._primaryIdentifier);
+                this._primaryIdentifier = event.pointerId;
+            }
         }
         if (this._dragManager.isDragging) {
             if (event.isPrimary) {
@@ -257,7 +260,9 @@ export class InteractionManager {
             lastPointerDownTarget.clicking = false;
         }
 
-        this.clearPointerId(event.pointerId);
+        if (event.pointerId !== this._primaryIdentifier) {
+            this.clearPointerId(event.pointerId);
+        }
     }
 
     private clearPointerId(pointerId: number): void {
