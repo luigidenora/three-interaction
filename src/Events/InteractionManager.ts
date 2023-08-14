@@ -73,21 +73,14 @@ export class InteractionManager {
     }
 
     private raycastScene(event: PointerEvent): void {
-        if (event.isPrimary) {
-            this._primaryRaycasted = true;
-            if (this._primaryIdentifier !== event.pointerId) {
-                this.clearPointerId(this._primaryIdentifier);
-                this._primaryIdentifier = event.pointerId;
-            }
-        }
+        this.handlePrimaryIdentifier(event);
         if (this._dragManager.isDragging) {
-            if (event.isPrimary) {
-                const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.target.findDropTarget === true ? this._dragManager.target : undefined);
-                if (intersections[0]?.object.__isDropTarget) {
-                    this.setDropTarget(intersections);
-                } else {
-                    this.setDropTarget([]);
-                }
+            if (!event.isPrimary) return;
+            const intersections = this.raycasterManager.getIntersections(event, true, this._dragManager.target.findDropTarget === true ? this._dragManager.target : undefined);
+            if (intersections[0]?.object.__isDropTarget) {
+                this.setDropTarget(intersections);
+            } else {
+                this.setDropTarget([]);
             }
         } else {
             this._lastIntersection[event.pointerId] = this._intersection[event.pointerId];
@@ -96,6 +89,16 @@ export class InteractionManager {
             const scene = this._renderManager.activeScene;
             if (scene && event.isPrimary) {
                 scene.intersections = intersections;
+            }
+        }
+    }
+
+    private handlePrimaryIdentifier(event: PointerEvent): void {
+        if (event.isPrimary) {
+            this._primaryRaycasted = true;
+            if (this._primaryIdentifier !== event.pointerId) {
+                this.clearPointerId(this._primaryIdentifier);
+                this._primaryIdentifier = event.pointerId;
             }
         }
     }
