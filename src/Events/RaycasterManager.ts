@@ -55,7 +55,11 @@ export class RaycasterManager {
             let previousCount = target.length;
 
             if (object.hitboxes) {
-                this.raycaster.intersectObjects(object.hitboxes, false, target);
+                for (const hitbox of object.hitboxes) {
+                    hitbox.updateMatrix();
+                    hitbox.matrixWorld.multiplyMatrices(object.matrixWorld, hitbox.matrix);
+                    this.raycaster.intersectObject(hitbox, false, target);
+                }
             } else {
                 this.raycaster.intersectObject(object, false, target);
             }
