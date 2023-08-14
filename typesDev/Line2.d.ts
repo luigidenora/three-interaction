@@ -3,6 +3,7 @@ import { Line2 as Line2Base } from "../node_modules/@types/three/examples/jsm/li
 import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
 
 export class Line2 extends Line2Base implements Object3DExtPrototypeInternal {
+    __originalVisibleDescriptor: PropertyDescriptor;
     __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;

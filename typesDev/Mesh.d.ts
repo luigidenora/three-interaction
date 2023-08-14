@@ -6,6 +6,7 @@ export class Mesh<
     TGeometry extends BufferGeometry = BufferGeometry,
     TMaterial extends Material | Material[] = Material | Material[],
 > extends MeshBase<TGeometry, TMaterial> implements Object3DExtPrototypeInternal {
+    __originalVisibleDescriptor: PropertyDescriptor;
     __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;

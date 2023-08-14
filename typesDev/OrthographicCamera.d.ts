@@ -3,6 +3,7 @@ import { OrthographicCamera as OrthographicCameraBase } from "three/index";
 import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
 
 export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototypeInternal {
+    __originalVisibleDescriptor: PropertyDescriptor;
     __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];
     __manualDetection: boolean;

@@ -24,6 +24,7 @@ export interface Object3DExtPrototypeInternal extends Object3DExtPrototype {
     __enabled: boolean;
     __visible: boolean;
     __isDropTarget: boolean;
+    __originalVisibleDescriptor: PropertyDescriptor;
 }
 
 export interface Object3DExtPrototype {
@@ -65,9 +66,32 @@ Object3D.prototype.dragging = false;
 Object3D.prototype.draggable = false;
 Object3D.prototype.hovered = false;
 Object3D.prototype.interceptByRaycaster = true;
-Object3D.prototype.enabled = true;
 Object3D.prototype.findDropTarget = false;
 Object3D.prototype.__manualDetection = false;
+
+Object3D.prototype.__visible = true;
+Object.defineProperty(Object3D.prototype, "visible", {
+    get: function (this: Object3D) { return this.__visible },
+    set: function (this: Object3D, value: boolean) {
+        if (this.__visible !== value) {
+            this.__visible = value;
+            this.__eventsDispatcher.dispatchDescendant("visiblechange", { value, target: this });
+        }
+    },
+    configurable: true
+});
+
+Object3D.prototype.__enabled = true;
+Object.defineProperty(Object3D.prototype, "enabled", {
+    get: function (this: Object3D) { return this.__enabled },
+    set: function (this: Object3D, value: boolean) {
+        if (this.__enabled !== value) {
+            this.__enabled = value;
+            this.__eventsDispatcher.dispatchDescendant("enabledchange", { value, target: this });
+        }
+    },
+    configurable: true
+});
 
 Object.defineProperty(Object3D.prototype, "firstFocusable", {
     get: function (this: Object3D) {

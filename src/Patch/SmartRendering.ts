@@ -17,7 +17,7 @@ export function removeSmartRenderingPatch(target: Object3D): void {
         setVec3ChangeCallback(target);
         setQuatChangeCallback(target);
         setEulerChangeCallback(target);
-        restoreVisibility(target);
+        restoreVisible(target);
         target.__smartRenderingPatched = false;
     }
 }
@@ -28,8 +28,8 @@ export function activeSmartRendering(scene: Scene): void {
     applySmartRenderingPatchRecursive(scene);
 }
 
-function overrideVisibility(target: Object3D): void {
-    target.__visible = target.visible;
+function overrideVisible(target: Object3D): void {
+    target.__originalVisibleDescriptor = Object.getOwnPropertyDescriptor(target, "visible");
     Object.defineProperty(target, "visible", {
         get: function (this: Object3D) { return this.__visible },
         set: function (this: Object3D, value: boolean) {
@@ -43,11 +43,8 @@ function overrideVisibility(target: Object3D): void {
     });
 }
 
-function restoreVisibility(target: Object3D): void {
-    Object.defineProperty(target, "visible", {
-        value: target.__visible, writable: true, configurable: true
-    });
-    delete target.__visible;
+function restoreVisible(target: Object3D): void {
+    Object.defineProperty(target, "visible", target.__originalVisibleDescriptor);
 }
 
 function applySmartRenderingPatchRecursive(target: Object3D): void {
@@ -65,6 +62,6 @@ function applyPatch(target: Object3D): void {
     setVec3ChangeCallbackSR(target);
     setQuatChangeCallbackSR(target);
     setEulerChangeCallbackSR(target);
-    overrideVisibility(target)
+    overrideVisible(target);
     target.__smartRenderingPatched = true;
 }

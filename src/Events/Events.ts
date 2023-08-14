@@ -8,7 +8,7 @@ export interface UpdateEvents {
   positionchange: never;
   scalechange: never;
   rotationchange: never;
-  enablechange: PropertyChangeEvent<boolean>; // This event propagation Up to down.
+  enabledchange: PropertyChangeEvent<boolean>; // This event propagation Up to down.
   visiblechange: PropertyChangeEvent<boolean>; // This event propagation Up to down.
 }
 
