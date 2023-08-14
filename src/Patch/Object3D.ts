@@ -50,6 +50,7 @@ export interface Object3DExtPrototype {
     hasEvent<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): boolean;
     off<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): void;
     trigger<K extends keyof Events>(type: K, args?: Events[K]): void;
+    /** Works only with InteractionEvents */
     triggerAncestor<K extends keyof Events>(type: K, args?: Events[K]): void;
     setManualDetectionMode(): void;
     detectChanges(recursive?: boolean): void;

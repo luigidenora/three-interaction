@@ -23,3 +23,5 @@ set fps
 multifocus
 multitouch
 multidrag
+scenechange event
+parentchange event

@@ -6,11 +6,11 @@ import { InstancedMeshSingle } from "../Objects/InstancedMeshSingle";
 
 /** @internal */
 export class EventsDispatcher {
-    public listeners: { [P in keyof Events]?: ((args?: any) => void)[] } = {};
+    public listeners: { [P in keyof Events]?: ((event?: any) => void)[] } = {};
 
     constructor(public parent: Object3D | InstancedMeshSingle) { }
 
-    public add<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): (args: Events[K]) => void {
+    public add<K extends keyof Events>(type: K, listener: (event: Events[K]) => void): (event: Events[K]) => void {
         if (!this.listeners[type]) {
             this.listeners[type] = [];
             if ((this.parent as Object3D).isObject3D) {
@@ -30,11 +30,11 @@ export class EventsDispatcher {
         return listener;
     }
 
-    public has<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): boolean {
+    public has<K extends keyof Events>(type: K, listener: (event: Events[K]) => void): boolean {
         return this.listeners[type]?.indexOf(listener) > -1;
     }
 
-    public remove<K extends keyof Events>(type: K, listener: (args: Events[K]) => void): void {
+    public remove<K extends keyof Events>(type: K, listener: (event: Events[K]) => void): void {
         const index = this.listeners[type]?.indexOf(listener) ?? -1;
         if (index !== -1) {
             this.listeners[type].splice(index, 1);
@@ -80,23 +80,32 @@ export class EventsDispatcher {
         }
     }
 
-    public dispatch<T extends keyof MiscUpdateEvents>(type: T, args?: MiscUpdateEvents[T]): void {
+    public dispatch<T extends keyof MiscUpdateEvents>(type: T, event?: MiscUpdateEvents[T]): void {
         if (!this.listeners[type]) return;
         for (const callback of this.listeners[type]) {
-            callback.call(this.parent, args);
+            callback.call(this.parent, event);
         }
     }
 
-    public dispatchManual<T extends keyof Events>(type: T, args?: Events[T]): void {
-        if ((args as EventExt)?.cancelable !== undefined) {
-            return this.dispatchDOM(type as keyof InteractionEvents, args as any);
+    public dispatchDescendant<T extends keyof MiscUpdateEvents>(type: T, event?: MiscUpdateEvents[T]): void {
+        const target = this.parent as Object3D;
+        target.__eventsDispatcher.dispatch(type, event);
+        if (!target.children) return;
+        for (const child of target.children) {
+            child.__eventsDispatcher.dispatchDescendant(type, event);
         }
-        this.dispatch(type as keyof MiscUpdateEvents, args as any);
     }
 
-    public dispatchAncestorManual<T extends keyof Events>(type: T, args?: Events[T]): void {
-        if ((args as EventExt)?.type) {
-            this.dispatchDOMAncestor(type as keyof InteractionEvents, args as any);
+    public dispatchManual<T extends keyof Events>(type: T, event?: Events[T]): void {
+        if ((event as EventExt)?.cancelable !== undefined) {
+            return this.dispatchDOM(type as keyof InteractionEvents, event as any);
+        }
+        this.dispatch(type as keyof MiscUpdateEvents, event as any);
+    }
+
+    public dispatchAncestorManual<T extends keyof Events>(type: T, event?: Events[T]): void {
+        if ((event as EventExt)?.type) {
+            this.dispatchDOMAncestor(type as keyof InteractionEvents, event as any);
         }
     }
 

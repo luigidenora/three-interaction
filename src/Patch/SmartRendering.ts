@@ -33,8 +33,11 @@ function overrideVisibility(target: Object3D): void {
     Object.defineProperty(target, "visible", {
         get: function (this: Object3D) { return this.__visible },
         set: function (this: Object3D, value: boolean) {
-            this.__visible = value;
-            this.needsRender = true;
+            if (this.__visible !== value) {
+                this.__visible = value;
+                this.needsRender = true;
+                this.__eventsDispatcher.dispatchDescendant("visiblechange", { value, target: this });
+            }
         },
         configurable: true
     });

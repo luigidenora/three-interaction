@@ -8,10 +8,8 @@ export interface UpdateEvents {
   positionchange: never;
   scalechange: never;
   rotationchange: never;
-  // scenechange: never;
-  // parentchange: never;
-  // enablechange // This event propagation Up to down.
-  // visiblechange // This event propagation Up to down.
+  enablechange: PropertyChangeEvent<boolean>; // This event propagation Up to down.
+  visiblechange: PropertyChangeEvent<boolean>; // This event propagation Up to down.
 }
 
 export interface MiscEvents {
@@ -266,4 +264,11 @@ export interface AnimateEvent {
   delta: DOMHighResTimeStamp;
   /** The total amount of time that has passed since the animation started (in milliseconds). */
   total: DOMHighResTimeStamp;
+}
+
+export interface PropertyChangeEvent<T> {
+  /** A reference to the object to which the event was originally dispatched. */
+  target: Object3D;
+  /** The new value associated with the property change. */
+  value: T;
 }
