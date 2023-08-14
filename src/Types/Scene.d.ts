@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { Scene as SceneBase } from "three/index";
-import { Cursor, Events, IntersectionExt, Object3DExtPrototype, SceneExtPrototype } from "../index";
+import { Cursor, Events, IntersectionExt, Object3DExtPrototype, SceneExtPrototype, Tween } from "../index";
 
 export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPrototype {
     continousRaycasting: boolean;
@@ -41,6 +41,7 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
+    tween(): Tween<this>;
     override parent: Object3D;
     override children: Object3D[];
 }

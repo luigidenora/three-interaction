@@ -1,6 +1,6 @@
 import { Object3D, Scene } from "three";
 import { BufferGeometry, Material, SkinnedMesh as SkinnedMeshBase } from "three/index";
-import { Cursor, Events, Object3DExtPrototype } from "../index";
+import { Cursor, Events, Object3DExtPrototype, Tween } from "../index";
 
 export class SkinnedMesh<
     TGeometry extends BufferGeometry = BufferGeometry,
@@ -34,6 +34,7 @@ export class SkinnedMesh<
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
+    tween(): Tween<this>;
     override parent: Object3D;
     override children: Object3D[];
 }

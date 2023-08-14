@@ -1,6 +1,6 @@
 import { Object3D, Scene } from "three";
 import { LOD as LODBase } from "three/index";
-import { Cursor, Events, Object3DExtPrototype } from "../index";
+import { Cursor, Events, Object3DExtPrototype, Tween } from "../index";
 
 export class LOD extends LODBase implements Object3DExtPrototype {
     enabled: boolean;
@@ -31,6 +31,7 @@ export class LOD extends LODBase implements Object3DExtPrototype {
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
+    tween(): Tween<this>;
     override parent: Object3D;
     override children: Object3D[];
 }

@@ -1,8 +1,9 @@
 import { Object3D, Scene } from "three";
 import { Line2 as Line2Base } from "../node_modules/@types/three/examples/jsm/lines/Line2";
-import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
+import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal, Tween } from "../src/index";
 
 export class Line2 extends Line2Base implements Object3DExtPrototypeInternal {
+    tween(): Tween<this>;
     __originalVisibleDescriptor: PropertyDescriptor;
     __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];

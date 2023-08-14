@@ -1,11 +1,12 @@
 import { Object3D, Scene } from "three";
 import { BufferGeometry, Material, Mesh as MeshBase } from "three/index";
-import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
+import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal, Tween } from "../src/index";
 
 export class Mesh<
     TGeometry extends BufferGeometry = BufferGeometry,
     TMaterial extends Material | Material[] = Material | Material[],
 > extends MeshBase<TGeometry, TMaterial> implements Object3DExtPrototypeInternal {
+    tween(): Tween<this>;
     __originalVisibleDescriptor: PropertyDescriptor;
     __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];

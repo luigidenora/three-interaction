@@ -8,6 +8,7 @@ import { applyMatrix4Patch } from "./Matrix4";
 import { applyQuaternionPatch } from "./Quaternion";
 import { removeSceneReference, setSceneReference } from "./Scene";
 import { applyVec3Patch } from "./Vector3";
+import { Tween } from "../Tweening/Tween";
 
 /** @internal */
 export interface Object3DExtPrototypeInternal extends Object3DExtPrototype {
@@ -57,6 +58,7 @@ export interface Object3DExtPrototype {
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
+    tween(): Tween<this>;
 }
 
 Object3D.prototype.focusable = true;
@@ -204,6 +206,10 @@ Object3D.prototype.bindProperty = function (property, getValue, renderOnChange) 
 Object3D.prototype.unbindProperty = function (property) {
     Binding.unbindProperty(this, property);
     return this;
+};
+
+Object3D.prototype.tween = function () {
+    return new Tween(this);
 };
 
 const addBase = Object3D.prototype.add;

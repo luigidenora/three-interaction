@@ -1,6 +1,6 @@
 import { Object3D, Scene } from "three";
 import { Line2 as Line2Base } from "../../node_modules/@types/three/examples/jsm/lines/Line2";
-import { Cursor, Events, Object3DExtPrototype } from "../index";
+import { Cursor, Events, Object3DExtPrototype, Tween } from "../index";
 
 export class Line2 extends Line2Base implements Object3DExtPrototype {
     enabled: boolean;
@@ -31,6 +31,7 @@ export class Line2 extends Line2Base implements Object3DExtPrototype {
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
     unbindProperty<T extends keyof this>(property: T): this;
+    tween(): Tween<this>;
     override parent: Object3D;
     override children: Object3D[];
 }

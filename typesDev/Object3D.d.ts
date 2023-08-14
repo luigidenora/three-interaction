@@ -1,8 +1,9 @@
 import { Scene } from "three";
 import { Object3D as Object3DBase } from "three/index";
-import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal } from "../src/index";
+import { BindingCallback, Cursor, Events, EventsDispatcher, Object3DExtPrototypeInternal, Tween } from "../src/index";
 
 export class Object3D extends Object3DBase implements Object3DExtPrototypeInternal {
+    tween(): Tween<this>;
     __originalVisibleDescriptor: PropertyDescriptor;
     __isDropTarget: boolean;
     __boundCallbacks: BindingCallback[];
