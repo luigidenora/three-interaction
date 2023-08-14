@@ -18,7 +18,7 @@ export class Object3D extends Object3DBase implements Object3DExtPrototypeIntern
     __onChangeBaseEuler: () => void;
     enabled: boolean;
     interceptByRaycaster: boolean;
-    objectsToRaycast: Object3D[];
+    hitboxes: Object3D[];
     focusable: boolean;
     draggable: boolean;
     findDropTarget: boolean;

@@ -54,8 +54,8 @@ export class RaycasterManager {
 
             let previousCount = target.length;
 
-            if (object.objectsToRaycast) {
-                this.raycaster.intersectObjects(object.objectsToRaycast, false, target);
+            if (object.hitboxes) {
+                this.raycaster.intersectObjects(object.hitboxes, false, target);
             } else {
                 this.raycaster.intersectObject(object, false, target);
             }

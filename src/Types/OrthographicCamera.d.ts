@@ -5,7 +5,7 @@ import { Cursor, Events, Object3DExtPrototype, Tween } from "../index";
 export class OrthographicCamera extends OrthographicCameraBase implements Object3DExtPrototype {
     enabled: boolean;
     interceptByRaycaster: boolean;
-    objectsToRaycast: Object3D[];
+    hitboxes: Object3D[];
     focusable: boolean;
     draggable: boolean;
     findDropTarget: boolean;

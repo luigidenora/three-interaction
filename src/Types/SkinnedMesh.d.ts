@@ -8,7 +8,7 @@ export class SkinnedMesh<
 > extends SkinnedMeshBase<TGeometry, TMaterial> implements Object3DExtPrototype {
     enabled: boolean;
     interceptByRaycaster: boolean;
-    objectsToRaycast: Object3D[];
+    hitboxes: Object3D[];
     focusable: boolean;
     draggable: boolean;
     findDropTarget: boolean;

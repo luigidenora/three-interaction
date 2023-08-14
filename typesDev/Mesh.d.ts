@@ -21,7 +21,7 @@ export class Mesh<
     __onChangeBaseEuler: () => void;
     enabled: boolean;
     interceptByRaycaster: boolean;
-    objectsToRaycast: Object3D[];
+    hitboxes: Object3D[];
     focusable: boolean;
     draggable: boolean;
     findDropTarget: boolean;

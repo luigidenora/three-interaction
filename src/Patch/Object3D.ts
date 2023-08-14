@@ -31,7 +31,7 @@ export interface Object3DExtPrototypeInternal extends Object3DExtPrototype {
 export interface Object3DExtPrototype {
     enabled: boolean; //TODO Handle default true
     interceptByRaycaster: boolean; // default true
-    objectsToRaycast: Object3D[]; //TODO handle hitbox
+    hitboxes: Object3D[];
     focusable: boolean; // default true
     draggable: boolean; // default false
     findDropTarget: boolean;

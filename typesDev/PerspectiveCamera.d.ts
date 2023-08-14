@@ -18,7 +18,7 @@ export class PerspectiveCamera extends PerspectiveCameraBase implements Object3D
     __onChangeBaseEuler: () => void;
     enabled: boolean;
     interceptByRaycaster: boolean;
-    objectsToRaycast: Object3D[];
+    hitboxes: Object3D[];
     focusable: boolean;
     draggable: boolean;
     findDropTarget: boolean;

@@ -15,7 +15,7 @@ export class Scene extends SceneBase implements Object3DExtPrototype, SceneExtPr
     focus(target?: Object3D): void;
     enabled: boolean;
     interceptByRaycaster: boolean;
-    objectsToRaycast: Object3D[];
+    hitboxes: Object3D[];
     focusable: boolean;
     draggable: boolean;
     findDropTarget: boolean;
