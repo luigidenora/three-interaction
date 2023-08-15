@@ -4,6 +4,8 @@ import { EventsCache } from "../Events/MiscEventsManager";
 import { activeSmartRendering, applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
 import { Binding } from "../Binding/Binding";
 import { FocusEventExt, IntersectionExt } from "../Events/Events";
+import { addBase } from "./Object3D";
+import { EventsDispatcher } from "../Events/EventsDispatcher";
 
 /** @internal */
 export interface SceneExtPrototypeInternal extends SceneExtPrototype {
@@ -64,6 +66,26 @@ Scene.prototype.focus = function (target?: Object3D): void {
         this.needsRender = true;
     }
 }
+
+Scene.prototype.add = function (object: Object3D) {
+    addBase.call(this, ...arguments);
+    if (arguments.length === 1 && object?.isObject3D && object !== this) {
+        setSceneReference(object, this);
+        this.needsRender = true;
+    }
+    return this;
+}
+
+Object.defineProperty(Scene.prototype, "userData", { // needed to inject code in constructor
+    set: function (value) {
+        this.__eventsDispatcher = new EventsDispatcher(this);
+        this.scene = this;
+        Object.defineProperty(this, "userData", {
+            value, writable: true, configurable: true
+        });
+    },
+    configurable: true
+})
 
 /** @internal */
 export function setSceneReference(target: Object3D, scene: Scene) {

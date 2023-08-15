@@ -212,17 +212,13 @@ Object3D.prototype.tween = function () {
     return new Tween(this);
 };
 
-const addBase = Object3D.prototype.add;
+/** @internal */
+export const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
     addBase.call(this, ...arguments);
-    if (arguments.length === 1 && object !== this && object?.isObject3D === true) {
-        if ((this as Scene).isScene === true) { //TODO provare ad isolare questa parte
-            this.scene = this as Scene;
-        }
-        if (this.scene !== undefined) {
-            setSceneReference(object, this.scene);
-            this.scene.needsRender = true;
-        }
+    if (arguments.length === 1 && object?.isObject3D && object !== this && this.scene) {
+        setSceneReference(object, this.scene);
+        this.scene.needsRender = true;
     }
     return this;
 };
