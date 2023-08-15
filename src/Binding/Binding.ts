@@ -41,16 +41,14 @@ export class Binding {
 
   private static createSetValue(key: string, target: Object3D, getValue: () => any, renderOnChange: boolean): (value: any) => void {
     if (renderOnChange === true) {
-      return () => {
-        const value = getValue();
+      return (value) => {
         if (value !== (target as any)[key]) {
           (target as any)[key] = value;
           target.needsRender = true;
         }
       };
     }
-    return () => {
-      const value = getValue();
+    return (value) => {
       if (value !== (target as any)[key]) {
         (target as any)[key] = value;
       }
