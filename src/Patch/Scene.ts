@@ -4,7 +4,7 @@ import { EventsCache } from "../Events/MiscEventsManager";
 import { activeSmartRendering, applySmartRenderingPatch, removeSmartRenderingPatch } from "./SmartRendering";
 import { Binding } from "../Binding/Binding";
 import { FocusEventExt, IntersectionExt } from "../Events/Events";
-import { addBase } from "./Object3D";
+import { addBase, removeBase } from "./Object3D";
 import { EventsDispatcher } from "../Events/EventsDispatcher";
 
 /** @internal */
@@ -68,13 +68,23 @@ Scene.prototype.focus = function (target?: Object3D): void {
 }
 
 Scene.prototype.add = function (object: Object3D) {
-    addBase.call(this, ...arguments);
+    addBase.call(this, ...(object as unknown as Object3D[]));
     if (arguments.length === 1 && object?.isObject3D && object !== this) {
         setSceneReference(object, this);
         this.needsRender = true;
     }
     return this;
 }
+
+Scene.prototype.remove = function (object: Object3D) {
+    if (arguments.length == 1 && this.children.indexOf(object) > -1) {
+        removeSceneReference(object);
+        this.needsRender = true;
+    }
+    removeBase.call(this, ...(object as unknown as Object3D[]));
+    return this;
+};
+
 
 Object.defineProperty(Scene.prototype, "userData", { // needed to inject code in constructor
     set: function (value) {

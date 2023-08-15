@@ -98,7 +98,7 @@ Object.defineProperty(Object3D.prototype, "enabled", {
 Object.defineProperty(Object3D.prototype, "firstFocusable", {
     get: function (this: Object3D) {
         let obj = this;
-        while (obj && !obj.focusable) {
+        while (!obj?.focusable) {
             obj = obj.parent;
         }
         return obj;
@@ -215,7 +215,7 @@ Object3D.prototype.tween = function () {
 /** @internal */
 export const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
-    addBase.call(this, ...arguments);
+    addBase.call(this, ...(object as unknown as Object3D[]));
     if (arguments.length === 1 && object?.isObject3D && object !== this && this.scene) {
         setSceneReference(object, this.scene);
         this.scene.needsRender = true;
@@ -223,14 +223,15 @@ Object3D.prototype.add = function (object: Object3D) {
     return this;
 };
 
-const removeBase = Object3D.prototype.remove;
+/** @internal */
+export const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
     if (arguments.length == 1 && this.children.indexOf(object) > -1) {
-        if (this.scene !== undefined) {
+        if (this.scene) {
             removeSceneReference(object);
             this.scene.needsRender = true;
         }
     }
-    removeBase.call(this, ...arguments);
+    removeBase.call(this, ...(object as unknown as Object3D[]));
     return this;
 };

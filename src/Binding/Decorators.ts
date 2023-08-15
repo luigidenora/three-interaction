@@ -9,7 +9,7 @@ import { Object3D } from 'three';
  * }
  * ```
  */
-export const Bind = (): Function =>
+export const Bind = () =>
   function (target: Object3D, key: string, descriptor: PropertyDescriptor) {
     if (descriptor.get !== undefined) {
       const base = descriptor.get;
@@ -19,14 +19,14 @@ export const Bind = (): Function =>
       delete descriptor.configurable;
       target.bindProperty(key as keyof Object3D, base);
     }
-  };
+  }
 
 /**
  * Decorator function that enables manual detection mode for a target object.
  */
-export const ManualDetection = (): Function => (constructor: typeof Object3D) => class Object3DManualDetection extends constructor {
+export const ManualDetection = () => (constructor: typeof Object3D) => class Object3DManualDetection extends constructor {
   constructor() {
     super();
     this.setManualDetectionMode();
   }
-};
+}
