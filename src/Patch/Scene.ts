@@ -77,7 +77,7 @@ Scene.prototype.add = function (object: Object3D) {
 }
 
 Scene.prototype.remove = function (object: Object3D) {
-    if (arguments.length == 1 && this.children.indexOf(object) > -1) {
+    if (arguments.length === 1 && this.children.indexOf(object) > -1) {
         removeSceneReference(object);
         this.needsRender = true;
     }

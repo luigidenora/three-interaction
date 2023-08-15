@@ -9,9 +9,9 @@ import { Object3D } from 'three';
  * }
  * ```
  */
-export const Bind = () =>
-  function (target: Object3D, key: string, descriptor: PropertyDescriptor) {
-    if (descriptor.get !== undefined) {
+export function Bind() {
+  return function (target: Object3D, key: string, descriptor: PropertyDescriptor) {
+    if (descriptor.get) {
       const base = descriptor.get;
       delete (target as any)[key];
       delete descriptor.get; // To avoid to auto define property after decorator
@@ -20,13 +20,11 @@ export const Bind = () =>
       target.bindProperty(key as keyof Object3D, base);
     }
   }
+}
 
 /**
  * Decorator function that enables manual detection mode for a target object.
  */
-export const ManualDetection = () => (constructor: typeof Object3D) => class Object3DManualDetection extends constructor {
-  constructor() {
-    super();
-    this.setManualDetectionMode();
-  }
+export function ManualDetection(target: typeof Object3D) {
+  target.prototype.__manualDetection = true;
 }

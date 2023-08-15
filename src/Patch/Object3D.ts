@@ -226,7 +226,7 @@ Object3D.prototype.add = function (object: Object3D) {
 /** @internal */
 export const removeBase = Object3D.prototype.remove;
 Object3D.prototype.remove = function (object: Object3D) {
-    if (arguments.length == 1 && this.children.indexOf(object) > -1) {
+    if (arguments.length === 1 && this.children.indexOf(object) > -1) {
         if (this.scene) {
             removeSceneReference(object);
             this.scene.needsRender = true;
