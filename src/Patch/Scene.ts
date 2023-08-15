@@ -68,7 +68,7 @@ Scene.prototype.focus = function (target?: Object3D): void {
 }
 
 Scene.prototype.add = function (object: Object3D) {
-    addBase.call(this, ...(object as unknown as Object3D[]));
+    addBase.call(this, ...arguments);
     if (arguments.length === 1 && object?.isObject3D && object !== this) {
         setSceneReference(object, this);
         this.needsRender = true;
@@ -81,7 +81,7 @@ Scene.prototype.remove = function (object: Object3D) {
         removeSceneReference(object);
         this.needsRender = true;
     }
-    removeBase.call(this, ...(object as unknown as Object3D[]));
+    removeBase.call(this, ...arguments);
     return this;
 };
 

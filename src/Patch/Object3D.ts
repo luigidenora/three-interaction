@@ -215,7 +215,7 @@ Object3D.prototype.tween = function () {
 /** @internal */
 export const addBase = Object3D.prototype.add;
 Object3D.prototype.add = function (object: Object3D) {
-    addBase.call(this, ...(object as unknown as Object3D[]));
+    addBase.call(this, ...arguments);
     if (arguments.length === 1 && object?.isObject3D && object !== this && this.scene) {
         setSceneReference(object, this.scene);
         this.scene.needsRender = true;
@@ -232,6 +232,6 @@ Object3D.prototype.remove = function (object: Object3D) {
             this.scene.needsRender = true;
         }
     }
-    removeBase.call(this, ...(object as unknown as Object3D[]));
+    removeBase.call(this, ...arguments);
     return this;
 };
