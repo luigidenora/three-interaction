@@ -48,12 +48,12 @@ export interface Object3DExtPrototype {
     get firstFocusable(): Object3D;
     applyFocus(): void;
     applyBlur(): void;
-    on<K extends keyof Events>(type: K | K[], listener: (args?: Events[K]) => void): (args?: Events[K]) => void;
-    hasEvent<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): boolean;
-    off<K extends keyof Events>(type: K, listener: (args?: Events[K]) => void): void;
-    trigger<K extends keyof Events>(type: K, args?: Events[K]): void;
+    on<K extends keyof Events>(type: K | K[], listener: (event?: Events[K]) => void): (event?: Events[K]) => void;
+    hasEvent<K extends keyof Events>(type: K, listener: (event?: Events[K]) => void): boolean;
+    off<K extends keyof Events>(type: K, listener: (event?: Events[K]) => void): void;
+    trigger<K extends keyof Events>(type: K, event?: Events[K]): void;
     /** Works only with InteractionEvents */
-    triggerAncestor<K extends keyof Events>(type: K, args?: Events[K]): void;
+    triggerAncestor<K extends keyof Events>(type: K, event?: Events[K]): void;
     setManualDetectionMode(): void;
     detectChanges(recursive?: boolean): void;
     bindProperty<T extends keyof this>(property: T, getCallback: () => this[T], renderOnChange?: boolean): this;
@@ -125,9 +125,9 @@ Object.defineProperty(Object3D.prototype, "needsRender", {
     }
 });
 
-Object3D.prototype.on = function (this: Object3D, types: any, listener) {
+Object3D.prototype.on = function <K extends keyof Events>(this: Object3D, types: K | K[], listener: (event: Events[K]) => void): (event: Events[K]) => void {
     if (typeof (types) === "string") {
-        return this.__eventsDispatcher.add(types as any, listener);
+        return this.__eventsDispatcher.add(types, listener);
     }
     for (const type of types) {
         this.__eventsDispatcher.add(type, listener);
@@ -135,20 +135,20 @@ Object3D.prototype.on = function (this: Object3D, types: any, listener) {
     return listener;
 };
 
-Object3D.prototype.hasEvent = function (type: any, listener) {
+Object3D.prototype.hasEvent = function <K extends keyof Events>(type: K, listener: (event: Events[K]) => void): boolean {
     return this.__eventsDispatcher.has(type, listener);
 }
 
-Object3D.prototype.off = function (type: any, listener) {
+Object3D.prototype.off = function <K extends keyof Events>(type: K, listener: (event: Events[K]) => void): void {
     this.__eventsDispatcher.remove(type, listener);
 }
 
-Object3D.prototype.trigger = function (type: any, args) {
-    this.__eventsDispatcher.dispatchDOM(type, args);
+Object3D.prototype.trigger = function <T extends keyof Events>(type: T, event?: Events[T]): void {
+    this.__eventsDispatcher.dispatchManual(type, event);
 }
 
-Object3D.prototype.triggerAncestor = function (type: any, args) {
-    this.__eventsDispatcher.dispatchDOMAncestor(type, args);
+Object3D.prototype.triggerAncestor = function <T extends keyof Events>(type: T, event?: Events[T]): void {
+    this.__eventsDispatcher.dispatchAncestorManual(type, event);
 }
 
 Object.defineProperty(Object3D.prototype, "userData", { // needed to inject code in constructor
