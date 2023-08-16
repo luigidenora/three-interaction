@@ -18,7 +18,7 @@ export class DistinctTargetArray<T extends Object3D = Object3D> {
     public remove(target: T): void {
         if (this.has(target)) {
             const index = this.data.indexOf(target);
-            if (index !== -1) {
+            if (index > -1) {
                 this.data.splice(index, 1);
             }
             this._set.delete(target.id);
@@ -26,7 +26,7 @@ export class DistinctTargetArray<T extends Object3D = Object3D> {
     }
 
     public clear(): void {
-        this._set = new Set(); //or this._set.clear(); todo check performance
+        this._set.clear();
         this.data = [];
     }
 }

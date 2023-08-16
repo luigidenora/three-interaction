@@ -10,14 +10,12 @@ export * from './Events/InteractionEventsQueue';
 export * from './Events/MiscEventsManager';
 export * from './Events/RaycasterManager';
 
-export * from './Objects/BubbleMaterial';
-export * from './Objects/InstancedMesh';
+export * from './Objects/InstancedMesh2';
 export * from './Objects/InstancedMeshSingle';
 export * from './Objects/Line2';
 export * from './Objects/LinkedLine';
-export * from './Objects/LoadingMaterial';
-export * from './Objects/OrthographicCamera';
-export * from './Objects/PerspectiveCamera';
+export * from './Objects/OrthographicCamera2';
+export * from './Objects/PerspectiveCamera2';
 
 export * from './Core/Main';
 
@@ -32,6 +30,11 @@ export * from './Patch/WebGLRenderer';
 export * from './Rendering/RenderManager';
 export * from './Rendering/RenderView';
 
-export * from './Utils/Animation';
+export * from './Tweening/Actions';
+export * from './Tweening/Easings';
+export * from './Tweening/Tween';
+export * from './Tweening/TweenManager';
+export * from './Tweening/RunningTween';
+
 export * from './Utils/DistinctTargetArray';
 export * from './Utils/Stats';

@@ -60,6 +60,7 @@ const cursorSet = new Set([
 
 export type Cursor = keyof Cursors | String;
 
+/** @internal */
 export class CursorHandler {
     public enabled = true;
     private _cursor: Cursor;
@@ -69,19 +70,9 @@ export class CursorHandler {
         this._domElement = domElement;
     }
 
-    public update(objDragged: Object3D, objHovered: Object3D): void {
+    public update(objDragged: Object3D, objHovered: Object3D, objDropTarget: Object3D): void {
         if (!this.enabled) return;
-
-        let cursor: Cursor;
-        if (objDragged) {
-            cursor = objHovered.cursorOnDrag ?? "grabbing";
-        } else if (objHovered) {
-            //TODO drop target
-            cursor = objHovered.cursor ?? (objHovered.enabled ? (objHovered.draggable ? "grab" : "pointer") : "default");
-        } else {
-            cursor = "default";
-        }
-
+        const cursor = this.getCursor(objDragged, objHovered, objDropTarget);
         if (cursor !== this._cursor) {
             this._cursor = cursor;
             if (cursorSet.has(cursor as string)) {
@@ -91,4 +82,16 @@ export class CursorHandler {
             }
         }
     }
+
+    private getCursor(objDragged: Object3D, objHovered: Object3D, objDropTarget: Object3D): Cursor {
+        if (objDropTarget) return objDropTarget.cursorDrop ?? "alias";
+        if (objDragged) return objDragged.cursorDrag ?? "grabbing";
+        if (objHovered) {
+            if (objHovered.cursor) return objHovered.cursor;
+            if (!objHovered.enabledUntilParent) return "default";
+            return objHovered.draggable ? "grab" : "pointer";
+        }
+        return "default";
+    }
+
 }

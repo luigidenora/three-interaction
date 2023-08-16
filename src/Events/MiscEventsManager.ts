@@ -1,11 +1,11 @@
 import { Camera, Object3D, Scene } from "three";
-import { Events } from "./Events";
+import { Events, MiscEvents } from "./Events";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 
 type SceneEventsCache = { [x: string]: DistinctTargetArray };
 
 export class EventsCache {
-   private static _allowedEventsSet = new Set(["rendererresize", "beforeanimate", "animate", "afteranimate"] as (keyof Events)[]);
+   private static _allowedEventsSet = new Set<keyof Events>(["rendererresize", "beforeanimate", "animate", "afteranimate"] as (keyof MiscEvents)[]);
    private static _events: { [x: number]: SceneEventsCache } = {};
 
    public static push(type: keyof Events, target: Object3D): void {
@@ -34,10 +34,9 @@ export class EventsCache {
       eventCache.push(target);
    }
 
-   //TODO chiama after remove event listner
-   public static remove(target: Object3D, scene: Scene): void {
-      const sceneCache = this._events[scene?.id];
-      if (sceneCache !== undefined) {
+   public static removeAll(target: Object3D): void {
+      const sceneCache = this._events[target.scene?.id];
+      if (sceneCache) {
          for (const key in sceneCache) {
             const eventCache = sceneCache[key];
             eventCache.remove(target);
@@ -45,21 +44,28 @@ export class EventsCache {
       }
    }
 
-   public static dispatchEvent<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
+   public static remove(type: keyof Events, target: Object3D): void {
+      const sceneCache = this._events[target.scene?.id];
+      if (sceneCache) {
+         sceneCache[type]?.remove(target);
+      }
+   }
+
+   public static dispatchEvent<K extends keyof MiscEvents>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache?.[type]) {
          for (const target of sceneCache[type].data) {
-            target.__eventsDispatcher.dispatchEvent(type, event);
+            target.__eventsDispatcher.dispatch(type, event);
          }
       }
    }
 
-   public static dispatchEventExcludeCameras<K extends keyof Events>(scene: Scene, type: K, event?: Events[K]): void {
+   public static dispatchEventExcludeCameras<K extends keyof MiscEvents>(scene: Scene, type: K, event?: Events[K]): void {
       const sceneCache = this._events[scene?.id];
       if (sceneCache?.[type]) {
          for (const target of sceneCache[type].data) {
             if ((target as Camera).isCamera !== true) {
-               target.__eventsDispatcher.dispatchEvent(type, event);
+               target.__eventsDispatcher.dispatch(type, event);
             }
          }
       }

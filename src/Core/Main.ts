@@ -1,84 +1,76 @@
-import { Camera, Clock, Color, Scene, WebGLRenderer, WebGLRendererParameters } from "three";
-import { Stats } from "../Utils/Stats";
-import { InteractionManager } from "../Events/InteractionManager";
-import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
-import { EventsCache } from "../Events/MiscEventsManager";
-import { RenderManager } from "../Rendering/RenderManager";
+import { Camera, Clock, ColorRepresentation, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Binding } from "../Binding/Binding";
+import { InteractionManager } from "../Events/InteractionManager";
+import { EventsCache } from "../Events/MiscEventsManager";
+import { RenderManager } from "../Rendering/RenderManager";
+import { RenderView, ViewParameters } from "../Rendering/RenderView";
+import { TweenManager } from "../Tweening/TweenManager";
+import { Stats } from "../Utils/Stats";
+import { RaycasterSortComparer } from "../Events/RaycasterManager";
 
 export interface MainParameters {
     fullscreen?: boolean;
-    scenes?: Scene[];
-    animate?: XRFrameRequestCallback;
     showStats?: boolean;
     disableContextMenu?: boolean;
-    backgroundColor?: Color | number;
+    backgroundColor?: ColorRepresentation;
     backgroundAlpha?: number;
-    // raycasting frequency
-    // fps?: number;
+    animate?: XRFrameRequestCallback;
+    rendererParameters?: WebGLRendererParameters;
+    enableCursor?: boolean;
 }
 
 export class Main {
     public static ticks = 0;
-    public renderer: WebGLRenderer;
     public renderManager: RenderManager;
-    public interactionManager: InteractionManager;
-    public _stats: Stats;
-    public scenes: Scene[] = [];
+    private _interactionManager: InteractionManager;
+    private _stats: Stats;
     private _animate: XRFrameRequestCallback;
     private _clock = new Clock();
     private _showStats: boolean;
 
-    public get activeScene(): Scene { return this.renderManager.activeView.scene };
-    public get activeCamera(): Camera { return this.renderManager.activeView.camera };
-    public get activeComposer(): EffectComposer { return this.renderManager.activeView.composer };
+    public get renderer(): WebGLRenderer { return this.renderManager.renderer }
+    public get views(): RenderView[] { return this.renderManager.views }
+    public get activeView(): RenderView { return this.renderManager.activeView }
+    public get activeScene(): Scene { return this.renderManager.activeView?.scene }
+    public get activeCamera(): Camera { return this.renderManager.activeView?.camera }
+    public get activeComposer(): EffectComposer { return this.renderManager.activeView?.composer }
 
     public get showStats(): boolean { return this._showStats }
     public set showStats(value: boolean) {
         if (value === true) {
-            if (this._stats === undefined) this._stats = new Stats();
+            if (!this._stats) this._stats = new Stats();
             document.body.appendChild(this._stats.dom);
-        } else if (this._stats !== undefined) {
+        } else if (this._stats) {
             document.body.removeChild(this._stats.dom);
         }
         this._showStats = value;
     }
 
-    public get backgroundColor(): Color | number { return this.renderManager.backgroundColor }
-    public set backgroundColor(value: Color | number) { this.renderManager.backgroundColor = value }
+    public get enableCursor(): boolean { return this._interactionManager.cursorManager.enabled }
+    public set enableCursor(value: boolean) { this._interactionManager.cursorManager.enabled = value }
+
+    public get raycasterSortComparer(): RaycasterSortComparer { return this._interactionManager.raycasterManager.raycasterSortComparer }
+    public set raycasterSortComparer(value: RaycasterSortComparer) { this._interactionManager.raycasterManager.raycasterSortComparer = value }
+
+    public get backgroundColor(): ColorRepresentation { return this.renderManager.backgroundColor }
+    public set backgroundColor(value: ColorRepresentation) { this.renderManager.backgroundColor = value }
 
     public get backgroundAlpha(): number { return this.renderManager.backgroundAlpha }
     public set backgroundAlpha(value: number) { this.renderManager.backgroundAlpha = value }
 
-    constructor(parameters: MainParameters = {}, rendererParameters: WebGLRendererParameters = {}) {
-        this.initRenderer(rendererParameters, parameters.fullscreen);
-        this.interactionManager = new InteractionManager(this.renderManager);
-        this.appendCanvas(rendererParameters);
+    public get mousePosition(): Vector2 { return this._interactionManager.raycasterManager.pointer }
+
+    constructor(parameters: MainParameters = {}) {
+        this.renderManager = new RenderManager(parameters.rendererParameters, parameters.fullscreen);
+        this._interactionManager = new InteractionManager(this.renderManager);
         this.handleContextMenu(parameters.disableContextMenu);
         this.showStats = parameters.showStats ?? true;
-        if (parameters.scenes !== undefined) {
-            this.addScene(...parameters.scenes);
-        }
         this.setAnimationLoop();
         this.backgroundColor = parameters.backgroundColor ?? 0x000000;
         this.backgroundAlpha = parameters.backgroundAlpha ?? 1;
+        this.enableCursor = parameters.enableCursor ?? true;
         this._animate = parameters.animate;
-
-        // setInterval(() => { this.interactionManager.needsUpdate = true }, 1000 / 20); //TODO in future
-    }
-
-    private initRenderer(rendererParameters: WebGLRendererParameters, fullscreen = true): void {
-        this.renderer = new WebGLRenderer(rendererParameters);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        applyWebGLRendererPatch(this.renderer);
-        this.renderManager = new RenderManager(this.renderer, fullscreen);
-    }
-
-    private appendCanvas(rendererParameters: WebGLRendererParameters): void {
-        if (rendererParameters.canvas === undefined) {
-            document.body.appendChild(this.renderer.domElement);
-        }
     }
 
     private handleContextMenu(disableContextMenu = true): void {
@@ -87,41 +79,34 @@ export class Main {
         }
     }
 
-    public addScene(...scene: Scene[]): void {
-        this.scenes.push(...scene);
-        if (this.renderManager.views.length === 0 && this.renderManager.__defaultView === undefined) {  //TODO documenta
-            for (const obj of scene[0].children) {
-                if ((obj as Camera).isCamera === true) {
-                    this.createDefaultRenderView(scene[0], obj as Camera);
-                    break;
-                }
-            }
-        }
-    }
-
     private setAnimationLoop(): void {
         this.renderer.setAnimationLoop((time, frame) => {
             Main.ticks++;
+            const currentDelta = this._clock.getDelta();
 
-            this.interactionManager.update();
+            this._interactionManager.update();
+            TweenManager.update(currentDelta * 1000);
 
             this.animate(time, frame);
 
-            const delta = this._clock.getDelta();
-            const total = this._clock.getElapsedTime();
+            let rendered = false;
+            const visibleScenes = this.renderManager.getVisibleScenes();
 
-            const visibleScenes = this.renderManager.getVisibleScenes() ?? [this.activeScene];
-            for (const scene of visibleScenes) {
-                EventsCache.dispatchEvent(scene, "beforeanimate", { delta, total });
-                EventsCache.dispatchEvent(scene, "animate", { delta, total });
-                EventsCache.dispatchEvent(scene, "afteranimate", { delta, total });
-                Binding.compute(scene);
-            }
+            if (visibleScenes !== undefined) {
+                for (const scene of visibleScenes) {
+                    const delta = currentDelta * scene.timeScale;
+                    const total = scene.totalTime += delta;
+                    EventsCache.dispatchEvent(scene, "beforeanimate", { delta, total });
+                    EventsCache.dispatchEvent(scene, "animate", { delta, total });
+                    EventsCache.dispatchEvent(scene, "afteranimate", { delta, total });
+                    Binding.compute(scene);
+                }
 
-            const rendered = this.renderManager.render();
+                rendered = this.renderManager.render();
 
-            for (const scene of visibleScenes) {
-                scene.__needsRender = !scene.__smartRendering;
+                for (const scene of visibleScenes) {
+                    scene.needsRender = !scene.__smartRendering;
+                }
             }
 
             if (this._showStats === true) {
@@ -136,11 +121,35 @@ export class Main {
         }
     }
 
-    /**
-     * Se non ci sono view TODO
-     */
-    public createDefaultRenderView(scene: Scene, camera: Camera, composer?: EffectComposer): void {
-        this.renderManager.createDefaultRenderView(scene, camera, composer);
+    public createView(view: ViewParameters): RenderView {
+        return this.renderManager.create(view);
     }
 
+    public addView(view: RenderView): void {
+        this.renderManager.add(view);
+    }
+
+    public getViewByTag(tag: string): RenderView {
+        return this.renderManager.getByTag(tag);
+    }
+
+    public removeView(view: RenderView): void {
+        this.renderManager.remove(view);
+    }
+
+    public removeViewByTag(tag: string): void {
+        this.renderManager.removeByTag(tag);
+    }
+
+    public clearViews(): void {
+        this.renderManager.clear();
+    }
+
+    public getViewByMouse(mouse: Vector2): void {
+        this.renderManager.getViewByMouse(mouse);
+    }
+
+    public setActiveViewsByTag(tag: string): void {
+        this.renderManager.setActiveViewsByTag(tag);
+    }
 }

@@ -1,7 +1,8 @@
-import { Camera, Color, Scene, Vector2, WebGLRenderer } from "three";
-import { RenderView, ViewParameters } from "./RenderView";
+import { Camera, Color, ColorRepresentation, Scene, Vector2, WebGLRenderer, WebGLRendererParameters } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { applyWebGLRendererPatch } from "../Patch/WebGLRenderer";
 import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
+import { RenderView, ViewParameters } from "./RenderView";
 
 /**
  * The RenderManager class manages the rendering of views and provides methods for manipulating views and their parameters.
@@ -9,97 +10,94 @@ import { DistinctTargetArray } from "../Utils/DistinctTargetArray";
 export class RenderManager {
   public renderer: WebGLRenderer;
   public views: RenderView[] = [];
-  private _activeView: RenderView;
-  /** @internal */ public __defaultView: RenderView;
+  public activeView: RenderView;
+  public hoveredView: RenderView;
   private _visibleScenes = new DistinctTargetArray<Scene>();
   private _rendererSize = new Vector2();
-  private _fullscreen: boolean; // TODO editable?
+  private _fullscreen: boolean;
   private _backgroundColor: Color;
   private _backgroundAlpha: number;
 
-  public get activeView(): RenderView { return this.views.length > 0 ? this._activeView : this.__defaultView }
+  public get activeScene(): Scene { return this.activeView?.scene }
 
-  /** todo */
+  public get fullscreen(): boolean { return this._fullscreen }
+  public set fullscreen(value: boolean) {
+    this._fullscreen = value;
+    this.updateRenderSize();
+  }
+
   public get backgroundColor(): Color { return this._backgroundColor }
-  public set backgroundColor(value: Color | number) {
-    this._backgroundColor = typeof value === "number" ? new Color(value) : value;
+  public set backgroundColor(value: ColorRepresentation) {
+    this._backgroundColor = new Color(value);
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   }
 
-  /** todo */
   public get backgroundAlpha(): number { return this._backgroundAlpha }
   public set backgroundAlpha(value: number) {
     this._backgroundAlpha = value;
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   }
 
-  /**
-   * @param renderer - The WebGL renderer used for rendering.
-   * @param fullscreen - Flag indicating whether fullscreen rendering is enabled.
-   * @param backgroundColor - The background color for rendering. Default is 0x000000 (black).
-   * @param backgroundAlpha - The background alpha value for rendering. Default is 1 (fully opaque).
-   */
-  constructor(renderer: WebGLRenderer, fullscreen: boolean, backgroundColor: Color | number = 0x000000, backgroundAlpha = 1) {
-    this.renderer = renderer;
+  constructor(parameters: WebGLRendererParameters = {}, fullscreen = true, backgroundColor: ColorRepresentation = 0x000000, backgroundAlpha = 1) {
+    this.renderer = new WebGLRenderer(parameters);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    applyWebGLRendererPatch(this.renderer);
+    this.appendCanvas(parameters);
     this._fullscreen = fullscreen;
     this._backgroundAlpha = backgroundAlpha;
-    this._backgroundColor = typeof backgroundColor === "number" ? new Color(backgroundColor) : backgroundColor;
+    this._backgroundColor = new Color(backgroundColor);
     window.addEventListener("resize", this.onResize.bind(this));
     this.updateRenderSize();
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   }
 
-  /** 
-   * Adds a view.
-   */
-  public add(view: ViewParameters): RenderView {
+  private appendCanvas(rendererParameters: WebGLRendererParameters): void {
+    if (rendererParameters.canvas === undefined) {
+      document.body.appendChild(this.renderer.domElement);
+    }
+  }
+
+  public create(view: ViewParameters): RenderView {
     const renderView = new RenderView(view, this._rendererSize);
     this.views.push(renderView);
     return renderView;
   }
 
-  /**
-   * Retrieves a view by its name.
-   */
-  public getByName(name: string): RenderView {
+  public add(view: RenderView): void {
+    if (this.views.indexOf(view) > -1) return;
+    this.views.push(view);
+  }
+
+  public getByTag(tag: string): RenderView {
     for (const view of this.views) {
-      if (view.name === name) {
+      if (view.tags.indexOf(tag) > -1) {
         return view;
       }
     }
   }
 
-  /**
-   * Removes a view.
-   */
   public remove(view: RenderView): void {
     const index = this.views.indexOf(view);
-    if (index !== -1) {
+    if (index > -1) {
       this.views.splice(index, 1);
+      if (this.views.length === 0) {
+        this.setDefaultRendererParameters();
+      }
+    }
+  }
+
+  public removeByTag(tag: string): void {
+    if (this.views.length === 0) return;
+    for (let i = this.views.length - 1; i >= 0; i--) {
+      if (this.views[i].tags.indexOf(tag) > -1) {
+        this.views.splice(i, 1);
+      }
     }
     if (this.views.length === 0) {
       this.setDefaultRendererParameters();
     }
   }
 
-  /**
-   * Removes a view by its name.
-   */
-  public removeByName(name: string): void {
-    for (let i = 0; i < this.views.length; i++) {
-      if (this.views[i].name === name) {
-        this.views.splice(i, 1);
-        if (this.views.length === 0) {
-          this.setDefaultRendererParameters();
-        }
-        return;
-      }
-    }
-  }
-
-  /**
-   * Removes all views.
-   */
   public clear(): void {
     this.views = [];
     this.setDefaultRendererParameters();
@@ -112,9 +110,6 @@ export class RenderManager {
     this.renderer.setClearColor(this._backgroundColor, this._backgroundAlpha);
   }
 
-  /**
-   * Returns an array of visible scenes. CACHE
-   */
   public getVisibleScenes(): Scene[] {
     if (this.views.length === 0) return undefined;
     this._visibleScenes.clear();
@@ -126,16 +121,13 @@ export class RenderManager {
     return this._visibleScenes.data;
   }
 
-  /**
-   * Updates the active view based on the mouse position.
-   */
   public updateActiveView(mouse: Vector2): void {
-    this._activeView = this.getViewByMouse(mouse);
+    this.hoveredView = this.getViewByMouse(mouse);
+    if (this.hoveredView) {
+      this.activeView = this.hoveredView;
+    }
   }
 
-  /**
-   * Retrieves the view based on the mouse position.
-   */
   public getViewByMouse(mouse: Vector2): RenderView {
     for (let i = this.views.length - 1; i >= 0; i--) {
       const view = this.views[i];
@@ -146,35 +138,30 @@ export class RenderManager {
     }
   }
 
-  /**
-   * Performs rendering.
-   * If there are active views, each view is rendered individually.
-   * If there are no active views, the scene is rendered using the provided scene and camera.
-   */
-  public render(): boolean {
-    let rendered = false;
-    if (this.views.length > 0) {
-      for (const view of this.views) {
-        if (view.visible === true && view.scene.__needsRender === true) {
-          const v = view.computedViewport;
-          this.renderer.setScissorTest(view.viewport !== undefined);
-          this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
-          this.renderer.setScissor(v.left, v.bottom, v.width, v.height);
-          this.renderer.setClearColor(view.backgroundColor ?? this._backgroundColor, view.backgroundAlpha ?? this._backgroundAlpha);
-          view.onBeforeRender();
-          this.executeRender(view.scene, view.camera, view.composer);
-          view.onAfterRender();
-          rendered ||= true;
-        }
-      }
-    } else {
-      const scene = this.__defaultView.scene;
-      if (scene.__needsRender === true) {
-        this.executeRender(this.__defaultView.scene, this.__defaultView.camera);
-        rendered ||= true;
+  private isRenderNecessary(): boolean {
+    for (const view of this.views) {
+      if (view.visible === true && view.scene.needsRender === true) {
+        return true;
       }
     }
-    return rendered;
+    return false;
+  }
+
+  public render(): boolean {
+    if (!this.isRenderNecessary()) return false;
+    for (const view of this.views) {
+      if (view.visible === true) {
+        const v = view.computedViewport;
+        this.renderer.setScissorTest(view.viewport !== undefined);
+        this.renderer.setViewport(v.left, v.bottom, v.width, v.height);
+        this.renderer.setScissor(v.left, v.bottom, v.width, v.height);
+        this.renderer.setClearColor(view.backgroundColor ?? this._backgroundColor, view.backgroundAlpha ?? this._backgroundAlpha);
+        view.onBeforeRender();
+        this.executeRender(view.scene, view.camera, view.composer);
+        view.onAfterRender();
+      }
+    }
+    return true;
   }
 
   private executeRender(scene?: Scene, camera?: Camera, composer?: EffectComposer): void {
@@ -187,15 +174,13 @@ export class RenderManager {
 
   private onResize(): void {
     this.updateRenderSize();
-    this.__defaultView?.update();
-
     for (const view of this.views) {
       view.update();
     }
   }
 
   private updateRenderSize(): void {
-    if (this._fullscreen === true) {
+    if (this._fullscreen) {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     } else {
       const { width, height } = this.renderer.domElement.getBoundingClientRect();
@@ -204,10 +189,9 @@ export class RenderManager {
     this.renderer.getSize(this._rendererSize);
   }
 
-  public createDefaultRenderView(scene: Scene, camera: Camera, composer?: EffectComposer) {
-    this.__defaultView = new RenderView({ scene, camera, composer }, this._rendererSize);
+  public setActiveViewsByTag(tag: string): void {
+    for (const view of this.views) {
+      view.visible = view.tags.indexOf(tag) > -1;
+    }
   }
-
-  //TODO metodo per settare unica scena visibile
-
 }

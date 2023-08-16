@@ -2,28 +2,27 @@ import { Object3D } from "three";
 
 /** @internal */
 export function applyQuaternionPatch(target: Object3D): void {
-    (target as any).__onChangeCallbackBase = target.quaternion._onChangeCallback;
-    if (target.scene === undefined) return;
-    if (target.scene.__smartRendering === true) {
-        setQuaternionSmartRenderingChangeCallback(target);
+    target.__onChangeBaseQuat = target.quaternion._onChangeCallback;
+    if (target.scene?.__smartRendering === true) {
+        setQuatChangeCallbackSR(target);
     } else {
-        setQuaternionDefaultChangeCallback(target);
+        setQuatChangeCallback(target);
     }
 }
 
 /** @internal */
-export function setQuaternionSmartRenderingChangeCallback(target: Object3D): void {
+export function setQuatChangeCallback(target: Object3D): void {
     target.quaternion._onChangeCallback = () => {
-        (target as any).__onChangeCallbackBase();
-        target.scene.__needsRender = true;
-        target.__eventsDispatcher.dispatchEvent("rotationchange");
+        target.__onChangeBaseQuat();
+        target.__eventsDispatcher.dispatch("rotationchange");
     };
 }
 
 /** @internal */
-export function setQuaternionDefaultChangeCallback(target: Object3D): void {
+export function setQuatChangeCallbackSR(target: Object3D): void {
     target.quaternion._onChangeCallback = () => {
-        (target as any).__onChangeCallbackBase();
-        target.__eventsDispatcher.dispatchEvent("rotationchange");
+        target.__onChangeBaseQuat();
+        target.needsRender = true;
+        target.__eventsDispatcher.dispatch("rotationchange");
     };
 }

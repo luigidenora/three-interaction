@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
-		"module": "ES2015",
-		"target": "ES2015",
+		"module": "ES2020",
+		"target": "ES2020",
 		"strict": true,
 		"noImplicitOverride": true,
 		"declaration": true,
@@ -10,16 +10,17 @@
 		"outDir": "build",
 		"esModuleInterop": true,
 		"experimentalDecorators": true,
+		"noImplicitAny": false,
 		"paths": {
 			"three": [
-				"./types/three.d.ts"
+				"./typesDev/index.d.ts"
 			],
 			"three/examples/jsm/lines/Line2": [
-				"./types/Line2.d.ts"
+				"./typesDev/Line2.d.ts"
 			]
 		}
 	},
 	"include": [
 		"src/**/*.ts"
-	],
+	]
 }
