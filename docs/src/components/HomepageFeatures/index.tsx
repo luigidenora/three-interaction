@@ -4,83 +4,67 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  Svg?: React.ComponentType<React.ComponentProps<'svg'>>;
   description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy Event Binding',
-    Svg: require('@site/static/img/undraw_japan_ubgk.svg').default,
+    title: 'Events',
     description: (
       <>
-        Three-Interaction simplifies event binding, allowing developers to easily associate events with specific
-        actions. The intuitive API enables seamless event management and accelerates the development process.
+        Introduces a comprehensive event system designed to enhance interactivity within your 3D scenes. This includes a
+        range of events inspired by DOM-like interactions, making it intuitive for developers familiar with web
+        development. Additionally, Three-Keko offers a variety of specialized events tailored for 3D environments,
+        providing the tools needed to create captivating user experiences.
       </>
     ),
   },
   {
-    title: 'Smart Rendering Optimization',
-    Svg: require('@site/static/img/undraw_smart_resize_re_q4mo.svg').default,
+    title: 'Binding',
     description: (
       <>
-        Three-Interaction includes a smart rendering system that optimizes performance by dynamically adjusting
-        rendering based on scene changes and user interactions. Enjoy smooth and responsive rendering in your Three.js
-        projects.
+        Simplify your code structure with the powerful binding capabilities of Three-Keko. Bind properties of different
+        objects together, ensuring they stay synchronized without the need for manual updates. This feature is
+        particularly useful for creating dynamic relationships between different elements in your scene.
       </>
     ),
   },
   {
     title: 'Customizable Raycasting',
-    Svg: require('@site/static/img/undraw_advanced_customization_re_wo6h.svg').default,
     description: (
       <>
-        With Three-Interaction, developers have powerful control over raycasting. Precisely detect intersections between
-        rays and scene objects, enabling advanced interactions like object selection and position-based behaviors.
+        Three-Keko offers a customizable raycasting feature, empowering you to project rays within your 3D scene to
+        identify object intersections. This versatile functionality is indispensable for implementing diverse
+        interactive mechanics such as object selection, targeting, and more.{' '}
       </>
     ),
   },
   {
-    title: 'Efficient Hitbox Usage',
-    Svg: require('@site/static/img/undraw_breaking_barriers_vnf3.svg').default,
+    title: 'Smart Rendering',
+    description: <>Executes rendering operations exclusively when required, minimizing unnecessary updates.</>,
+  },
+  {
+    title: 'Hitbox',
     description: (
       <>
-        Three-Interaction simplifies collision detection and event handling through hitboxes. Easily associate hitboxes
-        with objects in the scene for accurate collision detection and seamless interaction based on object positions.
+        The Hitbox feature simplifies intersection calculations by employing geometries with fewer vertices, effectively
+        reducing computational complexity.
       </>
     ),
   },
   {
-    title: 'Focus Control for Enhanced Interaction',
-    Svg: require('@site/static/img/undraw_to_the_moon_re_q21i.svg').default,
-    description: (
-      <>
-        Take advantage of Three-Interaction's built-in focus system to manage object focus in the scene. Enable features
-        like keyboard navigation, object selection, and focused interaction on specific elements for a rich user
-        experience.
-      </>
-    ),
+    title: 'Focus',
+    description: <>Implement focus and blur control in your 3D scenes.</>,
   },
   {
-    title: 'Simplified Drag and Drop',
-    Svg: require('@site/static/img/undraw_visionary_technology_re_jfp7.svg').default,
-    description: (
-      <>
-        Three-Interaction provides an intuitive implementation of drag and drop functionality within the Three.js
-        environment. Easily configure draggable objects and define drop areas, enhancing user interaction with scene
-        elements.
-      </>
-    ),
+    title: 'Drag and Drop',
+    description: <>Facilitating object dragging and dropping onto designated drop targets.</>,
   },
   {
-    title: 'Flexible Droptarget Integration',
-    Svg: require('@site/static/img/undraw_fast_re_lywu.svg').default,
+    title: 'Tween',
     description: (
-      <>
-        Three-Interaction's droptarget module enables seamless integration of specific drop targets for drag and drop
-        interactions. Create complex environments with defined interaction zones, opening up possibilities for engaging
-        applications.
-      </>
+      <>Enabling the creation of animations with ease, the Tween feature simplifies the process of animating objects.</>
     ),
   },
 ];
@@ -88,9 +72,6 @@ const FeatureList: FeatureItem[] = [
 function Feature({ title, Svg, description }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>
         <p>{description}</p>

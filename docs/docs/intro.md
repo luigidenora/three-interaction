@@ -4,23 +4,42 @@ sidebar_position: 1
 
 # Tutorial Intro
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Let's discover **Three Keko**.
 
 ## Getting Started
 
-Get started by **creating a new site**.
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+```bash
+npm install @ag-three/interaction
+```
+
+Get started by **creating a new application**.
+
+The application's core is the main class, which handles the renderer and other settings. It is responsible for initializing, updating and rendering the application components.
 
 ### What you'll need
 
 - [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
+
   - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
 
-## Generate a new site
+- [Three.js](https://threejs.org/): version 0.155.0 or above
 
-<iframe height="600px" width="100%" src="https://stackblitz.com/edit/vitejs-vite-erltqp?embed=1&file=src%2Fmain.ts&hideDevTools=1&hideExplorer=1&hideNavigation=1&terminalHeight=0"></iframe>
+  - Three.js is a JavaScript library for creating 3D graphics on the web. It is lightweight, and cross-browser compatible.
 
+- if use [TypeScript](https://www.typescriptlang.org/), you need to add in your tsconfig.json this paths in compilerOptions:
+
+```json
+		"paths": {
+			"three": [
+				"./node_modules/@ag-three/interaction/Types"
+			]
+		}
+```
+
+## Let's start
+
+<iframe height="600px" width="100%" src="https://stackblitz.com/edit/vitejs-vite-x96mgz?embed=1&file=src%2Fmain.ts&hideExplorer=1&hideNavigation=1"></iframe>
 
 You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
 
